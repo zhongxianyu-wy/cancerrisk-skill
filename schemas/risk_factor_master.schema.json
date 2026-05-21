@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "risk_factor_master",
+  "description": "Orchestrator-generated master template listing every factor x level the agent must consider during master-fill, with deterministic Bayes-ready standardized probability prefilled from evidence_store.",
+  "type": "object",
+  "required": ["schema_version", "evidence_version", "filters", "factors", "counts"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "risk-factor-master-v1"},
+    "evidence_version": {"type": ["string", "null"]},
+    "filters": {
+      "type": "object",
+      "properties": {
+        "sex": {"type": ["string", "null"], "enum": ["male", "female", null]},
+        "age": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "factors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor_key", "factor_id", "factor_level", "factor_name", "standardized_prob"],
+        "properties": {
+          "factor_key": {"type": "string"},
+          "factor_id": {"type": "string"},
+          "factor_name": {"type": "string"},
+          "factor_level": {"type": ["string", "null"]},
+          "factor_type": {"type": ["string", "null"]},
+          "applicable_sex": {"type": "string", "enum": ["all", "male", "female"]},
+          "synonyms": {"type": "array", "items": {"type": "string"}},
+          "expected_evidence": {"type": "array", "items": {"type": "string"}},
+          "standardized_prob": {
+            "type": "object",
+            "description": "Bayes-ready numeric metadata derived from evidence_store; agent MUST NOT modify.",
+            "properties": {
+              "primary_effect_type": {"type": ["string", "null"]},
+              "primary_log_odds_delta": {"type": ["number", "null"]},
+              "primary_calculation_value": {"type": ["number", "null"]},
+              "approximation": {"type": "boolean"},
+              "applies_to_cancer_ids": {"type": "array", "items": {"type": "string"}},
+              "risk_evidence_values": {"type": "array"}
+            }
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "factors": {"type": "integer"}
+      }
+    }
+  }
+}

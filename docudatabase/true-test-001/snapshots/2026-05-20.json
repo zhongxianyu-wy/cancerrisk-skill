@@ -1,0 +1,539 @@
+{
+  "schema_version": "archive-baseline-snapshot-v1",
+  "run_id": "run-20260520-100256",
+  "exam_date": "2026-05-20",
+  "timeline_records_total": 16,
+  "timeline": {
+    "schema_version": "risk-factors-timeline-v1",
+    "evidence_version": "evidence-v0002",
+    "run_date": "2026-05-20",
+    "source_md_files": [
+      {
+        "data_id": "bd32951833b0e4df",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/bd32951833b0e4df/refined.md",
+        "exam_date": "2023-05-13",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/Report_IK_55ec0d689de35f22765f9c11e1c8559b.pdf"
+      },
+      {
+        "data_id": "0dd258f552ff266f",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/0dd258f552ff266f/refined.md",
+        "exam_date": "2025-04-26",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/Report_IK_66f2f485be7474959a66a67a71706570.pdf"
+      },
+      {
+        "data_id": "6b7b63adb10dc4ae",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/6b7b63adb10dc4ae/refined.md",
+        "exam_date": "2020-08-16",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/Report_IK_fc1fb1a2c609d80ac2d7c2e9d231e2b9.pdf"
+      },
+      {
+        "data_id": "af4e53c374738682",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/af4e53c374738682/refined.md",
+        "exam_date": "2025-09-28",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/img_v3_0211l_06e86215-ce75-4a76-87ad-06f758cc5d6g.jpg"
+      },
+      {
+        "data_id": "1414fea1f7d67df3",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/1414fea1f7d67df3/refined.md",
+        "exam_date": "2026-01-19",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/img_v3_0211l_1e7ad0d6-b226-4335-b1ff-4024427a49dg.jpg"
+      },
+      {
+        "data_id": "cd02cf182558a8dd",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/cd02cf182558a8dd/refined.md",
+        "exam_date": "2024-04-22",
+        "source_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test/img_v3_0211l_82174cff-3130-46a5-a085-8e53185c9fdg.jpg"
+      },
+      {
+        "data_id": "interactive_answers",
+        "refined_md_path": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/interactive_answers.md",
+        "exam_date": "now",
+        "source_path": null
+      }
+    ],
+    "records": [
+      {
+        "factor_key": "thyroid_nodule_with_calcification|present",
+        "factor_id": "thyroid_nodule_with_calcification",
+        "factor_level": "present",
+        "factor_name": "甲状腺结节伴钙化（未明分级）",
+        "factor_type": "imaging_finding",
+        "exists": true,
+        "exam_date": "2025-04-26",
+        "source_md": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/0dd258f552ff266f/refined.md",
+        "source_data_id": "0dd258f552ff266f",
+        "source": "extracted",
+        "evidence_text": "甲状腺峡部见边界尚清晰的单发低回声结节，大小约16×6mm，内可见强回声",
+        "confidence": 0.93,
+        "measurement_value": 16.0,
+        "measurement_unit": "mm",
+        "cancer_id": "thyroid_cancer",
+        "malignancy_ppv_range": [
+          0.1,
+          0.5
+        ],
+        "ppv_point_used": 0.3,
+        "next_step": "建议甲状腺专科行超声细分级 + FNA 评估",
+        "source_id": "Kwak TI-RADS 2011 (按 4B/4C 估计)",
+        "finding_name_zh": "甲状腺结节伴钙化（未明分级）"
+      },
+      {
+        "factor_key": "thyroid_tirads_4a|present",
+        "factor_id": "thyroid_tirads_4a",
+        "factor_level": "present",
+        "factor_name": "甲状腺 TI-RADS 4A (低度可疑)",
+        "factor_type": "imaging_finding",
+        "exists": true,
+        "exam_date": "2025-04-26",
+        "source_md": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/0dd258f552ff266f/refined.md",
+        "source_data_id": "0dd258f552ff266f",
+        "source": "extracted",
+        "evidence_text": "甲状腺峡部见边界尚清晰的单发低回声结节，大小约16×6mm，内可见强回声",
+        "confidence": 0.72,
+        "measurement_value": 16.0,
+        "measurement_unit": "mm",
+        "cancer_id": "thyroid_cancer",
+        "malignancy_ppv_range": [
+          0.05,
+          0.1
+        ],
+        "ppv_point_used": 0.07500000000000001,
+        "next_step": "考虑细针穿刺活检 (FNA)",
+        "source_id": "Kwak TI-RADS 2011",
+        "finding_name_zh": "甲状腺 TI-RADS 4A (低度可疑)"
+      },
+      {
+        "factor_key": "alt_ast|1_2x",
+        "factor_id": "alt_ast",
+        "factor_level": "1_2x",
+        "factor_name": "肝酶异常(ALT/AST)",
+        "factor_type": "exam_finding",
+        "exists": true,
+        "exam_date": "2025-04-26",
+        "source_md": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/0dd258f552ff266f/refined.md",
+        "source_data_id": "0dd258f552ff266f",
+        "source": "extracted",
+        "evidence_text": "丙氨酸氨基转移酶(ALT) | 72 | 0—50 U/L | ↑",
+        "confidence": 0.98,
+        "measurement_value": 72.0,
+        "measurement_unit": "U/L"
+      },
+      {
+        "factor_key": "h_pylori|present",
+        "factor_id": "h_pylori",
+        "factor_level": "present",
+        "factor_name": "幽门螺杆菌(H. pylori)感染",
+        "factor_type": "medical_history",
+        "exists": false,
+        "exam_date": "2023-05-13",
+        "source_md": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/bd32951833b0e4df/refined.md",
+        "source_data_id": "bd32951833b0e4df",
+        "source": "extracted",
+        "evidence_text": "碳14-尿素呼气试验",
+        "confidence": 0.97,
+        "measurement_value": 35.0,
+        "measurement_unit": "dpm/mmolCO2"
+      },
+      {
+        "factor_key": "fatty_liver|mild",
+        "factor_id": "fatty_liver",
+        "factor_level": "mild",
+        "factor_name": "脂肪肝",
+        "factor_type": "exam_finding",
+        "exists": true,
+        "exam_date": "2020-08-16",
+        "source_md": "/Volumes/exp/project/cancerrisk_beta/test/true_test_output_v7/artifacts/mineru/6b7b63adb10dc4ae/refined.md",
+        "source_data_id": "6b7b63adb10dc4ae",
+        "source": "extracted",
+        "evidence_text": "轻度脂肪肝",
+        "confidence": 0.95,
+        "measurement_value": null,
+        "measurement_unit": null
+      },
+      {
+        "factor_key": "smoking_current|present",
+        "factor_id": "smoking_current",
+        "factor_level": "present",
+        "factor_name": "吸烟(当前)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "smoking_general|present",
+        "factor_id": "smoking_general",
+        "factor_level": "present",
+        "factor_name": "吸烟",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "smoking_male|present",
+        "factor_id": "smoking_male",
+        "factor_level": "present",
+        "factor_name": "吸烟(男性)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "smoking_continuous|present",
+        "factor_id": "smoking_continuous",
+        "factor_level": "present",
+        "factor_name": "吸烟(持续吸烟)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "smoking_squamous|present",
+        "factor_id": "smoking_squamous",
+        "factor_level": "present",
+        "factor_name": "吸烟(鳞癌)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "smoking_adenocarcinoma|present",
+        "factor_id": "smoking_adenocarcinoma",
+        "factor_level": "present",
+        "factor_name": "吸烟(腺癌)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从未吸烟",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "alcohol_30g_per_day|present",
+        "factor_id": "alcohol_30g_per_day",
+        "factor_level": "present",
+        "factor_name": "饮酒≥30g/天",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从不饮酒",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "alcohol_3plus_drinks|present",
+        "factor_id": "alcohol_3plus_drinks",
+        "factor_level": "present",
+        "factor_name": "饮酒(≥3杯/天)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从不饮酒",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "alcohol_non_cardia|present",
+        "factor_id": "alcohol_non_cardia",
+        "factor_level": "present",
+        "factor_name": "饮酒(非贲门癌)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从不饮酒",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "alcohol_squamous_3plus|present",
+        "factor_id": "alcohol_squamous_3plus",
+        "factor_level": "present",
+        "factor_name": "饮酒(鳞癌，≥3杯/天)",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从不饮酒",
+        "confidence": 1.0
+      },
+      {
+        "factor_key": "alcohol_daily_heavy|present",
+        "factor_id": "alcohol_daily_heavy",
+        "factor_level": "present",
+        "factor_name": "每日大量饮酒",
+        "factor_type": "lifestyle",
+        "exists": false,
+        "exam_date": "2026-05-20",
+        "source_md": null,
+        "source_data_id": "interactive_answers",
+        "source": "user_reported",
+        "evidence_text": "从不饮酒",
+        "confidence": 1.0
+      }
+    ],
+    "rejected_records": []
+  },
+  "snapshot_summary": {
+    "cancers_total": 15,
+    "cancers_scored": 12,
+    "section4_count": 1
+  },
+  "longitudinal_result": {
+    "summary": {
+      "total": 15,
+      "with_trend": 1,
+      "with_history": 11,
+      "single_point": 0,
+      "snapshot_only": 10,
+      "baseline_only": 0,
+      "no_history": 4,
+      "no_posterior": 3
+    },
+    "cancers": [
+      {
+        "cancer_id": "thyroid_cancer",
+        "cancer_name_zh": "甲状腺癌",
+        "current_posterior_probability": 0.3,
+        "corrected_posterior_probability": 0.3,
+        "trend": "no_history",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "colorectal_cancer",
+        "cancer_name_zh": "结直肠癌",
+        "current_posterior_probability": 7.399999999999998e-05,
+        "corrected_posterior_probability": 7.399999999999998e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "liver_cancer",
+        "cancer_name_zh": "肝癌",
+        "current_posterior_probability": 6.965784339316852e-05,
+        "corrected_posterior_probability": 6.965784339316852e-05,
+        "trend": "increasing",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "head_neck_cancer",
+        "cancer_name_zh": "头颈肿瘤",
+        "current_posterior_probability": 6.699999999999996e-05,
+        "corrected_posterior_probability": 6.699999999999996e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "lung_cancer",
+        "cancer_name_zh": "肺癌",
+        "current_posterior_probability": 3.9199999999999984e-05,
+        "corrected_posterior_probability": 3.9199999999999984e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "kidney_cancer",
+        "cancer_name_zh": "肾癌",
+        "current_posterior_probability": 2.9400000000000023e-05,
+        "corrected_posterior_probability": 2.9400000000000023e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "gastric_cancer",
+        "cancer_name_zh": "胃癌",
+        "current_posterior_probability": 1.6300000000000013e-05,
+        "corrected_posterior_probability": 1.6300000000000013e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "bladder_cancer",
+        "cancer_name_zh": "膀胱癌",
+        "current_posterior_probability": 1.0299999999999991e-05,
+        "corrected_posterior_probability": 1.0299999999999991e-05,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "biliary_tract_cancer",
+        "cancer_name_zh": "胆道肿瘤",
+        "current_posterior_probability": 2.6999999999999974e-06,
+        "corrected_posterior_probability": 2.6999999999999974e-06,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "pancreatic_cancer",
+        "cancer_name_zh": "胰腺癌",
+        "current_posterior_probability": 1.7999999999999997e-06,
+        "corrected_posterior_probability": 1.7999999999999997e-06,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "esophageal_cancer",
+        "cancer_name_zh": "食管癌",
+        "current_posterior_probability": 1.100000000000001e-06,
+        "corrected_posterior_probability": 1.100000000000001e-06,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "prostate_cancer",
+        "cancer_name_zh": "前列腺癌",
+        "current_posterior_probability": 5.000000000000001e-07,
+        "corrected_posterior_probability": 5.000000000000001e-07,
+        "trend": "snapshot_only",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "breast_cancer",
+        "cancer_name_zh": "乳腺癌",
+        "current_posterior_probability": null,
+        "corrected_posterior_probability": null,
+        "trend": "no_history",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "cervical_cancer",
+        "cancer_name_zh": "宫颈癌",
+        "current_posterior_probability": null,
+        "corrected_posterior_probability": null,
+        "trend": "no_history",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      },
+      {
+        "cancer_id": "ovarian_cancer",
+        "cancer_name_zh": "卵巢癌",
+        "current_posterior_probability": null,
+        "corrected_posterior_probability": null,
+        "trend": "no_history",
+        "trend_correction": {
+          "correction_type": "unchanged",
+          "multiplier": 1.0,
+          "imaging_verdict": "no_data",
+          "marker_verdict": "no_data",
+          "evidence": []
+        }
+      }
+    ]
+  }
+}

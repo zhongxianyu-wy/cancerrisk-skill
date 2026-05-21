@@ -1,0 +1,24 @@
+{
+  "entries": [
+    {
+      "run_id": "run-20260521-135956",
+      "ingested_at": "2026-05-21T13:59:56",
+      "factor_events_added": 24,
+      "screening_events_added": 3,
+      "snapshot_summary": {
+        "scored_cancers": 12,
+        "section4_count": 1
+      },
+      "longitudinal_summary": {
+        "total": 15,
+        "with_trend": 5,
+        "with_history": 11,
+        "single_point": 5,
+        "snapshot_only": 1,
+        "baseline_only": 0,
+        "no_history": 4,
+        "no_posterior": 3
+      }
+    }
+  ]
+}

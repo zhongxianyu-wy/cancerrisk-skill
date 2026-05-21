@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cancerrisk-skill/v3/schemas/manifest.schema.json",
+  "title": "CancerRisk v3 Run Manifest",
+  "description": "Shape of analysis_output/manifest.json, produced by Task9 (write_manifest.py). This is the only artifact downstream tools and the index router should rely on across processes.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "generated_at",
+    "status",
+    "evidence_version",
+    "reports",
+    "task7_snapshot",
+    "task8_archive",
+    "task8_longitudinal"
+  ],
+  "properties": {
+    "schema_version": {"const": "manifest-v1"},
+    "run_id": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "input_path": {"type": ["string", "null"]},
+    "output_dir": {"type": "string"},
+    "status": {"enum": ["success", "partial", "fail"]},
+    "failures": {"type": "array", "items": {"type": "string"}},
+    "person": {
+      "type": "object",
+      "required": ["person_id"],
+      "properties": {
+        "person_id": {"type": "string"},
+        "context": {
+          "type": ["object", "null"],
+          "properties": {
+            "sex": {"enum": ["male", "female", null]},
+            "age": {"type": ["integer", "null"], "minimum": 0, "maximum": 120}
+          }
+        }
+      }
+    },
+    "evidence_version": {"type": ["string", "null"]},
+    "evidence_built_at": {"type": ["string", "null"]},
+    "mineru": {
+      "type": "object",
+      "properties": {
+        "status": {"type": ["string", "null"]},
+        "token_source": {"type": ["string", "null"]},
+        "token_fingerprint": {"type": ["string", "null"]},
+        "file_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "task6_health_summary": {
+      "type": "object",
+      "properties": {
+        "status": {"type": ["string", "null"]},
+        "provider": {"type": ["string", "null"]},
+        "mode": {"type": ["string", "null"]}
+      }
+    },
+    "task7_snapshot": {
+      "type": "object",
+      "required": ["cancers_total", "cancers_scored", "section4_count"],
+      "properties": {
+        "cancers_total": {"type": "integer", "minimum": 0},
+        "cancers_scored": {"type": "integer", "minimum": 0},
+        "section4_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "task8_archive": {
+      "type": "object",
+      "required": ["person_id", "person_archive_dir"],
+      "properties": {
+        "person_id": {"type": "string"},
+        "person_archive_dir": {"type": "string"},
+        "proposal_run_id": {"type": ["string", "null"]},
+        "factor_events_added": {"type": "integer", "minimum": 0},
+        "screening_events_added": {"type": "integer", "minimum": 0}
+      }
+    },
+    "task8_longitudinal": {
+      "type": "object",
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "with_trend": {"type": "integer", "minimum": 0},
+        "single_point": {"type": "integer", "minimum": 0},
+        "snapshot_only": {"type": "integer", "minimum": 0},
+        "no_history": {"type": "integer", "minimum": 0},
+        "no_posterior": {"type": "integer", "minimum": 0}
+      }
+    },
+    "reports": {
+      "type": "object",
+      "patternProperties": {
+        "^.+\\.html$": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "audit_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "path"],
+        "properties": {
+          "name": {"type": "string"},
+          "path": {"type": "string"}
+        }
+      }
+    },
+    "safety_disclaimer_present": {"type": "boolean"}
+  }
+}

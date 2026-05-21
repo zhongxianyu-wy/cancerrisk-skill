@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>癌症风险快照报告</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    background: linear-gradient(135deg, #1f6fb2 0%, #2bb673 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #2c3e50;
+}
+.container { max-width: 960px; margin: 0 auto; }
+.card { background: #fff; border-radius: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); overflow: hidden; }
+.header { background: linear-gradient(135deg, #1f6fb2 0%, #2bb673 100%); color: #fff; padding: 36px 40px; }
+.header h1 { font-size: 26px; font-weight: 600; }
+.header .meta { margin-top: 12px; font-size: 13px; opacity: 0.9; display: flex; gap: 20px; flex-wrap: wrap; }
+.section { padding: 28px 40px; border-top: 1px solid #f0f3f6; }
+.section h2 { font-size: 17px; padding-left: 12px; border-left: 4px solid #2bb673; margin-bottom: 14px; color: #2c3e50; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 12px; }
+th { background: #f8f9fa; padding: 10px 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; }
+td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+tr.tier-high td { background: #fff5f5; }
+tr.tier-medium td { background: #fffaeb; }
+tr.tier-low td { background: #f0fbf3; }
+tr.tier-na td { background: #f5f5f5; color: #999; }
+.tier-pill { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.tier-pill.tier-high   { background: #f8d7da; color: #842029; }
+.tier-pill.tier-medium { background: #fff3cd; color: #856404; }
+.tier-pill.tier-low    { background: #d4edda; color: #155724; }
+.tier-pill.tier-na     { background: #e2e3e5; color: #555; }
+.tier-pill.tier-urgent_workup   { background: #f5c2c7; color: #58151c; font-weight: 700; }
+.tier-pill.tier-high_workup     { background: #ffc107; color: #533f03; }
+.tier-pill.tier-moderate_workup { background: #cfe2ff; color: #052c65; }
+.imaging-card { border: 1px solid #cfe2ff; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; background: #f7fbff; }
+.imaging-card.dominant { border-color: #b34a00; background: #fff8e1; }
+.imaging-card ul { padding-left: 18px; }
+.voi-card { border: 1px solid #d4edda; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; background: #fbfffb; }
+.voi-card table th, .voi-card table td { padding: 3px 6px; text-align: left; border-bottom: 1px solid #eef; }
+.voi-card table th { background: #f0f7f1; color: #155724; }
+.muted { color: #888; font-size: 12.5px; }
+.disclaimer { background: #fff3cd; color: #856404; padding: 16px 18px; border-radius: 10px; font-size: 12.5px; line-height: 1.7; margin: 6px 40px 28px; }
+.section-body { font-size: 13.5px; line-height: 1.7; }
+.component-row { border-left: 3px solid #2bb673; padding: 6px 12px; margin: 6px 0; background: #f8fbf9; border-radius: 6px; font-size: 13px; }
+.component-row.approximation { border-left-color: #f0ad4e; background: #fff8eb; }
+.empty-note { padding: 12px 14px; background: #f8f9fa; border-radius: 8px; color: #6c757d; font-size: 13px; }
+.footer { text-align: center; padding: 20px; color: #fff; font-size: 12.5px; opacity: 0.9; }
+.section-4 .cancer-card { border: 1px solid #e1e8ef; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; background: #fff; }
+.section-4 .cancer-card h3 { font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.section-4 .plan { font-size: 13px; margin-top: 4px; color: #444; }
+.section-4 .plan strong { color: #1f6fb2; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <h1>🧬 癌症风险快照报告</h1>
+      <div class="meta">
+        <span>性别：__PERSON_SEX__</span>
+        <span>年龄：__PERSON_AGE__ 岁</span>
+        <span>评估日期：__GENERATED_AT__</span>
+        <span>证据库版本：__EVIDENCE_VERSION__</span>
+      </div>
+    </div>
+
+    <div class="section section-1">
+      <h2>一、风险总览（按预测概率降序）</h2>
+      __SECTION1_TABLE__
+    </div>
+
+    <div class="section section-2">
+      <h2>二、重点癌症风险推理（Top 3 或概率 &gt; 2%）</h2>
+      __SECTION2_BODY__
+    </div>
+
+    <div class="section section-4">
+      <h2>三、筛查推荐（Top __SECTION4_TOP_N__，并包含概率 &gt; 2% 癌种）</h2>
+      __SECTION4_BODY__
+    </div>
+
+    <div class="section section-5">
+      <h2>四、不确定性与证据库外异常提示</h2>
+      __SECTION5_BODY__
+    </div>
+
+    <div class="section section-6">
+      <h2>五、影像学发现及恶性概率参考（PPV）</h2>
+      <p class="muted" style="margin-bottom:10px;">本节列出已分级的影像学疑似病灶及其恶性 PPV 参考区间。这些是<strong>"该特定病灶是癌"</strong>的概率，与上方"未来 1 年新发"的概率<strong>不可相加</strong>。当影像 PPV 中位值 > Bayes 后验时，第一节"预测概率"列会以影像 PPV 中位值为准并标"由影像学发现主导"。</p>
+      __SECTION6_BODY__
+    </div>
+
+    <div class="section section-7">
+      <h2>六、筛查方案推荐（VoI 排序）</h2>
+      __SECTION7_BODY__
+    </div>
+
+    <div class="section section-3">
+      <h2>七、便捷筛查（吉早安）对预测的影响</h2>
+      __SECTION3_BODY__
+    </div>
+
+    <div class="disclaimer">
+      <strong>⚠️ 重要提示：</strong>__DISCLAIMER__
+    </div>
+  </div>
+  <div class="footer">报告生成：__GENERATED_AT__ · CancerRisk v3</div>
+</div>
+</body>
+</html>

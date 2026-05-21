@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "structured_risk_factors_timeline",
+  "description": "Timeline of factor presence/absence events across all input md files. One record per (factor_key, source_md, exam_date). Extracted records have source=extracted; user_reported records have source=user_reported and exam_date is replaced from 'now' to run_date.",
+  "type": "object",
+  "required": ["schema_version", "records", "source_md_files"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "risk-factors-timeline-v1"},
+    "evidence_version": {"type": ["string", "null"]},
+    "run_date": {"type": ["string", "null"], "description": "ISO date; rewrites of 'now' use this value."},
+    "source_md_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["data_id", "refined_md_path"],
+        "properties": {
+          "data_id": {"type": "string"},
+          "refined_md_path": {"type": "string"},
+          "exam_date": {"type": ["string", "null"]},
+          "source_path": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["factor_key", "factor_id", "factor_level", "exists", "exam_date", "source"],
+        "properties": {
+          "factor_key": {"type": "string"},
+          "factor_id": {"type": "string"},
+          "factor_level": {"type": ["string", "null"]},
+          "factor_name": {"type": ["string", "null"]},
+          "factor_type": {"type": ["string", "null"]},
+          "exists": {"type": "boolean"},
+          "exam_date": {"type": "string", "description": "ISO date or 'now' (rewritten by gate)."},
+          "source_md": {"type": ["string", "null"]},
+          "source_data_id": {"type": ["string", "null"]},
+          "source": {"type": "string", "enum": ["extracted", "user_reported"]},
+          "evidence_text": {"type": ["string", "null"]},
+          "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+        }
+      }
+    }
+  }
+}
