@@ -313,13 +313,30 @@ def resolve(
     if age is None and extracted.get("age") is not None:
         age = int(extracted["age"])
 
+    # 3. Interactive answers — applied AFTER extraction so user-confirmed values
+    #    override OCR heuristics (优化点2.6: interactive age has priority over OCR age).
+    interactive_sex_raw = answers.get("q_demographics_sex") or answers.get("person_sex")
+    interactive_sex = normalize_sex(interactive_sex_raw) if isinstance(interactive_sex_raw, str) else None
+    interactive_age = parse_age(answers.get("q_demographics_age", answers.get("person_age")))
+    trace["interactive"] = {"sex": interactive_sex, "age": interactive_age}
+    if interactive_sex:
+        sex = interactive_sex          # override extraction
+    if interactive_age is not None:
+        age = interactive_age          # override extraction
+
     if sex in {"male", "female"} and age is not None:
+        if interactive_sex or interactive_age is not None:
+            source = "interactive"
+        elif not cli_sex and not cli_age:
+            source = "report_extraction"
+        else:
+            source = "cli_plus_extraction"
         return {
             "status": "resolved",
             "schema_version": SCHEMA_VERSION,
             "sex": sex,
             "age": age,
-            "source": "report_extraction" if not cli_sex and not cli_age else "cli_plus_extraction",
+            "source": source,
             "trace": trace,
             "evidence": {
                 "sex_evidence": extracted.get("sex_evidence"),
@@ -327,26 +344,6 @@ def resolve(
                 "sex_source_data_id": extracted.get("sex_source_data_id"),
                 "age_source_data_id": extracted.get("age_source_data_id"),
             },
-        }
-
-    # 3. Interactive answers (--answers fixture or operator-supplied JSON)
-    interactive_sex = answers.get("q_demographics_sex") or answers.get("person_sex")
-    interactive_sex = normalize_sex(interactive_sex) if isinstance(interactive_sex, str) else None
-    interactive_age = parse_age(answers.get("q_demographics_age", answers.get("person_age")))
-    trace["interactive"] = {"sex": interactive_sex, "age": interactive_age}
-    if sex is None and interactive_sex:
-        sex = interactive_sex
-    if age is None and interactive_age is not None:
-        age = interactive_age
-
-    if sex in {"male", "female"} and age is not None:
-        return {
-            "status": "resolved",
-            "schema_version": SCHEMA_VERSION,
-            "sex": sex,
-            "age": age,
-            "source": "interactive",
-            "trace": trace,
         }
 
     # 4. Need interactive input — return the questionnaire for the agent.

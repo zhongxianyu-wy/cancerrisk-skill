@@ -703,11 +703,6 @@ def _render_template(
     for key, value in values.items():
         replacement = str(value) if key in raw_html_keys else html.escape(str(value))
         rendered = rendered.replace("{{" + key + "}}", replacement)
-    if raw_assessment_markdown:
-        rendered = rendered.replace(
-            "<!-- 免责声明 -->",
-            _api_feedback_section(raw_assessment_markdown) + "\n                <!-- 免责声明 -->",
-        )
     rendered = re.sub(
         r"<div class=\"disclaimer\">.*?</div>",
         "<div class=\"disclaimer\"><strong>重要提示：</strong>" + html.escape(disclaimer).replace("\n", "<br>") + "</div>",

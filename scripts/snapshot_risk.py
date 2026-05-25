@@ -46,6 +46,16 @@ SCHEMA_VERSION = "snapshot-risk-v1"
 MAX_NON_PATHOLOGY_PROBABILITY = 0.75
 PATHOLOGY_CONFIRMED_PROBABILITY = 0.99
 
+# Tumor markers and ctDNA tests whose negative result provides protective
+# downward adjustment when PPV dominates (优化点3).
+PROTECTIVE_TEST_IDS: frozenset[str] = frozenset({
+    "jizaoan_multi_cancer_screening",
+    "afp_serum", "cea_serum", "ca199_serum", "ca125_serum",
+    "psa_total_serum", "psa_free_ratio",
+    "cyfra211_serum", "scc_serum", "nmp22_urine",
+    "ca724_serum", "ca153_serum",
+})
+
 
 # ---------------------------------------------------------------------------
 # IO helpers
@@ -337,6 +347,7 @@ def compute_snapshot(
     person_sex: str | None,
     person_age: int | None,
     config: dict[str, Any] | None = None,
+    factor_name_map: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     config = config or {}
     risk_cfg = config.get("risk_prediction", {}) if isinstance(config, dict) else {}
@@ -496,6 +507,11 @@ def compute_snapshot(
         components, notes = _components_for_cancer(
             cancer_id, bayes_states, derived_by_id, derived_by_fl
         )
+        if factor_name_map:
+            for comp in components:
+                fid = comp.get("factor_id")
+                if fid and fid in factor_name_map:
+                    comp["factor_name_zh"] = factor_name_map[fid]
         # v6 P1: _screening_contribution now returns a LIST of
         # contributions (multiple tests can target the same cancer:
         # e.g. lung_cancer accumulates jizaoan + CEA + CYFRA21-1 + SCC +
@@ -547,18 +563,37 @@ def compute_snapshot(
             narrative = f"病理结果提示原位癌或浸润癌：{pathology_confirmed.get('evidence_text')}"
             tier_final = "pathology_confirmed"
         elif dominant_imaging and ppv_max > bayes_posterior:
-            final_posterior = ppv_max
-            dominant_source = "imaging_ppv"
+            # Apply negative LR from protective tests (tumor markers / ctDNA)
+            # to reduce PPV-based probability when results are negative.
+            protective_neg = [
+                sc for sc in screening_contribs
+                if sc.get("test_id") in PROTECTIVE_TEST_IDS and sc.get("result") == "negative"
+            ]
+            if protective_neg:
+                protective_delta = sum(sc["log_odds_delta"] for sc in protective_neg)
+                final_posterior = sigmoid(logit(ppv_max) + protective_delta)
+                dominant_source = "imaging_ppv_protective_adjusted"
+            else:
+                final_posterior = ppv_max
+                dominant_source = "imaging_ppv"
             ppv_low, ppv_high = dominant_imaging["malignancy_ppv_range"]
+            protective_note = ""
+            if protective_neg:
+                names = "、".join(sc.get("test_name") or sc.get("test_id") for sc in protective_neg)
+                protective_note = (
+                    f"阴性保护性检测（{names}）下调影像 PPV"
+                    f"（调整后 {final_posterior*100:.4f}%）。"
+                )
             narrative = (
                 f"本次预测由影像学发现主导：{dominant_imaging['finding_name_zh']}"
                 f"（{dominant_imaging['evidence_text']}）"
                 f"，恶性概率参考区间 {ppv_low*100:.0f}-{ppv_high*100:.0f}%"
                 f"（{dominant_imaging['source_id']}）。"
                 f"累积危险因素 Bayes 后验为 {bayes_posterior*100:.4f}%。"
+                f"{protective_note}"
                 f"建议：{dominant_imaging.get('next_step', '请专科随诊')}。"
             )
-            tier_final = assign_imaging_tier(ppv_max, imaging_tiers)
+            tier_final = assign_imaging_tier(final_posterior, imaging_tiers)
         elif imaging_for_cancer:
             final_posterior = bayes_posterior
             dominant_source = "bayes_factors"
@@ -718,6 +753,14 @@ def run_snapshot_stage(
     detection_derived = _read_json(evidence_store / "assertions/detection_performance_derived.json")
     cancers_ontology = _read_json(evidence_store / "ontology/cancers.json")
     screening_recommendations = _read_json(evidence_store / "screening/screening_recommendations.json")
+    rf_path = evidence_store / "ontology/risk_factors.json"
+    _factor_zh: dict[str, str] = {}
+    if rf_path.is_file():
+        rf_data = _read_json(rf_path)
+        for rf in rf_data.get("risk_factors", []):
+            fid = rf.get("factor_id")
+            if fid and rf.get("factor_name_zh"):
+                _factor_zh[fid] = rf["factor_name_zh"]
     snapshot = compute_snapshot(
         merged=merged,
         priors_payload=priors_payload,
@@ -728,6 +771,7 @@ def run_snapshot_stage(
         person_sex=person_sex,
         person_age=person_age,
         config=config,
+        factor_name_map=_factor_zh,
     )
 
     output_name = risk_cfg.get("snapshot_output_json", "snapshot_risk.json")

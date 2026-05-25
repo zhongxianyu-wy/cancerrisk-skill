@@ -24,13 +24,13 @@ mineru:
   is_ocr: true
 
 evidence_store:
-  root: cancerrisk-skill/evidence_store
+  root: cancerrisk-skill/evidence_store_v1
   ontology_dir: ontology
   assertions_dir: assertions
   screening_dir: screening
   versions_dir: versions
   unstructured_notes: unstructured_evidence_notes.json
-  current_version_file: cancerrisk-skill/evidence_store/versions/evidence_version.json
+  current_version_file: cancerrisk-skill/evidence_store_v1/versions/evidence_version.json
   bootstrap_from_oncorag: true
   oncorag_source_path: /Volumes/exp/geneplu_work/1.skill_tijian/28.project_tijian/oncoRAG
 
@@ -51,7 +51,7 @@ interactive:
   default_answer_when_skipped: unknown
   jizaoan_question_required: true
   jizaoan_factor_id: jizaoan_multi_cancer_screening
-  question_templates: cancerrisk-skill/evidence_store/interaction/interaction_question_templates.json
+  question_templates: cancerrisk-skill/evidence_store_v1/interaction/interaction_question_templates.json
   questionnaire_output: interactive_questionnaire.json
   supplemental_updates_output: supplemental_risk_factor_updates.json
   supplemental_md: supplemental_risk_factors.md
@@ -179,7 +179,7 @@ risk_prediction:
   snapshot_template: cancerrisk-skill/templates/snapshot_risk_v42.html
   v42_template_source: /Volumes/exp/geneplu_work/1.skill_tijian/28.project_tijian/skills/cancer-risk-v4.2/cancer-risk-v4.2.0/templates/risk_report_template.md
   longitudinal_template: cancerrisk-skill/templates/longitudinal_risk_v3.html
-  priors_file: cancerrisk-skill/evidence_store/ontology/cancer_age_sex_priors.json
+  priors_file: cancerrisk-skill/evidence_store_v1/ontology/cancer_age_sex_priors.json
   snapshot_output_json: snapshot_risk.json
   snapshot_output_html: snapshot_risk.html
   longitudinal_output_json: longitudinal_risk.json

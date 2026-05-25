@@ -247,7 +247,7 @@ def _build_fix_hints(payload: dict) -> list[str]:
             hints.append(
                 "[BLOCKED] MinerU demo token has expired.\n"
                 "  Fix: obtain a production token and run:\n"
-                "    python cancerrisk-skill/scripts/run_formal_analysis.py --save-mineru-token <TOKEN>"
+                f"    {_UV_RUN_PREFIX} python cancerrisk-skill/scripts/run_formal_analysis.py --save-mineru-token <TOKEN>"
             )
         elif "demo" in w.lower():
             hints.append(

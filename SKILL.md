@@ -1,10 +1,13 @@
 ---
 name: cancerrisk-formal-v3
 description: |
-  Use when converting health-checkup files into four audit-grade CancerRisk
+  Use when converting health-checkup files (体检报告, 体检文件, medical checkup, 癌症风险分析,
+  cancer risk report, health checkup analysis, 体检报告分析) into four audit-grade CancerRisk
   reports with MinerU OCR, ontology-backed factor filling, deterministic
   snapshot/longitudinal risk math, screening recommendations, and a
-  per-person health record archive.
+  per-person health record archive. Output path <out> is a writable directory;
+  person ID <person-id> is a stable ASCII slug (e.g. zhangsan_m68).
+  Triggers: 体检, 体检报告, cancer risk, 癌症风险, 健康档案, checkup analysis.
 safety: |
   Reports are health-management and screening-decision aids only. They must
   never produce a diagnosis, treatment plan, medication advice, or triage.
@@ -16,7 +19,7 @@ This skill is a thin operating guide. Load the referenced files only when
 the current stage needs them. The orchestrator is the single entrypoint:
 
 ```bash
-python cancerrisk-skill/scripts/run_formal_analysis.py \
+uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py \
   --input <file-or-folder> \
   --analysis-output <out> \
   --person-id <stable_id>
@@ -61,7 +64,7 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 1. Run MinerU and stop:
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py \
      --input <input> --analysis-output <out> --stop-after mineru
    ```
 
@@ -74,7 +77,7 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 3. Run to interactive:
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --stop-after interactive
    ```
 
@@ -91,14 +94,14 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    Fast ask-first path (before the first pipeline run):
 
    ```bash
-   python cancerrisk-skill/scripts/build_questionnaire.py \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/build_questionnaire.py \
      --sex <male|female> --age <age> --output /tmp/q.json
    ```
 
 5. Run to master template:
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --stop-after master-template
    ```
 
@@ -107,16 +110,16 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    `tumor_markers.candidate.json` using only emitted allowlists. Validate:
 
    ```bash
-   python cancerrisk-skill/scripts/validate_timeline_candidate.py \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/validate_timeline_candidate.py \
      --candidate <out>/artifacts/structured_risk_factors_timeline.candidate.json
-   python cancerrisk-skill/scripts/validate_tumor_markers.py \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/validate_tumor_markers.py \
      --candidate <out>/artifacts/tumor_markers.candidate.json
    ```
 
    Then re-run with `--stop-after cp3-verify`:
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --stop-after cp3-verify
    ```
 
@@ -141,24 +144,24 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 8. Run to health-summary API:
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --stop-after health-summary-api
    ```
 
-8. **Checkpoint 4: Health-summary structuring.** Convert the API
+9. **Checkpoint 4: Health-summary structuring.** Convert the API
    markdown into `health_summary_structured_summary.json`. **MUST use
    `finalize_structured_summary.py` — do NOT write the JSON directly
    (direct writes are truncated by most agent runtimes):**
 
    ```bash
-   python cancerrisk-skill/scripts/finalize_structured_summary.py \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/finalize_structured_summary.py \
      --analysis-output <out> --fills <fills.json>
    ```
 
-9. Run the final pipeline (without `--auto-apply-archive` first):
+10. Run the final pipeline (without `--auto-apply-archive` first):
 
    ```bash
-   python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --person-id <id>
    ```
 
@@ -174,7 +177,7 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    3. Wait for the user's answer:
       - **用户选"是"** → re-invoke adding `--auto-apply-archive`:
         ```bash
-        python cancerrisk-skill/scripts/run_formal_analysis.py ... \
+        uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
           --person-id <id> --auto-apply-archive
         ```
       - **用户选"否"** → end session; do **not** re-run; no archive written.
@@ -263,7 +266,28 @@ Open only the file needed for the current task:
 ## Verification
 
 ```bash
-python3 -m pytest -q
+uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python -m pytest -q
 ```
 
 Run focused tests for edited areas before full verification.
+
+## PUA Compliance (Error Recovery)
+
+After any pipeline error or unexpected exit code, follow this protocol:
+
+1. **Do not self-summarize** "the task is done" or imply completion after an error.
+2. **Do not skip checkpoints** by jumping to a later stage without completing the current one.
+3. **Re-read the SKILL.md checkpoint** for the current stage and retry from there.
+4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
+5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
+6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
+
+## Platform Adaptation: Workbuddy
+
+When running in the Workbuddy environment:
+
+- Use the user's personal MinerU token from `config/local.yaml` (set once via `--save-mineru-token`).
+- Archive root is `cancerrisk-skill/docudatabase/` relative to the skill root; use `--archives-root` only for explicit relocation.
+- Recommended output directory naming: `<analysis_output>/<person_id>/<YYYYMMDD>/` for uniqueness across runs.
+- All Python commands use the `uv run` prefix exactly as documented in this file — do not strip it.
+- The `<person-id>` argument must be a stable ASCII slug matching the person's existing archive entry (create a new one on first run by choosing a consistent slug).

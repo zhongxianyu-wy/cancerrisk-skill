@@ -151,54 +151,77 @@ def _section2_body(cancers: list[dict[str, Any]], section_filter: dict[str, Any]
     )
     for r in focus:
         comp_rows = []
+        # Bayesian chain: step-by-step running probability display
+        prior_lo = r.get("prior_log_odds")
+        running_lo = prior_lo
+
+        # Step 0: prior
+        comp_rows.append(
+            f'<div class="component-row">'
+            f'<strong>起始：人群基线</strong> '
+            f'年龄/性别先验 → <strong>{_pct(r.get("prior_probability"))}</strong>'
+            f'</div>'
+        )
+
         for c in r["components"]:
-            cls = "component-row approximation" if c.get("approximation") else "component-row"
+            delta = c["log_odds_delta"]
+            arrow = "↑ 升高风险" if delta > 0 else "↓ 降低风险"
+            factor_label = _esc(c.get("factor_name_zh") or c.get("factor_id") or "")
+            level_label = _esc(c.get("factor_level") or "")
+            approx_mark = " <span class='muted'>（RR近似）</span>" if c.get("approximation") else ""
             evidence = c.get("evidence_text") or ""
-            evidence_display = _esc(evidence[:80] + ("…" if len(evidence) > 80 else ""))
-            note_parts = []
-            if c.get("approximation"):
-                note_parts.append("RR/HR 近似")
-            if c.get("exam_date"):
-                note_parts.append(f"date={c['exam_date']}")
-            if c.get("source"):
-                note_parts.append(f"source={c['source']}")
-            extra = " · ".join(note_parts)
+            ev_display = _esc(evidence[:80] + ("…" if len(evidence) > 80 else ""))
+            if running_lo is not None:
+                running_lo = running_lo + delta
+                prob_after = _prob_after_delta(running_lo, 0.0)
+                prob_str = f"→ <strong>{_pct(prob_after)}</strong>"
+            else:
+                prob_str = ""
             comp_rows.append(
-                f'<div class="{cls}"><strong>{_esc(c.get("factor_id"))}</strong>'
-                f' / level={_esc(c.get("factor_level"))}'
-                f' / log_odds_delta={c["log_odds_delta"]:+.3f}'
-                f' / OR≈{c.get("calculation_value")} <span class="muted">[{_esc(extra)}]</span><br>'
-                f'<span class="muted">evidence: {evidence_display}</span></div>'
+                f'<div class="component-row">'
+                f'<strong>{factor_label}</strong>（{level_label}）{approx_mark} '
+                f'<span class="muted">{arrow}，ln(OR)={delta:+.3f}</span> {prob_str}'
+                f'<br><span class="muted">依据：{ev_display}</span>'
+                f'</div>'
             )
+
         for sc in r.get("screening_contributions", []):
-            before = _prob_after_delta(r.get("posterior_log_odds"), -float(sc["log_odds_delta"]))
-            after = _prob_after_delta(r.get("posterior_log_odds"), 0.0)
-            direction = "降低" if sc.get("result") == "negative" else "升高"
-            delta_text = ""
-            if before is not None and after is not None:
-                delta_text = f" / 筛查后{direction} {abs(before-after)*100:.3f}个百分点"
+            delta = float(sc["log_odds_delta"])
+            result_zh = "阴性（保护）" if sc.get("result") == "negative" else "阳性（风险升高）"
+            test_label = _esc(sc.get("test_name") or sc.get("test_id") or "")
+            if running_lo is not None:
+                running_lo = running_lo + delta
+                prob_after = _prob_after_delta(running_lo, 0.0)
+                prob_str = f"→ <strong>{_pct(prob_after)}</strong>"
+            else:
+                prob_str = ""
             comp_rows.append(
-                f'<div class="component-row"><strong>{_esc(sc.get("test_name") or sc.get("test_id"))}</strong>'
-                f' / result={_esc(sc.get("result"))}'
-                f' / LR={sc.get("lr", 0):.2f}'
-                f' / log_odds_delta={sc["log_odds_delta"]:+.3f}{_esc(delta_text)}'
-                f' <span class="muted">[{_esc(sc.get("source_id"))}]</span></div>'
+                f'<div class="component-row">'
+                f'<strong>{test_label}</strong> 检测结果：{result_zh} '
+                f'<span class="muted">LR={sc.get("lr", 0):.2f}，ln(LR)={delta:+.3f}</span> {prob_str}'
+                f'<br><span class="muted">来源：{_esc(sc.get("source_id") or "")}</span>'
+                f'</div>'
             )
+
+        # Final posterior summary
         ps = r.get("posterior_source") or {}
         if ps.get("narrative"):
             comp_rows.append(
-                f'<div class="component-row"><strong>主导依据</strong> '
-                f'{_esc(ps.get("dominant"))}<br><span class="muted">{_esc(ps.get("narrative"))}</span></div>'
+                f'<div class="component-row" style="background:#fff8e1;">'
+                f'<strong>主导依据：</strong>{_esc(ps.get("dominant"))}'
+                f'<br><span class="muted">{_esc(ps.get("narrative"))}</span></div>'
             )
-        if not comp_rows:
+
+        if len(comp_rows) <= 1:
             comp_rows.append(
                 '<div class="component-row"><strong>基线风险</strong> '
                 '未检测到额外风险因子或筛查贡献，本癌种主要由年龄/性别人群先验决定。</div>'
             )
+
         blocks.append(
             f'<h3 style="font-size:14.5px;margin-top:14px;">{_esc(r.get("cancer_name_zh"))}'
-            f' <span class="muted">prior={_pct(r.get("prior_probability"))} · '
-            f'posterior={_pct(r.get("posterior_probability"))}</span></h3>'
+            f' <span class="muted">先验 {_pct(r.get("prior_probability"))} → '
+            f'后验 {_pct(r.get("posterior_probability"))}</span></h3>'
             + "".join(comp_rows)
         )
     if not blocks:
@@ -358,7 +381,7 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
             f'</div>'
             f'<div class="muted" style="font-size:12.5px;margin-top:4px;">'
             f'目标癌种: {_esc(r["cancer_name_zh"])} · 灵敏度 {r["sensitivity"]*100:.1f}% · '
-            f'特异度 {r["specificity"]*100:.1f}% · 费用 ¥{r["cost_rmb"]} · '
+            f'特异度 {r["specificity"]*100:.1f}% · 费用 {"—" if not r.get("cost_rmb") else ("¥" + str(r["cost_rmb"]))} · '
             f'{_esc(r["invasiveness"])} · {_esc(r.get("guideline", ""))}</div>'
             f'{bd}'
             f'</div>'

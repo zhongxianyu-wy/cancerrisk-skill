@@ -60,7 +60,9 @@ def _baseline_banner(longitudinal: dict[str, Any]) -> str:
 
 
 def _trend_pill(trend: str) -> str:
-    return f'<span class="trend-pill {_esc(trend)}">{_esc(trend)}</span>'
+    _ZH = {"rising": "上升", "falling": "下降", "stable": "稳定", "no_history": "无历史", "baseline_only": "仅基线"}
+    label = _ZH.get(trend, trend)
+    return f'<span class="trend-pill {_esc(trend)}">{_esc(label)}</span>'
 
 
 def _cancer_card(entry: dict[str, Any]) -> str:
