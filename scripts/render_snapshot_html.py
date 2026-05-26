@@ -79,7 +79,9 @@ def _prob_after_delta(base_log_odds: float | None, delta: float) -> float | None
 def _section1_table(cancers: list[dict[str, Any]]) -> str:
     rows = []
     for r in cancers:
-        row_class = f"tier-{r['risk_tier']}" if r.get("risk_tier") else "tier-na"
+        raw_tier = r.get("risk_tier") or ""
+        css_tier = _TIER_CSS.get(raw_tier, raw_tier) if raw_tier else ""
+        row_class = f"tier-{css_tier}" if css_tier else "tier-na"
         prob_text = _pct(r.get("posterior_probability"))
         note = ""
         posterior_source = r.get("posterior_source") or {}
@@ -105,36 +107,6 @@ def _section1_table(cancers: list[dict[str, Any]]) -> str:
     )
     return header + "".join(rows) + "</table>"
 
-
-def _section6_imaging_findings(cancers: list[dict[str, Any]]) -> str:
-    blocks: list[str] = []
-    for r in cancers:
-        findings = r.get("imaging_findings") or []
-        if not findings:
-            continue
-        ps = r.get("posterior_source") or {}
-        dominant = ps.get("dominant") in {"imaging_ppv", "imaging_ppv_no_prior", "imaging_ppv_protective_adjusted"}
-        header_cls = "imaging-card dominant" if dominant else "imaging-card"
-        finding_rows = []
-        for f in findings:
-            ppv_low, ppv_high = f["malignancy_ppv_range"]
-            finding_rows.append(
-                f'<li><strong>{_esc(f["finding_name_zh"])}</strong>'
-                f' — PPV 参考区间 {ppv_low*100:.0f}–{ppv_high*100:.0f}%'
-                f' <span class="muted">[{_esc(f["source_id"])}, 检查日期 {_esc(f["exam_date"])}]</span>'
-                f'<br><span class="muted">依据：{_esc(f["evidence_text"][:120])}</span>'
-                f'<br><span class="muted">下一步: {_esc(f.get("next_step", "请专科随诊"))}</span></li>'
-            )
-        blocks.append(
-            f'<div class="{header_cls}"><h3 style="font-size:14.5px;">'
-            f'{_esc(r.get("cancer_name_zh"))} '
-            f'<span class="muted">(影像 PPV 中位值 {ps.get("imaging_ppv_max", 0)*100:.0f}%)</span></h3>'
-            f'<ul>{"".join(finding_rows)}</ul>'
-            f'</div>'
-        )
-    if not blocks:
-        return '<div class="empty-note">本次未提交任何已分级的影像学疑似病灶。</div>'
-    return '<div class="section-body">' + "".join(blocks) + '</div>'
 
 
 def _section2_body(cancers: list[dict[str, Any]], section_filter: dict[str, Any] | None = None) -> str:
@@ -390,7 +362,7 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
             f'<div style="display:flex;justify-content:space-between;align-items:center;">'
             f'<strong>{_esc(r["method"])}</strong>'
             f'<span style="color:{color};font-weight:600;">'
-            f'VoI {r["voi_score"]:.2f} · {_esc(r.get("recommendation",""))}</span>'
+            f'VoI {r["voi_score"]:.2f}</span>'
             f'</div>'
             f'<div class="muted" style="font-size:12.5px;margin-top:4px;">'
             f'目标癌种：{_esc(r["cancer_name_zh"])} · '
@@ -469,8 +441,6 @@ def render_snapshot_html(
         "__SECTION3_BODY__": _section3_body(snapshot, contact),
         "__SECTION4_BODY__": _section4_body(snapshot.get("section4_screening", [])),
         "__SECTION4_TOP_N__": _esc(section4_filter.get("top_n", 3)),
-        "__SECTION5_BODY__": _section5_body(snapshot),
-        "__SECTION6_BODY__": _section6_imaging_findings(snapshot.get("cancers", [])),
         "__SECTION7_BODY__": _section7_voi(snapshot.get("voi_output", {}), snapshot.get("cancers", [])),
         "__DISCLAIMER__": _esc(disclaimer).replace("\n", "<br>"),
     }
