@@ -40,6 +40,7 @@ EN_TO_ZH = {
     "head_neck_cancer": "头颈肿瘤",
     "biliary_tract_cancer": "胆道肿瘤",
     "thyroid_cancer": "甲状腺癌",
+    "pancreatic_cancer": "胰腺癌",
 }
 
 
@@ -115,6 +116,7 @@ def _compute_jizaoan_voi(
     jizaoan_cost_rmb: int,
     gender: str,
     jizaoan_coverage: list[str],   # Chinese names
+    all_jizaoan_sensitivities: list[float],  # global per-cancer sensitivities for display
 ) -> ScreeningVoI | None:
     """Multi-cancer liquid biopsy: Σ (sg/100×5×365×se×posterior) per covered cancer."""
     coverage_set = {EN_TO_ZH.get(cid, "") for cid in risk_cancer_ids} & set(jizaoan_coverage)
@@ -146,6 +148,13 @@ def _compute_jizaoan_voi(
         })
     if not breakdown:
         return None
+    # Use global all-cancer average for display (white-paper product spec),
+    # not the person-specific subset which varies with sex/cancer profile.
+    global_sens = (
+        round(sum(all_jizaoan_sensitivities) / len(all_jizaoan_sensitivities), 4)
+        if all_jizaoan_sensitivities else
+        round(sum(sens_list) / max(len(sens_list), 1), 4)
+    )
     return ScreeningVoI(
         cancer_id=",".join(sorted(b["cancer_id"] for b in breakdown)),
         cancer_name_zh="+".join(sorted(b["cancer_name_zh"] for b in breakdown)),
@@ -154,7 +163,7 @@ def _compute_jizaoan_voi(
         voi_score=round(total_voi, 2),
         recommendation=_classify(total_voi, thresholds),
         prior_risk=0.0,
-        sensitivity=round(sum(sens_list) / max(len(sens_list), 1), 4),
+        sensitivity=global_sens,
         specificity=0.991,
         cost_rmb=jizaoan_cost_rmb,
         cost_level="high",
@@ -248,6 +257,7 @@ def compute_voi_for_cancers(
         jizaoan_cost_rmb=jizaoan_cost,
         gender=person_sex or "all",
         jizaoan_coverage=jizaoan_coverage,
+        all_jizaoan_sensitivities=list(jizaoan_sens_map.values()),
     )
     if jizaoan_item:
         rankings.append(jizaoan_item)
