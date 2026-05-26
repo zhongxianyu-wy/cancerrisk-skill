@@ -162,11 +162,11 @@
     }
   },
   "voi_thresholds": {
-    "description": "VoI评分阈值，用于决策推荐等级（QALY年单位）",
-    "high_benefit": {"threshold": 0.5, "label": "强烈推荐", "description": "期望生存增益>0.5 QALYs"},
-    "medium_benefit": {"threshold": 0.2, "label": "推荐", "description": "期望生存增益0.2-0.5 QALYs"},
-    "low_benefit": {"threshold": 0.05, "label": "可考虑", "description": "期望生存增益0.05-0.2 QALYs"},
-    "minimal_benefit": {"threshold": 0, "label": "常规", "description": "期望生存增益<0.05 QALYs"}
+    "description": "VoI评分阈值（单位：天，期望生命获益天数）",
+    "high_benefit": {"threshold": 10, "label": "强烈推荐", "description": "期望生命获益>10天"},
+    "medium_benefit": {"threshold": 2.5, "label": "推荐", "description": "期望生命获益2.5-10天"},
+    "low_benefit": {"threshold": 1.0, "label": "可考虑", "description": "期望生命获益1-2.5天"},
+    "minimal_benefit": {"threshold": 0, "label": "常规", "description": "期望生命获益<1天"}
   },
   "negative_result_value": {
     "description": "阴性结果的心理和行为价值",

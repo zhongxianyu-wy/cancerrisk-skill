@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render snapshot_risk.json into snapshot_risk.html (5-section v4.2 layout)."""
+"""Render snapshot_risk.json into snapshot_risk.html (v4.2 layout)."""
 
 from __future__ import annotations
 
@@ -18,6 +18,8 @@ TEMPLATE_DEFAULT = SKILL_ROOT / "templates" / "snapshot_risk_v42.html"
 CONFIG_DEFAULT = SKILL_ROOT / "config" / "formal.yaml"
 CONTACT_DEFAULT = SKILL_ROOT / "config" / "contact.json"
 
+_TIER_ZH = {"high": "高风险", "medium": "中风险", "low": "低风险"}
+
 
 def _esc(value: Any) -> str:
     return html.escape("" if value is None else str(value))
@@ -33,8 +35,9 @@ def _pct(p: float | None) -> str:
 
 def _tier_pill(tier: str | None) -> str:
     if not tier:
-        return '<span class="tier-pill tier-na">N/A</span>'
-    return f'<span class="tier-pill tier-{tier}">{_esc(tier)}</span>'
+        return '<span class="tier-pill tier-na">不适用</span>'
+    label = _TIER_ZH.get(tier, tier)
+    return f'<span class="tier-pill tier-{_esc(tier)}">{_esc(label)}</span>'
 
 
 def _focus_cancers(cancers: list[dict[str, Any]], *, top_n: int = 3, include_above: float = 0.02) -> list[dict[str, Any]]:
@@ -69,22 +72,19 @@ def _prob_after_delta(base_log_odds: float | None, delta: float) -> float | None
 def _section1_table(cancers: list[dict[str, Any]]) -> str:
     rows = []
     for r in cancers:
-        tier = r.get("risk_tier") or ("不适用" if r.get("not_applicable") else "无prior")
         row_class = f"tier-{r['risk_tier']}" if r.get("risk_tier") else "tier-na"
         prob_text = _pct(r.get("posterior_probability"))
         note = ""
-        # v6: imaging-dominated cases need a distinct label so users
-        # don't confuse PPV with annual incidence.
         posterior_source = r.get("posterior_source") or {}
         dominant = posterior_source.get("dominant")
-        if dominant == "imaging_ppv":
+        if dominant in {"imaging_ppv", "imaging_ppv_protective_adjusted"}:
             note = "由影像学发现主导（PPV，非年发病率）"
         elif dominant == "imaging_ppv_no_prior":
             note = "仅影像 PPV 评估（本癌种暂无人群先验）"
         elif r.get("not_applicable"):
             note = "不适用（性别不符）"
         elif r.get("status_reason") == "no_prior_data":
-            note = "暂无年龄/性别先验，未计算 posterior"
+            note = "暂无年龄/性别先验，未计算后验概率"
         rows.append(
             f'<tr class="{row_class}"><td>{_esc(r.get("cancer_name_zh") or r["cancer_id"])}</td>'
             f'<td>{_pct(r.get("prior_probability"))}</td>'
@@ -93,48 +93,37 @@ def _section1_table(cancers: list[dict[str, Any]]) -> str:
             f'<td class="muted">{_esc(note)}</td></tr>'
         )
     header = (
-        '<table><tr><th>癌种</th><th>先验概率（年）</th><th>预测概率</th>'
+        '<table><tr><th>癌种</th><th>先验概率（年）</th><th>后验概率</th>'
         '<th>风险等级</th><th>备注</th></tr>'
     )
     return header + "".join(rows) + "</table>"
 
 
 def _section6_imaging_findings(cancers: list[dict[str, Any]]) -> str:
-    """v6: dedicated section listing all imaging PPV findings + the
-    dominant-source narrative when PPV beats Bayes."""
     blocks: list[str] = []
     for r in cancers:
         findings = r.get("imaging_findings") or []
         if not findings:
             continue
         ps = r.get("posterior_source") or {}
-        # Both imaging_ppv (PPV beats Bayes) and imaging_ppv_no_prior (no Bayes
-        # path at all) warrant the dominant card style and narrative display.
-        dominant = ps.get("dominant") in {"imaging_ppv", "imaging_ppv_no_prior"}
+        dominant = ps.get("dominant") in {"imaging_ppv", "imaging_ppv_no_prior", "imaging_ppv_protective_adjusted"}
         header_cls = "imaging-card dominant" if dominant else "imaging-card"
         finding_rows = []
         for f in findings:
             ppv_low, ppv_high = f["malignancy_ppv_range"]
             finding_rows.append(
                 f'<li><strong>{_esc(f["finding_name_zh"])}</strong>'
-                f' — PPV 参考区间 {ppv_low*100:.0f}-{ppv_high*100:.0f}%'
+                f' — PPV 参考区间 {ppv_low*100:.0f}–{ppv_high*100:.0f}%'
                 f' <span class="muted">[{_esc(f["source_id"])}, 检查日期 {_esc(f["exam_date"])}]</span>'
-                f'<br><span class="muted">evidence: {_esc(f["evidence_text"][:120])}</span>'
+                f'<br><span class="muted">依据：{_esc(f["evidence_text"][:120])}</span>'
                 f'<br><span class="muted">下一步: {_esc(f.get("next_step", "请专科随诊"))}</span></li>'
-            )
-        narrative_html = ""
-        if dominant and ps.get("narrative"):
-            narrative_html = (
-                f'<p class="muted" style="margin-top:8px;color:#b34a00;">'
-                f'⚠ {_esc(ps["narrative"])}</p>'
             )
         blocks.append(
             f'<div class="{header_cls}"><h3 style="font-size:14.5px;">'
             f'{_esc(r.get("cancer_name_zh"))} '
-            f'<span class="muted">(影像 PPV 中位值 {ps.get("imaging_ppv_max", 0)*100:.0f}%, '
-            f'Bayes 后验 {_pct(ps.get("bayes_posterior_for_comparison"))})</span></h3>'
+            f'<span class="muted">(影像 PPV 中位值 {ps.get("imaging_ppv_max", 0)*100:.0f}%)</span></h3>'
             f'<ul>{"".join(finding_rows)}</ul>'
-            f'{narrative_html}</div>'
+            f'</div>'
         )
     if not blocks:
         return '<div class="empty-note">本次未提交任何已分级的影像学疑似病灶。</div>'
@@ -150,83 +139,101 @@ def _section2_body(cancers: list[dict[str, Any]], section_filter: dict[str, Any]
         include_above=float(section_filter.get("include_probability_above", 0.02)),
     )
     for r in focus:
-        comp_rows = []
-        # Bayesian chain: step-by-step running probability display
-        prior_lo = r.get("prior_log_odds")
-        running_lo = prior_lo
-
-        # Step 0: prior
-        comp_rows.append(
-            f'<div class="component-row">'
-            f'<strong>起始：人群基线</strong> '
-            f'年龄/性别先验 → <strong>{_pct(r.get("prior_probability"))}</strong>'
-            f'</div>'
-        )
-
-        for c in r["components"]:
-            delta = c["log_odds_delta"]
-            arrow = "↑ 升高风险" if delta > 0 else "↓ 降低风险"
-            factor_label = _esc(c.get("factor_name_zh") or c.get("factor_id") or "")
-            level_label = _esc(c.get("factor_level") or "")
-            approx_mark = " <span class='muted'>（RR近似）</span>" if c.get("approximation") else ""
-            evidence = c.get("evidence_text") or ""
-            ev_display = _esc(evidence[:80] + ("…" if len(evidence) > 80 else ""))
-            if running_lo is not None:
-                running_lo = running_lo + delta
-                prob_after = _prob_after_delta(running_lo, 0.0)
-                prob_str = f"→ <strong>{_pct(prob_after)}</strong>"
-            else:
-                prob_str = ""
-            comp_rows.append(
-                f'<div class="component-row">'
-                f'<strong>{factor_label}</strong>（{level_label}）{approx_mark} '
-                f'<span class="muted">{arrow}，ln(OR)={delta:+.3f}</span> {prob_str}'
-                f'<br><span class="muted">依据：{ev_display}</span>'
-                f'</div>'
-            )
-
-        for sc in r.get("screening_contributions", []):
-            delta = float(sc["log_odds_delta"])
-            result_zh = "阴性（保护）" if sc.get("result") == "negative" else "阳性（风险升高）"
-            test_label = _esc(sc.get("test_name") or sc.get("test_id") or "")
-            if running_lo is not None:
-                running_lo = running_lo + delta
-                prob_after = _prob_after_delta(running_lo, 0.0)
-                prob_str = f"→ <strong>{_pct(prob_after)}</strong>"
-            else:
-                prob_str = ""
-            comp_rows.append(
-                f'<div class="component-row">'
-                f'<strong>{test_label}</strong> 检测结果：{result_zh} '
-                f'<span class="muted">LR={sc.get("lr", 0):.2f}，ln(LR)={delta:+.3f}</span> {prob_str}'
-                f'<br><span class="muted">来源：{_esc(sc.get("source_id") or "")}</span>'
-                f'</div>'
-            )
-
-        # Final posterior summary
         ps = r.get("posterior_source") or {}
-        if ps.get("narrative"):
+        dominant = ps.get("dominant", "")
+        imaging_dominated = dominant in {"imaging_ppv", "imaging_ppv_protective_adjusted", "imaging_ppv_no_prior"}
+
+        comp_rows = []
+
+        if imaging_dominated:
+            # Imaging-dominated: only show PPV range, skip Bayesian chain
+            findings = r.get("imaging_findings") or []
+            ppv_lines = []
+            for f in findings:
+                lo, hi = f["malignancy_ppv_range"]
+                ppv_lines.append(
+                    f'<li><strong>{_esc(f["finding_name_zh"])}</strong>'
+                    f' — 恶性 PPV 参考区间 {lo*100:.0f}–{hi*100:.0f}%'
+                    f' <span class="muted">[{_esc(f["source_id"])}]</span></li>'
+                )
+            ppv_html = ('<ul style="margin:6px 0 0 0;">' + "".join(ppv_lines) + '</ul>') if ppv_lines else ""
+            ppv_max = ps.get("imaging_ppv_max", 0)
             comp_rows.append(
-                f'<div class="component-row" style="background:#fff8e1;">'
-                f'<strong>主导依据：</strong>{_esc(ps.get("dominant"))}'
-                f'<br><span class="muted">{_esc(ps.get("narrative"))}</span></div>'
+                f'<div class="component-row" style="background:#fff8e1;border-left:3px solid #b34a00;">'
+                f'<strong>⚠ 影像学主导</strong>：本癌种后验概率由影像发现的 PPV 决定'
+                f'（影像 PPV 中位值 <strong>{ppv_max*100:.0f}%</strong>），'
+                f'不使用 Bayes 因子累积链。{ppv_html}</div>'
+            )
+        else:
+            # Standard Bayesian chain
+            prior_lo = r.get("prior_log_odds")
+            running_lo = prior_lo
+
+            comp_rows.append(
+                f'<div class="component-row">'
+                f'<strong>起始：人群基线</strong> '
+                f'年龄/性别先验 → <strong>{_pct(r.get("prior_probability"))}</strong>'
+                f'</div>'
             )
 
-        if len(comp_rows) <= 1:
-            comp_rows.append(
-                '<div class="component-row"><strong>基线风险</strong> '
-                '未检测到额外风险因子或筛查贡献，本癌种主要由年龄/性别人群先验决定。</div>'
-            )
+            for c in r.get("components", []):
+                delta = c["log_odds_delta"]
+                arrow = "↑ 升高风险" if delta > 0 else "↓ 降低风险"
+                factor_label = _esc(c.get("factor_name_zh") or c.get("factor_id") or "")
+                level_label = _esc(c.get("factor_level") or "")
+                approx_mark = " <span class='muted'>（RR近似）</span>" if c.get("approximation") else ""
+                evidence = c.get("evidence_text") or ""
+                ev_display = _esc(evidence[:80] + ("…" if len(evidence) > 80 else ""))
+                if running_lo is not None:
+                    running_lo = running_lo + delta
+                    prob_after = _prob_after_delta(running_lo, 0.0)
+                    prob_str = f"→ 累计风险 <strong>{_pct(prob_after)}</strong>"
+                    or_val = math.exp(abs(delta))
+                    or_str = f"OR≈{or_val:.2f}"
+                else:
+                    prob_str = ""
+                    or_str = ""
+                comp_rows.append(
+                    f'<div class="component-row">'
+                    f'<strong>{factor_label}</strong>（{level_label}）{approx_mark} '
+                    f'<span class="muted">{arrow}，{or_str}</span> {prob_str}'
+                    f'<br><span class="muted">依据：{ev_display}</span>'
+                    f'</div>'
+                )
+
+            for sc in r.get("screening_contributions", []):
+                delta = float(sc["log_odds_delta"])
+                result_zh = "阴性（保护）" if sc.get("result") == "negative" else "阳性（风险升高）"
+                test_label = _esc(sc.get("test_name") or sc.get("test_id") or "")
+                if running_lo is not None:
+                    running_lo = running_lo + delta
+                    prob_after = _prob_after_delta(running_lo, 0.0)
+                    prob_str = f"→ 累计风险 <strong>{_pct(prob_after)}</strong>"
+                else:
+                    prob_str = ""
+                comp_rows.append(
+                    f'<div class="component-row">'
+                    f'<strong>{test_label}</strong> 检测结果：{result_zh} '
+                    f'<span class="muted">LR={sc.get("lr", 0):.2f}</span> {prob_str}'
+                    f'<br><span class="muted">来源：{_esc(sc.get("source_id") or "")}</span>'
+                    f'</div>'
+                )
+
+            if len(comp_rows) <= 1:
+                comp_rows.append(
+                    '<div class="component-row"><strong>基线风险</strong> '
+                    '未检测到额外风险因子或筛查贡献，本癌种主要由年龄/性别人群先验决定。</div>'
+                )
 
         blocks.append(
             f'<h3 style="font-size:14.5px;margin-top:14px;">{_esc(r.get("cancer_name_zh"))}'
-            f' <span class="muted">先验 {_pct(r.get("prior_probability"))} → '
-            f'后验 {_pct(r.get("posterior_probability"))}</span></h3>'
+            f' {_tier_pill(r.get("risk_tier"))}'
+            f' <span class="muted">后验概率 {_pct(r.get("posterior_probability"))}</span></h3>'
             + "".join(comp_rows)
         )
     if not blocks:
         return '<div class="empty-note">暂无可展示的重点癌症风险推理。</div>'
-    return "<div class=\"section-body\">" + "".join(blocks) + "</div>"
+    return '<div class="section-body">' + "".join(blocks) + "</div>"
 
 
 def _section3_body(snapshot: dict[str, Any], contact: dict[str, Any] | None = None) -> str:
@@ -259,7 +266,7 @@ def _section3_body(snapshot: dict[str, Any], contact: dict[str, Any] | None = No
     )
     table = (
         '<table style="width:100%;margin-top:8px;">'
-        '<tr><th>癌种</th><th>当前风险</th><th>吉早安阴性后风险</th></tr>'
+        '<tr><th>癌种</th><th>当前后验概率</th><th>吉早安阴性后概率</th></tr>'
         + rows + '</table>'
     )
     return (
@@ -270,164 +277,138 @@ def _section3_body(snapshot: dict[str, Any], contact: dict[str, Any] | None = No
 
 
 def _section4_body(section4: list[dict[str, Any]]) -> str:
-    """Legacy probability-tier-filtered screening — kept for back-compat."""
-    if not section4:
-        return (
-            '<div class="empty-note">按当前评估暂无中等及以上风险的癌种，'
-            '建议遵循常规体检与个性化健康管理建议。</div>'
-        )
-    cards = []
-    for c in section4:
-        plans = []
-        for plan in c.get("standard_screening", []):
-            plans.append(
-                f'<div class="plan"><strong>{_esc(plan.get("method"))}</strong>：'
-                f'{_esc(plan.get("population"))} / {_esc(plan.get("interval"))} / '
-                f'触发条件：{_esc(plan.get("trigger"))} <span class="muted">[{_esc(plan.get("source_id"))}]</span></div>'
-            )
-        if not plans:
-            plans.append('<div class="plan muted">证据库暂未维护此癌种的标准筛查建议。</div>')
-        cards.append(
-            f'<div class="cancer-card"><h3>{_esc(c.get("cancer_name_zh"))} {_tier_pill(c.get("risk_tier"))}'
-            f' <span class="muted">posterior={_pct(c.get("posterior_probability"))}</span></h3>'
-            + "".join(plans) + "</div>"
-        )
-    return "".join(cards)
+    """已移除（第四部分）。"""
+    return ""
+
+
+def _section5_body(snapshot: dict[str, Any]) -> str:
+    """已移除（第五部分）。"""
+    return ""
 
 
 def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | None = None) -> str:
-    """v6: VoI-ranked screening recommendations (v4.2 methodology).
-
-    For cancers that have imaging PPV findings but no prior (e.g.
-    thyroid_cancer), the VoI loop produces nothing — link the user
-    back to Section 6 explicitly so they don't think "the system
-    didn't see my thyroid nodule".
-    """
-    # Defensive: orchestrator may not have written voi_ranking.json yet
-    # on an interim re-run; surface a clean note instead of KeyError.
+    """筛查方案推荐：VoI 定义 + 深入筛查策略 + 便捷式筛查策略。"""
     if not isinstance(voi_output, dict):
         voi_output = {}
     all_rankings = voi_output.get("rankings", [])
 
-    # Partition: liquid-biopsy (multi-cancer) always shown; single-cancer filtered.
     liquid_rankings = [r for r in all_rankings if r.get("is_liquid_biopsy")]
     single_rankings = [r for r in all_rankings if not r.get("is_liquid_biopsy")]
 
-    posterior_map: dict[str, float] = {
-        c["cancer_id"]: float(c.get("posterior_probability") or 0)
-        for c in (cancers or [])
+    # Focus cancers = same set as section 2
+    focus_ids: set[str] = {
+        c["cancer_id"] for c in _focus_cancers(cancers or [])
         if c.get("cancer_id")
     }
-    THRESHOLD = 0.005  # 0.5%
-    qualified = [r for r in single_rankings if posterior_map.get(r.get("cancer_id", ""), 0) >= THRESHOLD]
-    if len(qualified) < 3:
-        qualified = sorted(
-            single_rankings,
-            key=lambda r: posterior_map.get(r.get("cancer_id", ""), 0),
-            reverse=True,
-        )[:3]
-    rankings = liquid_rankings + qualified
+    # Deep strategy: single-cancer methods for focus cancers, sorted by VoI desc
+    deep = sorted(
+        [r for r in single_rankings if r.get("cancer_id", "") in focus_ids],
+        key=lambda r: r.get("voi_score", 0),
+        reverse=True,
+    )
+    # Fallback: if focus_ids empty or none match, show top-3 single methods
+    if not deep:
+        deep = sorted(single_rankings, key=lambda r: r.get("voi_score", 0), reverse=True)[:3]
 
-    # Build "see Section 6" reminders for any cancer with imaging PPV
-    # but no entry in the VoI ranking (typically: missing_priors cancers).
-    voi_cancer_ids: set[str] = set()
-    for r in rankings:
-        cid = r.get("cancer_id", "")
-        for piece in cid.split(","):
-            voi_cancer_ids.add(piece.strip())
-    cross_ref: list[str] = []
-    for c in cancers or []:
-        if c.get("imaging_findings") and c["cancer_id"] not in voi_cancer_ids:
-            cross_ref.append(
-                f'<li><strong>{_esc(c.get("cancer_name_zh"))}</strong>'
-                f'：影像 PPV 路径已评估（详见第六节"影像学发现"）；'
-                f'本节因缺少人群先验或筛查方案数据未排序，临床处置以影像评级 + 活检/专科会诊为主。</li>'
-            )
-    cross_ref_html = ""
-    if cross_ref:
-        cross_ref_html = (
-            '<div class="empty-note" style="margin-top:8px;border-left:3px solid #b34a00;background:#fff8e1;">'
-            '<strong>⚠ 仅 PPV 路径评估（不在 VoI 排序内）：</strong>'
-            '<ul style="margin-top:4px;padding-left:18px;">' + "".join(cross_ref) + '</ul>'
-            '</div>'
-        )
-    if not rankings:
-        return ('<div class="empty-note">暂无可评估的筛查方案 VoI（缺少先验/生存/灵敏度数据）。</div>'
-                + cross_ref_html)
+    posterior_map: dict[str, float] = {
+        c["cancer_id"]: float(c.get("posterior_probability") or 0)
+        for c in (cancers or []) if c.get("cancer_id")
+    }
+    tier_map: dict[str, str] = {
+        c["cancer_id"]: c.get("risk_tier", "")
+        for c in (cancers or []) if c.get("cancer_id")
+    }
+
     rec_color = {"强烈推荐": "#842029", "推荐": "#856404", "可考虑": "#0c5460", "常规": "#6c757d"}
-    cards = []
-    for r in rankings:
-        color = rec_color.get(r["recommendation"], "#6c757d")
+
+    def _voi_card(r: dict[str, Any]) -> str:
+        color = rec_color.get(r.get("recommendation", ""), "#6c757d")
+        cid = r.get("cancer_id", "")
+        post = posterior_map.get(cid)
+        tier = tier_map.get(cid, "")
+        meta_parts = [
+            f'灵敏度 {r["sensitivity"]*100:.0f}%',
+            f'特异度 {r["specificity"]*100:.0f}%',
+            f'费用 {"—" if not r.get("cost_rmb") else "¥" + str(r["cost_rmb"])}',
+        ]
+        if post is not None:
+            meta_parts.insert(0, f'后验概率 {_pct(post)}')
+        if tier:
+            meta_parts.insert(1, f'风险等级 {_TIER_ZH.get(tier, tier)}')
         bd = ""
         if r.get("is_liquid_biopsy") and r.get("multi_cancer_breakdown"):
             rows = "".join(
                 f'<tr><td>{_esc(b["cancer_name_zh"])}</td>'
-                f'<td>{b["incidence_rate_per_100k"]:.2f}/100k</td>'
                 f'<td>{b["survival_gain_5y"]:.1f}%</td>'
-                f'<td>{b["sensitivity"]*100:.1f}%</td>'
-                f'<td>+{b["voi_contribution"]:.2f}</td></tr>'
+                f'<td>{b["sensitivity"]*100:.0f}%</td>'
+                f'<td>{b["voi_contribution"]:.2f}</td></tr>'
                 for b in r["multi_cancer_breakdown"]
             )
             bd = (
                 '<table style="margin-top:6px;font-size:12px;width:100%;">'
-                '<tr><th>癌种</th><th>发病率</th><th>5年生存差</th><th>灵敏度</th><th>VoI贡献</th></tr>'
+                '<tr><th>癌种</th><th>5年生存差</th><th>灵敏度</th><th>VoI贡献（天）</th></tr>'
                 + rows + '</table>'
             )
-        cards.append(
-            f'<div class="voi-card">'
+        return (
+            f'<div class="voi-card" style="margin-bottom:10px;padding:10px 14px;'
+            f'border:1px solid #ddd;border-radius:6px;">'
             f'<div style="display:flex;justify-content:space-between;align-items:center;">'
             f'<strong>{_esc(r["method"])}</strong>'
-            f'<span style="color:{color};font-weight:600;">VoI {r["voi_score"]:.2f} · {r["recommendation"]}</span>'
+            f'<span style="color:{color};font-weight:600;">'
+            f'VoI {r["voi_score"]:.2f} 天 · {_esc(r.get("recommendation",""))}</span>'
             f'</div>'
             f'<div class="muted" style="font-size:12.5px;margin-top:4px;">'
-            f'目标癌种: {_esc(r["cancer_name_zh"])} · 灵敏度 {r["sensitivity"]*100:.1f}% · '
-            f'特异度 {r["specificity"]*100:.1f}% · 费用 {"—" if not r.get("cost_rmb") else ("¥" + str(r["cost_rmb"]))} · '
-            f'{_esc(r["invasiveness"])} · {_esc(r.get("guideline", ""))}</div>'
+            f'目标癌种：{_esc(r["cancer_name_zh"])} · '
+            + " · ".join(_esc(p) for p in meta_parts) +
+            f'</div>'
             f'{bd}'
             f'</div>'
         )
-    return (
-        '<p class="muted" style="margin-bottom:8px;font-size:13px;">'
-        f'公式：{_esc(voi_output.get("formula",""))}<br>'
-        f'分级阈值：≥20 强烈推荐 / 10-20 推荐 / 5-10 可考虑 / &lt;5 常规'
-        '</p>'
-        + "".join(cards)
-        + cross_ref_html
+
+    # VoI definition block
+    definition_html = (
+        '<div style="background:#f0f7ff;border-left:4px solid #2979ff;'
+        'padding:10px 14px;border-radius:4px;margin-bottom:14px;font-size:13px;">'
+        '<strong>筛查获益评分（VoI）说明</strong>：'
+        '综合检测灵敏度、癌症不同分期生存率差异及个体预测发病率，对目标筛查技术进行评分。'
+        '评分高低反映该筛查手段对本人的预期健康获益大小（单位：期望生命获益天数）。'
+        '<br><span class="muted" style="font-size:12px;">'
+        '计算公式：（I期5年生存率 − IV期5年生存率）× 5 × 365 × 检测灵敏度 × 个体后验概率'
+        '<br>分级：≥10天 强烈推荐 / 2.5–10天 推荐 / 1–2.5天 可考虑 / &lt;1天 常规'
+        '</span></div>'
     )
 
+    # Deep strategy section
+    if deep:
+        deep_cards = "".join(_voi_card(r) for r in deep)
+        deep_html = (
+            '<h4 style="margin:12px 0 6px;font-size:14px;">深入筛查策略</h4>'
+            '<p class="muted" style="font-size:12.5px;margin-bottom:8px;">'
+            '以下为本次重点癌种的临床推荐筛查手段，按 VoI 从高到低排序：</p>'
+            + deep_cards
+        )
+    else:
+        deep_html = (
+            '<h4 style="margin:12px 0 6px;font-size:14px;">深入筛查策略</h4>'
+            '<div class="empty-note">暂无可评估的临床筛查方案（缺少先验/生存/灵敏度数据）。</div>'
+        )
 
-def _section5_body(snapshot: dict[str, Any]) -> str:
-    summary = snapshot.get("uncertainties_summary", {})
-    items: list[str] = []
-    missing = summary.get("cancers_missing_prior", [])
-    not_applicable = summary.get("cancers_not_applicable", [])
-    approx_count = summary.get("approximation_components", 0)
-    if missing:
-        items.append(f"<li>缺少先验概率而未计算的癌种：{_esc('、'.join(missing))}（需补充 incidence 数据）</li>")
-    if not_applicable:
-        items.append(f"<li>性别不适用的癌种：{_esc('、'.join(not_applicable))}</li>")
-    if approx_count:
-        items.append(f"<li>使用 RR/HR 近似换算 log-odds 的组件数：{approx_count}（已标记 approximation）</li>")
-    detail_items: list[str] = []
-    for cancer in snapshot.get("cancers", []):
-        for u in cancer.get("uncertainties", []):
-            detail_items.append(
-                f"<li>{_esc(cancer.get('cancer_name_zh'))}: {_esc(u.get('reason'))} "
-                f"<span class='muted'>{_esc(u.get('detail') or u.get('factor_id') or u.get('assertion_id') or '')}</span></li>"
-            )
-    body_chunks: list[str] = []
-    if items:
-        body_chunks.append("<ul>" + "".join(items) + "</ul>")
-    if detail_items:
-        body_chunks.append("<details><summary>展开按癌种的不确定性条目</summary><ul>" + "".join(detail_items) + "</ul></details>")
-    if not body_chunks:
-        body_chunks.append('<div class="empty-note">本次预测未发现额外不确定性来源。</div>')
-    body_chunks.append(
-        '<p class="muted" style="margin-top:10px;">本节同时承载“证据库外异常提示”：'
-        '体检中存在但不在本体证据库中的发现（如甲状腺结节、ALT 升高等）不参与概率推断，'
-        '请结合健康总结报告与临床随访意见处理。</p>'
-    )
-    return "<div class=\"section-body\">" + "".join(body_chunks) + "</div>"
+    # Convenient strategy section (吉早安)
+    if liquid_rankings:
+        conv_cards = "".join(_voi_card(r) for r in liquid_rankings)
+        conv_html = (
+            '<h4 style="margin:16px 0 6px;font-size:14px;">便捷式筛查策略</h4>'
+            '<p class="muted" style="font-size:12.5px;margin-bottom:8px;">'
+            '吉早安多癌早筛（ctDNA甲基化液体活检），一次采血覆盖多癌种：</p>'
+            + conv_cards
+        )
+    else:
+        conv_html = (
+            '<h4 style="margin:16px 0 6px;font-size:14px;">便捷式筛查策略</h4>'
+            '<div class="empty-note">暂无吉早安 VoI 数据（证据库未覆盖本次癌种或缺少灵敏度数据）。</div>'
+        )
+
+    return definition_html + deep_html + conv_html
 
 
 def render_snapshot_html(

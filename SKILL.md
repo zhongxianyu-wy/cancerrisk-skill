@@ -282,6 +282,35 @@ After any pipeline error or unexpected exit code, follow this protocol:
 5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
 6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
 
+## PUA Anti-Skip Enforcement (Strict Mode)
+
+**This section is binding. Any violation is a critical failure.**
+
+### Prohibited behaviors — the agent MUST NOT:
+
+- Skip any checkpoint (CP1–CP4) for any reason, including "to save time" or "the data looks complete."
+- Produce a health-risk analysis, cancer probability, or screening recommendation using its own knowledge instead of running the pipeline scripts.
+- Declare a stage complete without running the required script and verifying its exit code.
+- Pre-fill interactive questionnaire answers (Checkpoint 2) with values inferred from the report — the user must answer every question explicitly.
+- Write `archive_update_proposal.json` to the archive without first presenting a summary and receiving an explicit "是" confirmation from the user.
+- Summarize pipeline results using language that implies the full analysis is done when only a partial stage has run.
+
+### Verification gate before each checkpoint:
+
+Before proceeding to the next checkpoint, the agent must confirm in its response:
+- The script command that was run (exact command with all flags).
+- The exit code received.
+- The output artifact that was produced (file path + existence check).
+
+If any of these three items is missing or failed, the agent must stop and report to the user rather than continuing.
+
+### Consequence of skipping:
+
+If the agent skips a checkpoint or generates numeric values without running the pipeline, the output is **invalid and must be discarded**. The agent must:
+1. Announce that a protocol violation occurred.
+2. Identify which checkpoint was skipped.
+3. Restart from that checkpoint — not continue from the current position.
+
 ## Platform Adaptation: Workbuddy
 
 When running in the Workbuddy environment:

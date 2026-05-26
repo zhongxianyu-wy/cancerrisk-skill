@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
-"""VoI (Value of Information) calculator — v1 formula from voi_parameters.json.
+"""VoI (Value of Information) calculator — v2 formula.
 
-Core formula (QALYs):
+Core formula (expected life-days gained):
 
-    VoI(test) = P_pos × delta_T_pos + P_neg × delta_T_neg
-
-    P_pos = prior_risk × sensitivity + (1 − prior_risk) × (1 − specificity)
-    P_neg = 1 − P_pos
-    delta_T_pos = expected_life_years_gained × treatment_coefficient
-    delta_T_neg = anxiety_reduction_qaly + unnecessary_test_avoidance_qaly
+    VoI(test) = (I期生存率 − IV期生存率) × 5 × 365 × 灵敏度 × 个体预测发病率
+              = (stage1_5y_os − late_stage_5y_os) / 100 × 5 × 365 × sensitivity × posterior
 
 Recommendation tiers (voi_parameters.json::voi_thresholds):
-    ≥ 0.5  → 强烈推荐
-    0.2-0.5 → 推荐
-    0.05-0.2 → 可考虑
-    < 0.05  → 常规
+    ≥ 10   → 强烈推荐
+    2.5-10 → 推荐
+    1-2.5  → 可考虑
+    < 1    → 常规
 """
 
 from __future__ import annotations
@@ -67,9 +63,9 @@ class ScreeningVoI:
 
 
 def _classify(score: float, thresholds: dict[str, Any]) -> str:
-    high = thresholds.get("high_benefit", {}).get("threshold", 20)
-    medium = thresholds.get("medium_benefit", {}).get("threshold", 10)
-    low = thresholds.get("low_benefit", {}).get("threshold", 5)
+    high = thresholds.get("high_benefit", {}).get("threshold", 10)
+    medium = thresholds.get("medium_benefit", {}).get("threshold", 2.5)
+    low = thresholds.get("low_benefit", {}).get("threshold", 1.0)
     if score >= high:
         return "强烈推荐"
     if score >= medium:
@@ -87,25 +83,21 @@ def _compute_single_method_voi(
     survival: dict[str, Any],
     prior_risk: float,
     thresholds: dict[str, Any],
-    delta_T_neg: float,
 ) -> ScreeningVoI:
-    """Single-method VoI = P_pos × delta_T_pos + P_neg × delta_T_neg (QALYs)."""
+    """VoI = (stage1_5y_os − late_stage_5y_os)/100 × 5 × 365 × sensitivity × posterior."""
     se = float(method_info.get("sensitivity", 0)) / 100.0
-    sp = float(method_info.get("specificity", 0)) / 100.0
-    p_pos = prior_risk * se + (1.0 - prior_risk) * (1.0 - sp)
-    p_neg = 1.0 - p_pos
-    delta_T_pos = float(survival.get("expected_life_years_gained", 0)) * float(survival.get("treatment_coefficient", 0))
-    voi = p_pos * delta_T_pos + p_neg * delta_T_neg
+    sg = (float(survival.get("stage1_5y_os", 0)) - float(survival.get("late_stage_5y_os", 0))) / 100.0
+    voi = sg * 5.0 * 365.0 * se * prior_risk
     return ScreeningVoI(
         cancer_id=cancer_id,
         cancer_name_zh=cancer_zh,
         method=method_info.get("method", ""),
         description=method_info.get("description", method_info.get("method", "")),
-        voi_score=round(voi, 4),
+        voi_score=round(voi, 2),
         recommendation=_classify(voi, thresholds),
         prior_risk=prior_risk,
         sensitivity=se,
-        specificity=sp,
+        specificity=float(method_info.get("specificity", 0)) / 100.0,
         cost_level=method_info.get("cost_level", ""),
         invasiveness=method_info.get("invasiveness", ""),
         guideline=method_info.get("guideline", ""),
@@ -123,9 +115,8 @@ def _compute_jizaoan_voi(
     jizaoan_cost_rmb: int,
     gender: str,
     jizaoan_coverage: list[str],   # Chinese names
-    delta_T_neg: float,
 ) -> ScreeningVoI | None:
-    """Multi-cancer liquid biopsy: Σ P_pos_c × delta_T_pos_c + P_neg_c × delta_T_neg."""
+    """Multi-cancer liquid biopsy: Σ (sg/100×5×365×se×posterior) per covered cancer."""
     coverage_set = {EN_TO_ZH.get(cid, "") for cid in risk_cancer_ids} & set(jizaoan_coverage)
     if not coverage_set:
         return None
@@ -142,9 +133,7 @@ def _compute_jizaoan_voi(
         se = info.get("jizaoan_sensitivity", 0)
         prior = float(info.get("prior_risk", 0))
         rate = info.get("incidence_rate_per_100k", 0)
-        p_pos_c = prior * se + (1.0 - prior) * (1.0 - _JIZAOAN_SPECIFICITY)
-        delta_T_pos_c = float(survival.get("expected_life_years_gained", 0)) * float(survival.get("treatment_coefficient", 0))
-        voi_c = p_pos_c * delta_T_pos_c + (1.0 - p_pos_c) * delta_T_neg
+        voi_c = (sg5 / 100.0) * 5.0 * 365.0 * se * prior
         total_voi += voi_c
         sens_list.append(se)
         breakdown.append({
@@ -153,7 +142,7 @@ def _compute_jizaoan_voi(
             "incidence_rate_per_100k": rate,
             "survival_gain_5y": sg5,
             "sensitivity": se,
-            "voi_contribution": round(voi_c, 4),
+            "voi_contribution": round(voi_c, 2),
         })
     if not breakdown:
         return None
@@ -162,7 +151,7 @@ def _compute_jizaoan_voi(
         cancer_name_zh="+".join(sorted(b["cancer_name_zh"] for b in breakdown)),
         method="吉早安",
         description="吉因加多癌早筛液体活检",
-        voi_score=round(total_voi, 4),
+        voi_score=round(total_voi, 2),
         recommendation=_classify(total_voi, thresholds),
         prior_risk=0.0,
         sensitivity=round(sum(sens_list) / max(len(sens_list), 1), 4),
@@ -192,8 +181,6 @@ def compute_voi_for_cancers(
     thresholds = voi_parameters.get("voi_thresholds", {})
     survival_data = voi_parameters.get("survival_gain", {}).get("cancers", {})
     cost_data = voi_parameters.get("screening_cost_qaly", {}).get("methods", {})
-    neg_val = voi_parameters.get("negative_result_value", {})
-    delta_T_neg = float(neg_val.get("anxiety_reduction_qaly", 0.02)) + float(neg_val.get("unnecessary_test_avoidance_qaly", 0.01))
     rankings: list[ScreeningVoI] = []
 
     # Per-cancer VoI (primary_screening methods only — jizaoan handled below)
@@ -233,7 +220,6 @@ def compute_voi_for_cancers(
                 method_info=m, survival=survival,
                 prior_risk=posterior,
                 thresholds=thresholds,
-                delta_T_neg=delta_T_neg,
             )
             method_cost = cost_data.get(m.get("method", ""), {})
             voi_item.cost_rmb = int(method_cost.get("cost_rmb", 0))
@@ -262,7 +248,6 @@ def compute_voi_for_cancers(
         jizaoan_cost_rmb=jizaoan_cost,
         gender=person_sex or "all",
         jizaoan_coverage=jizaoan_coverage,
-        delta_T_neg=delta_T_neg,
     )
     if jizaoan_item:
         rankings.append(jizaoan_item)
@@ -297,7 +282,7 @@ def run_voi_stage(
 
     output = {
         "schema_version": "voi-ranking-v1",
-        "formula": "VoI = P_pos×delta_T_pos + P_neg×delta_T_neg; P_pos=p×se+(1-p)×(1-sp); delta_T_pos=life_years_gained×treatment_coeff; delta_T_neg=anxiety_qaly+avoid_test_qaly",
+        "formula": "VoI = (I期5y_OS − IV期5y_OS)/100 × 5 × 365 × 灵敏度 × 个体后验概率",
         "thresholds": voi_params.get("voi_thresholds"),
         "rankings": [asdict(r) for r in rankings],
         "total_methods_evaluated": len(rankings),
