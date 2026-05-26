@@ -71,6 +71,16 @@
       "notes": "Vendor-published performance for the Jizaoan multi-cancer panel."
     },
     {
+      "test_id": "jizaoan_multi_cancer_screening",
+      "test_name": "吉早安多癌早筛",
+      "cancer_id": "pancreatic_cancer",
+      "sensitivity": 0.667,
+      "specificity": 0.991,
+      "population": "general adult population",
+      "source_id": "jizaoan_white_paper_v2026",
+      "notes": "Vendor-published performance for the Jizaoan multi-cancer panel."
+    },
+    {
       "test_id": "afp_serum",
       "test_name": "甲胎蛋白 AFP (≥20 ng/mL)",
       "cancer_id": "liver_cancer",

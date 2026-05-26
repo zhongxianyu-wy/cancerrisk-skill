@@ -120,6 +120,23 @@
       "source_id": "jizaoan_white_paper_v2026"
     },
     {
+      "test_id": "jizaoan_multi_cancer_screening",
+      "cancer_id": "pancreatic_cancer",
+      "raw_sensitivity": 0.667,
+      "raw_specificity": 0.991,
+      "sensitivity": 0.667,
+      "specificity": 0.991,
+      "probability_boundary_adjustment": false,
+      "lr_positive": 74.11111111111104,
+      "lr_negative": 0.3360242179616549,
+      "positive_log_odds_delta": 4.305565468579403,
+      "negative_log_odds_delta": -1.0905720443495441,
+      "conversion_status": "usable",
+      "conversion_rule": "LR+/LR- from sensitivity/specificity",
+      "unusable_reason": null,
+      "source_id": "jizaoan_white_paper_v2026"
+    },
+    {
       "test_id": "afp_serum",
       "cancer_id": "liver_cancer",
       "raw_sensitivity": 0.65,
