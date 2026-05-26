@@ -16,7 +16,10 @@ SKILL_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DEFAULT = SKILL_ROOT / "templates" / "longitudinal_risk_v3.html"
 CONFIG_DEFAULT = SKILL_ROOT / "config" / "formal.yaml"
 
-_TIER_ZH = {"high": "高风险", "medium": "中风险", "low": "低风险"}
+_TIER_ZH = {
+    "high": "高风险", "medium": "中风险", "low": "低风险",
+    "urgent_workup": "高风险", "high_workup": "高风险", "moderate_workup": "中风险",
+}
 
 
 def _esc(value: Any) -> str:
@@ -167,6 +170,8 @@ def render_longitudinal_html(
     disclaimer: str,
     factor_zh: dict[str, str] | None = None,
 ) -> str:
+    if factor_zh is None:
+        factor_zh = _load_factor_zh_map()
     template = template_path.read_text(encoding="utf-8")
     person = longitudinal.get("person_context") or {}
     if longitudinal.get("cancers"):

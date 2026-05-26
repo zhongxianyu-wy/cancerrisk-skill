@@ -18,7 +18,13 @@ TEMPLATE_DEFAULT = SKILL_ROOT / "templates" / "snapshot_risk_v42.html"
 CONFIG_DEFAULT = SKILL_ROOT / "config" / "formal.yaml"
 CONTACT_DEFAULT = SKILL_ROOT / "config" / "contact.json"
 
-_TIER_ZH = {"high": "高风险", "medium": "中风险", "low": "低风险"}
+_TIER_ZH = {
+    "high": "高风险", "medium": "中风险", "low": "低风险",
+    "urgent_workup": "高风险", "high_workup": "高风险", "moderate_workup": "中风险",
+}
+_TIER_CSS = {
+    "urgent_workup": "high", "high_workup": "high", "moderate_workup": "medium",
+}
 
 
 def _esc(value: Any) -> str:
@@ -37,7 +43,8 @@ def _tier_pill(tier: str | None) -> str:
     if not tier:
         return '<span class="tier-pill tier-na">不适用</span>'
     label = _TIER_ZH.get(tier, tier)
-    return f'<span class="tier-pill tier-{_esc(tier)}">{_esc(label)}</span>'
+    css_cls = _TIER_CSS.get(tier, tier)
+    return f'<span class="tier-pill tier-{_esc(css_cls)}">{_esc(label)}</span>'
 
 
 def _focus_cancers(cancers: list[dict[str, Any]], *, top_n: int = 3, include_above: float = 0.02) -> list[dict[str, Any]]:
@@ -277,13 +284,40 @@ def _section3_body(snapshot: dict[str, Any], contact: dict[str, Any] | None = No
 
 
 def _section4_body(section4: list[dict[str, Any]]) -> str:
-    """已移除（第四部分）。"""
-    return ""
-
-
-def _section5_body(snapshot: dict[str, Any]) -> str:
-    """已移除（第五部分）。"""
-    return ""
+    if not section4:
+        return '<div class="empty-note">暂无筛查推荐数据（重点癌种均超出证据库筛查覆盖范围）。</div>'
+    blocks = []
+    for entry in section4:
+        name = _esc(entry.get("cancer_name_zh") or entry.get("cancer_id", ""))
+        tier_html = _tier_pill(entry.get("risk_tier"))
+        prob_text = _pct(entry.get("posterior_probability"))
+        methods = entry.get("standard_screening") or []
+        if not methods:
+            method_html = '<p class="muted" style="margin-top:6px;">证据库中暂无该癌种的标准筛查方案。</p>'
+        else:
+            rows = "".join(
+                f'<tr>'
+                f'<td><strong>{_esc(m.get("method", ""))}</strong></td>'
+                f'<td class="muted">{_esc(m.get("population", ""))}</td>'
+                f'<td>{_esc(m.get("interval", ""))}</td>'
+                f'</tr>'
+                for m in methods
+            )
+            method_html = (
+                '<table style="margin-top:8px;"><tr>'
+                '<th>筛查方式</th><th>适用人群</th><th>频率</th></tr>'
+                + rows + '</table>'
+            )
+        blocks.append(
+            f'<div style="border:1px solid #e1e8ef;border-radius:10px;'
+            f'padding:14px 16px;margin-bottom:12px;background:#fff;">'
+            f'<div style="font-size:15px;font-weight:600;margin-bottom:4px;">'
+            f'{name} {tier_html} '
+            f'<span class="muted" style="font-size:13px;font-weight:normal;">后验概率 {prob_text}</span></div>'
+            + method_html +
+            f'</div>'
+        )
+    return '<div class="section-body">' + "".join(blocks) + '</div>'
 
 
 def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | None = None) -> str:
@@ -329,8 +363,9 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
         meta_parts = [
             f'灵敏度 {r["sensitivity"]*100:.0f}%',
             f'特异度 {r["specificity"]*100:.0f}%',
-            f'费用 {"—" if not r.get("cost_rmb") else "¥" + str(r["cost_rmb"])}',
         ]
+        if r.get("cost_rmb"):
+            meta_parts.append(f'费用 ¥{r["cost_rmb"]}')
         if post is not None:
             meta_parts.insert(0, f'后验概率 {_pct(post)}')
         if tier:
@@ -346,7 +381,7 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
             )
             bd = (
                 '<table style="margin-top:6px;font-size:12px;width:100%;">'
-                '<tr><th>癌种</th><th>5年生存差</th><th>灵敏度</th><th>VoI贡献（天）</th></tr>'
+                '<tr><th>癌种</th><th>5年生存差</th><th>灵敏度</th><th>VoI贡献</th></tr>'
                 + rows + '</table>'
             )
         return (
@@ -355,7 +390,7 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
             f'<div style="display:flex;justify-content:space-between;align-items:center;">'
             f'<strong>{_esc(r["method"])}</strong>'
             f'<span style="color:{color};font-weight:600;">'
-            f'VoI {r["voi_score"]:.2f} 天 · {_esc(r.get("recommendation",""))}</span>'
+            f'VoI {r["voi_score"]:.2f} · {_esc(r.get("recommendation",""))}</span>'
             f'</div>'
             f'<div class="muted" style="font-size:12.5px;margin-top:4px;">'
             f'目标癌种：{_esc(r["cancer_name_zh"])} · '
@@ -370,11 +405,11 @@ def _section7_voi(voi_output: dict[str, Any], cancers: list[dict[str, Any]] | No
         '<div style="background:#f0f7ff;border-left:4px solid #2979ff;'
         'padding:10px 14px;border-radius:4px;margin-bottom:14px;font-size:13px;">'
         '<strong>筛查获益评分（VoI）说明</strong>：'
-        '综合检测灵敏度、癌症不同分期生存率差异及个体预测发病率，对目标筛查技术进行评分。'
-        '评分高低反映该筛查手段对本人的预期健康获益大小（单位：期望生命获益天数）。'
+        '综合检测灵敏度、癌症不同分期生存率差异及个体预测发病率，对目标筛查技术进行评分，'
+        '评分高低反映该筛查手段对本人的预期健康获益大小。'
         '<br><span class="muted" style="font-size:12px;">'
         '计算公式：（I期5年生存率 − IV期5年生存率）× 5 × 365 × 检测灵敏度 × 个体后验概率'
-        '<br>分级：≥10天 强烈推荐 / 2.5–10天 推荐 / 1–2.5天 可考虑 / &lt;1天 常规'
+        '<br>分级：≥10 强烈推荐 / 2.5–10 推荐 / 1–2.5 可考虑 / &lt;1 常规'
         '</span></div>'
     )
 
