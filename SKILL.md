@@ -61,6 +61,11 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 
 ## Minimal Workflow
 
+> **Flag convention**: In steps 3–10, `...` means carry the same
+> `--input <input> --analysis-output <out> --person-id <id>` from
+> step 1. Add `--answers <file>` from step 4 onward. Never drop flags
+> between steps.
+
 1. Run MinerU and stop:
 
    ```bash
@@ -281,6 +286,16 @@ After any pipeline error or unexpected exit code, follow this protocol:
 4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
 5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
 6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
+
+### Common failure scenarios
+
+| Failure | Symptom | Required action |
+|---|---|---|
+| MinerU API failure | Non-zero exit at `--stop-after mineru`; `content.md` absent or empty | Report exact error to user; do **not** proceed to CP1; retry once after user confirms network/token |
+| Unexpected exit code | Code is not 0, 4, or 8 | Treat as unrecoverable; print stderr verbatim; halt and ask user how to proceed |
+| Health-summary API timeout | Step 8 hangs >120 s or returns HTTP 5xx | Report timeout; retry once; if still failing, halt at `health-summary-api` stage and notify user |
+| CP3 validation failure | `validate_timeline_candidate.py` or `validate_tumor_markers.py` exits non-zero | Read the validation error, correct only the flagged fields in the candidate JSON, re-validate; do **not** delete passing records |
+| Artifact not found | `refined.md`, `interactive_questionnaire.json`, or candidate JSON missing when expected | Identify which step should have produced it; rerun from that step's `--stop-after` flag; do **not** fabricate the file |
 
 ## PUA Anti-Skip Enforcement (Strict Mode)
 
