@@ -302,6 +302,24 @@
         {"method": "MRCP", "indication": "胰管评估", "cost_level": "high", "radiation": "none"}
       ],
       "liquid_biopsy": {"method": "吉早安", "sensitivity": 66.7, "specificity": 99.1}
+    },
+    "甲状腺癌": {
+      "primary_screening": [
+        {
+          "method": "甲状腺和颈部淋巴结彩超",
+          "description": "甲状腺和颈部淋巴结彩超",
+          "sensitivity": 90,
+          "specificity": 75,
+          "cost_level": "very_low",
+          "invasiveness": "non-invasive",
+          "radiation": "none",
+          "guideline": "中国甲状腺癌诊疗指南(2023)"
+        }
+      ],
+      "followup_methods": [
+        {"method": "超声引导FNA", "indication": "TIRADS 4/5类结节", "cost_level": "low", "invasiveness": "minimally-invasive"},
+        {"method": "增强CT/MRI", "indication": "评估淋巴结转移", "cost_level": "high", "radiation": "medium"}
+      ]
     }
   },
   "cost_levels": {
