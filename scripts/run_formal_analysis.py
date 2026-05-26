@@ -130,7 +130,6 @@ def _guard_master_fill_not_empty(
     artifacts: Path,
     timeline_candidate: dict,
     tumor_markers_candidate: dict,
-    allow_empty_master_fill: bool,
 ) -> None:
     """Halt when Agent Checkpoint 3 was skipped.
 
@@ -150,7 +149,6 @@ def _guard_master_fill_not_empty(
     sentinel.write_text(
         "MASTER_FILL_SKIPPED\n"
         f"run_at={datetime.now().isoformat()}\n"
-        f"allow_empty_master_fill={bool(allow_empty_master_fill)}\n"
         f"timeline_records={n_timeline}\n"
         f"tumor_marker_tests={n_tumor}\n"
         "remediation=follow SKILL.md Agent Checkpoint 3: fill "
@@ -158,20 +156,12 @@ def _guard_master_fill_not_empty(
         "tumor_markers.candidate.json, validate them, then re-run.\n",
         encoding="utf-8",
     )
-    if allow_empty_master_fill:
-        print(
-            "[task4] notice: Master fill candidates are EMPTY "
-            f"(allow_empty_master_fill=True). Sentinel: {sentinel}",
-            file=sys.stderr,
-        )
-        return
     raise SystemExit(
         "[task4] HALT: Master fill candidate is EMPTY. "
         "The orchestrator built structured_risk_factors_timeline.candidate.json "
         "and tumor_markers.candidate.json, but neither contains agent-filled "
         "records. Follow SKILL.md 'Master fill recipe' / 'Tumor markers recipe', "
         "run the validators, then re-run. "
-        "Escape hatch for prior/interaction-only tests: --allow-empty-master-fill. "
         f"Sentinel file: {sentinel}"
     )
 
@@ -418,14 +408,6 @@ def main():
                         dest="auto_apply_archive",
                         help="automatically apply the archive proposal without agent confirmation. "
                              "Normally the orchestrator stops at archive-proposal for review.")
-    parser.add_argument("--allow-empty-interactive", action="store_true",
-                        help="explicitly proceed past Task5 with user_reported=[]. "
-                             "The orchestrator otherwise hard-stops at task5 with exit code 8. "
-                             "Use only when you want a prior-only run.")
-    parser.add_argument("--allow-empty-master-fill", action="store_true",
-                        help="explicitly proceed when Agent Checkpoint 3 produced no "
-                             "timeline records and no tumor marker tests. Use only for "
-                             "prior/interaction-only tests.")
     args = parser.parse_args()
 
     if not args.output_dir:
@@ -732,58 +714,42 @@ def main():
         return
 
     # HARD HALT when downstream stages would run with an empty interactive
-    # timeline. Two explicit escape paths:
-    #   (1) --allow-empty-interactive — "I want prior-only output"
-    #   (2) --stop-after interactive  — caller is in the elicitation loop
+    # timeline. The only valid earlier exit is --stop-after interactive
+    # (already returned above). Re-run with --answers after CP2.
     if not fixed_result["user_reported_timeline"]["records"]:
+        questionnaire_path = artifacts / config.get("interactive", {}).get(
+            "questionnaire_output", "interactive_questionnaire.json"
+        )
         sentinel = artifacts / "interactive_skipped.warning"
         sentinel.write_text(
             "INTERACTIVE_SKIPPED\n"
             f"run_at={datetime.now().isoformat()}\n"
-            f"stop_after_interactive={args.stop_after == 'interactive'}\n"
-            f"allow_empty_interactive={bool(args.allow_empty_interactive)}\n"
             f"questions_offered={fixed_questionnaire['question_count']}\n"
             f"user_reported_records=0\n"
             "remediation=re-run with --answers <file> after collecting answers "
             "via interactive_questionnaire.json (Agent Checkpoint 2).\n",
             encoding="utf-8",
         )
-        if (
-            not args.allow_empty_interactive
-            and args.stop_after != "interactive"
-        ):
-            questionnaire_path = artifacts / config.get("interactive", {}).get(
-                "questionnaire_output", "interactive_questionnaire.json"
-            )
-            print(
-                "[task5] HALT: interactive questionnaire was generated but the "
-                "user_reported_timeline is EMPTY. The orchestrator will not "
-                "proceed to downstream stages without lifestyle / family-history "
-                "/ screening answers — that produces a misleading report.\n"
-                "\n"
-                "WHAT TO DO NEXT (Agent Checkpoint 2):\n"
-                f"  1. Read the questionnaire: {questionnaire_path}\n"
-                "  2. Ask the user every question via AskUserQuestion.\n"
-                "  3. Write their answers to a JSON file:\n"
-                '       {"answers": {"q_demographics_sex": "male",\n'
-                '                    "q_demographics_age": 29,\n'
-                '                    "q_family_history_cancer": "no",\n'
-                '                    "q_smoking_status": "never",\n'
-                '                    "q_alcohol_status": "never", ...}}\n'
-                "  4. Re-run with `--answers <that-file>`.\n"
-                "\n"
-                "ESCAPE HATCH (prior-only run): --allow-empty-interactive\n"
-                f"\nSentinel file: {sentinel}",
-                file=sys.stderr,
-            )
-            sys.exit(8)
         print(
-            "[task5] notice: user_reported_timeline is EMPTY "
-            f"(allow_empty_interactive={bool(args.allow_empty_interactive)}, "
-            f"stop_after_interactive={args.stop_after == 'interactive'}). "
-            f"Sentinel: {sentinel}",
+            "[task5] HALT: interactive questionnaire was generated but the "
+            "user_reported_timeline is EMPTY. The orchestrator will not "
+            "proceed to downstream stages without lifestyle / family-history "
+            "/ screening answers — that produces a misleading report.\n"
+            "\n"
+            "WHAT TO DO NEXT (Agent Checkpoint 2):\n"
+            f"  1. Read the questionnaire: {questionnaire_path}\n"
+            "  2. Ask the user every question via AskUserQuestion.\n"
+            "  3. Write their answers to a JSON file:\n"
+            '       {"answers": {"q_demographics_sex": "male",\n'
+            '                    "q_demographics_age": 29,\n'
+            '                    "q_family_history_cancer": "no",\n'
+            '                    "q_smoking_status": "never",\n'
+            '                    "q_alcohol_status": "never", ...}}\n'
+            "  4. Re-run with `--answers <that-file>`.\n"
+            f"\nSentinel file: {sentinel}",
             file=sys.stderr,
         )
+        sys.exit(8)
 
     # --- v4 Master-fill scaffold (Agent Checkpoint 3) -------------------
     source_md_files: list[master_scan.SourceMdEntry] = []
@@ -901,6 +867,23 @@ def main():
         print(prompt)
         return
 
+    # --- CP3.1 audit result gate -----------------------------------------
+    # The agent must write artifacts/cp3_audit_result.json after --stop-after
+    # cp3-verify before the pipeline can proceed. See SKILL.md Checkpoint 3.1.
+    cp3_audit_path = artifacts / "cp3_audit_result.json"
+    if not cp3_audit_path.is_file():
+        print(
+            "[cp3.1] HALT: cp3_audit_result.json not found.\n"
+            "Complete SKILL.md Checkpoint 3.1 (independent audit of every refined.md "
+            "for omissions), then write the result file and re-run.\n"
+            "Required format:\n"
+            '  {"no_omissions": true}\n'
+            "  or\n"
+            '  {"no_omissions": false, "added_factor_keys": ["factor_key_1", ...]}',
+            file=sys.stderr,
+        )
+        sys.exit(9)
+
     # --- v4 Gate the agent-filled timeline -------------------------------
     try:
         timeline_candidate = json.loads(timeline_candidate_path.read_text(encoding="utf-8"))
@@ -922,7 +905,6 @@ def main():
         artifacts=artifacts,
         timeline_candidate=timeline_candidate,
         tumor_markers_candidate=tumor_markers_candidate,
-        allow_empty_master_fill=bool(args.allow_empty_master_fill),
     )
     user_reported_path = artifacts / config.get("interactive", {}).get(
         "user_reported_timeline", "structured_risk_factors_timeline.user_reported.json"

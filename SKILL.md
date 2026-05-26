@@ -143,8 +143,23 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    - If no matching `factor_key` exists: do not force-fit; it will
      appear in the "证据库外异常提示" section automatically.
    - If no omissions are found: proceed without editing the candidate.
+   - Also check `artifacts/structured_risk_factors_timeline.json` →
+     `rejected_records`; for each entry review the `reject_reason` and
+     correct the corresponding record in the candidate if possible.
 
-   After audit (with or without additions), continue to health-summary:
+   After the audit, **write `artifacts/cp3_audit_result.json`** before
+   running step 8 — the pipeline will halt at exit code 9 if this file
+   is missing:
+
+   ```json
+   {"no_omissions": true}
+   ```
+   or, if omissions were found and added:
+   ```json
+   {"no_omissions": false, "added_factor_keys": ["factor_key_1", ...]}
+   ```
+
+   Then continue to health-summary:
 
 8. Run to health-summary API:
 
@@ -276,30 +291,16 @@ uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with reques
 
 Run focused tests for edited areas before full verification.
 
-## PUA Compliance (Error Recovery)
-
-After any pipeline error or unexpected exit code, follow this protocol:
-
-1. **Do not self-summarize** "the task is done" or imply completion after an error.
-2. **Do not skip checkpoints** by jumping to a later stage without completing the current one.
-3. **Re-read the SKILL.md checkpoint** for the current stage and retry from there.
-4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
-5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
-6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
-
-### Common failure scenarios
-
-| Failure | Symptom | Required action |
-|---|---|---|
-| MinerU API failure | Non-zero exit at `--stop-after mineru`; `content.md` absent or empty | Report exact error to user; do **not** proceed to CP1; retry once after user confirms network/token |
-| Unexpected exit code | Code is not 0, 4, or 8 | Treat as unrecoverable; print stderr verbatim; halt and ask user how to proceed |
-| Health-summary API timeout | Step 8 hangs >120 s or returns HTTP 5xx | Report timeout; retry once; if still failing, halt at `health-summary-api` stage and notify user |
-| CP3 validation failure | `validate_timeline_candidate.py` or `validate_tumor_markers.py` exits non-zero | Read the validation error, correct only the flagged fields in the candidate JSON, re-validate; do **not** delete passing records |
-| Artifact not found | `refined.md`, `interactive_questionnaire.json`, or candidate JSON missing when expected | Identify which step should have produced it; rerun from that step's `--stop-after` flag; do **not** fabricate the file |
-
-## PUA Anti-Skip Enforcement (Strict Mode)
+## PUA Protocol (Anti-Skip Enforcement)
 
 **This section is binding. Any violation is a critical failure.**
+
+### TL;DR
+
+- **CP1 (Refine):** write `refined.md` for every `content.md`; re-run with next `--stop-after`.
+- **CP2 (Interactive):** ask the user every question; collect answers; re-run with `--answers`.
+- **CP3/3.1 (Master fill + audit):** fill candidates, validate, run independent audit, write `cp3_audit_result.json`, re-run.
+- **CP4 (Archive):** show proposal; ask "确认入档？（是/否）"; add `--auto-apply-archive` only on "是".
 
 ### Prohibited behaviors — the agent MUST NOT:
 
@@ -318,6 +319,41 @@ Before proceeding to the next checkpoint, the agent must confirm in its response
 - The output artifact that was produced (file path + existence check).
 
 If any of these three items is missing or failed, the agent must stop and report to the user rather than continuing.
+
+### Exit code reference
+
+| Code | Source | Meaning | Required action |
+|---|---|---|---|
+| 0 | — | Normal completion | Proceed to next step |
+| 1 | MinerU / health-summary API | Request failed | Report exact error; retry once after user confirms; do **not** proceed |
+| 2 | MinerU | All files failed OCR | Report error; halt; ask user to verify input files |
+| 3 | CP1 | `refined.md` missing or fails structure check | Write/fix `refined.md` per recipe; re-run |
+| 4 | CP4 | Archive proposal ready, awaiting confirmation | Show proposal; ask "确认入档？"; re-run with `--auto-apply-archive` only on "是" |
+| 5 | Demographics | Sex or age missing | Re-run with `--person-sex`/`--person-age` or add answers to `--answers` |
+| 6 | Archive | `--person-id` not provided with populated archive | Re-run with `--person-id <stable-slug>` |
+| 7 | Archive | Person ID needs user confirmation | Present `archive_person_id_prompt.json`; add `person_id_choice` to `--answers` |
+| 8 | CP2 | Interactive answers empty | Complete CP2: present questionnaire, collect answers, re-run with `--answers` |
+| 9 | CP3.1 | `cp3_audit_result.json` missing | Complete CP3.1 audit, write result file, re-run |
+
+Any other non-zero exit code is **unrecoverable**: print stderr verbatim and halt.
+
+### Error recovery rules
+
+1. **Do not self-summarize** "the task is done" or imply completion after an error.
+2. **Do not skip checkpoints** by jumping to a later stage without completing the current one.
+3. **Re-read the SKILL.md checkpoint** for the current stage and retry from there.
+4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
+5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
+6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
+
+### Common failure scenarios
+
+| Failure | Symptom | Required action |
+|---|---|---|
+| MinerU API failure | Non-zero exit at `--stop-after mineru`; `content.md` absent or empty | Report exact error; do **not** proceed to CP1; retry once after user confirms network/token |
+| Health-summary API timeout | Step 8 hangs >120 s or returns HTTP 5xx | Report timeout; retry once; if still failing, halt at `health-summary-api` stage and notify user |
+| CP3 validation failure | `validate_timeline_candidate.py` or `validate_tumor_markers.py` exits non-zero | Correct only the flagged fields in the candidate JSON, re-validate; do **not** delete passing records |
+| Artifact not found | `refined.md`, `interactive_questionnaire.json`, `cp3_audit_result.json`, or candidate JSON missing | Identify which step should have produced it; rerun from that step's `--stop-after`; do **not** fabricate |
 
 ### Consequence of skipping:
 
