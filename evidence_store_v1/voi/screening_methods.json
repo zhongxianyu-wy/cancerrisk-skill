@@ -20,11 +20,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "增强CT", "indication": "结节>8mm或LDCT可疑", "cost_level": "high", "radiation": "medium"},
-        {"method": "PET-CT", "indication": "高度可疑恶性", "cost_level": "very_high", "radiation": "high"},
-        {"method": "支气管镜+活检", "indication": "中央型病变", "cost_level": "high", "invasiveness": "invasive"}
+        {
+          "method": "增强CT",
+          "indication": "结节>8mm或LDCT可疑",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "PET-CT",
+          "indication": "高度可疑恶性",
+          "cost_level": "very_high",
+          "radiation": "high"
+        },
+        {
+          "method": "支气管镜+活检",
+          "indication": "中央型病变",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 72.9, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 72.9,
+        "specificity": 99.1
+      }
     },
     "肝癌": {
       "primary_screening": [
@@ -40,11 +59,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "增强CT/MRI", "indication": "超声可疑或AFP升高", "cost_level": "high", "radiation": "medium"},
-        {"method": "肝脏MRI(Gd-EOB-DTPA)", "indication": "小肝癌鉴别", "cost_level": "very_high", "radiation": "none"},
-        {"method": "肝穿刺活检", "indication": "影像学不确定", "cost_level": "high", "invasiveness": "invasive"}
+        {
+          "method": "增强CT/MRI",
+          "indication": "超声可疑或AFP升高",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "肝脏MRI(Gd-EOB-DTPA)",
+          "indication": "小肝癌鉴别",
+          "cost_level": "very_high",
+          "radiation": "none"
+        },
+        {
+          "method": "肝穿刺活检",
+          "indication": "影像学不确定",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 100.0, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 100.0,
+        "specificity": 99.1
+      }
     },
     "胃癌": {
       "primary_screening": [
@@ -60,11 +98,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "放大内镜+NBI", "indication": "可疑病变精查", "cost_level": "medium", "invasiveness": "minimally-invasive"},
-        {"method": "EUS(超声内镜)", "indication": "评估浸润深度", "cost_level": "high", "invasiveness": "minimally-invasive"},
-        {"method": "活检病理", "indication": "内镜下可疑病变", "cost_level": "medium", "invasiveness": "minimally-invasive"}
+        {
+          "method": "放大内镜+NBI",
+          "indication": "可疑病变精查",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "EUS(超声内镜)",
+          "indication": "评估浸润深度",
+          "cost_level": "high",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "活检病理",
+          "indication": "内镜下可疑病变",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 76.1, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 76.1,
+        "specificity": 99.1
+      }
     },
     "食管癌": {
       "primary_screening": [
@@ -80,11 +137,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "放大内镜", "indication": "碘不染区精查", "cost_level": "medium", "invasiveness": "minimally-invasive"},
-        {"method": "增强CT", "indication": "分期评估", "cost_level": "high", "radiation": "medium"},
-        {"method": "活检病理", "indication": "可疑病变确诊", "cost_level": "medium", "invasiveness": "minimally-invasive"}
+        {
+          "method": "放大内镜",
+          "indication": "碘不染区精查",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "增强CT",
+          "indication": "分期评估",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "活检病理",
+          "indication": "可疑病变确诊",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 79.2, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 79.2,
+        "specificity": 99.1
+      }
     },
     "结直肠癌": {
       "primary_screening": [
@@ -110,10 +186,24 @@
         }
       ],
       "followup_methods": [
-        {"method": "增强CT", "indication": "分期评估", "cost_level": "high", "radiation": "medium"},
-        {"method": "息肉切除+病理", "indication": "内镜下息肉/腺瘤", "cost_level": "medium", "invasiveness": "minimally-invasive"}
+        {
+          "method": "增强CT",
+          "indication": "分期评估",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "息肉切除+病理",
+          "indication": "内镜下息肉/腺瘤",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 86.2, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 86.2,
+        "specificity": 99.1
+      }
     },
     "乳腺癌": {
       "primary_screening": [
@@ -139,11 +229,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "乳腺MRI", "indication": "BI-RADS 4级/高危人群", "cost_level": "very_high", "radiation": "none"},
-        {"method": "穿刺活检", "indication": "BI-RADS 4c/5级", "cost_level": "high", "invasiveness": "minimally-invasive"},
-        {"method": "BRCA基因检测", "indication": "高危家族史", "cost_level": "high", "invasiveness": "minimally-invasive"}
+        {
+          "method": "乳腺MRI",
+          "indication": "BI-RADS 4级/高危人群",
+          "cost_level": "very_high",
+          "radiation": "none"
+        },
+        {
+          "method": "穿刺活检",
+          "indication": "BI-RADS 4c/5级",
+          "cost_level": "high",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "BRCA基因检测",
+          "indication": "高危家族史",
+          "cost_level": "high",
+          "invasiveness": "minimally-invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 88.9, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 88.9,
+        "specificity": 99.1
+      }
     },
     "宫颈癌": {
       "primary_screening": [
@@ -159,9 +268,24 @@
         }
       ],
       "followup_methods": [
-        {"method": "阴道镜+活检", "indication": "TCT异常/HPV16/18阳性", "cost_level": "medium", "invasiveness": "minimally-invasive"},
-        {"method": "ECC(宫颈管搔刮)", "indication": "阴道镜不满意", "cost_level": "medium", "invasiveness": "minimally-invasive"},
-        {"method": "锥切术", "indication": "HSIL/CIN2+", "cost_level": "high", "invasiveness": "invasive"}
+        {
+          "method": "阴道镜+活检",
+          "indication": "TCT异常/HPV16/18阳性",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "ECC(宫颈管搔刮)",
+          "indication": "阴道镜不满意",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "锥切术",
+          "indication": "HSIL/CIN2+",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        }
       ]
     },
     "前列腺癌": {
@@ -178,9 +302,24 @@
         }
       ],
       "followup_methods": [
-        {"method": "f-PSA/t-PSA比值", "indication": "PSA 4-10 ng/mL灰区", "cost_level": "low", "invasiveness": "non-invasive"},
-        {"method": "前列腺MRI(PI-RADS)", "indication": "PSA升高", "cost_level": "high", "radiation": "none"},
-        {"method": "经直肠前列腺穿刺", "indication": "PI-RADS ≥4级", "cost_level": "high", "invasiveness": "invasive"}
+        {
+          "method": "f-PSA/t-PSA比值",
+          "indication": "PSA 4-10 ng/mL灰区",
+          "cost_level": "low",
+          "invasiveness": "non-invasive"
+        },
+        {
+          "method": "前列腺MRI(PI-RADS)",
+          "indication": "PSA升高",
+          "cost_level": "high",
+          "radiation": "none"
+        },
+        {
+          "method": "经直肠前列腺穿刺",
+          "indication": "PI-RADS ≥4级",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        }
       ]
     },
     "膀胱癌": {
@@ -197,10 +336,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "尿细胞学", "indication": "血尿/高危人群", "cost_level": "low", "invasiveness": "non-invasive"},
-        {"method": "NMP22检测", "indication": "血尿辅助筛查", "cost_level": "medium", "invasiveness": "non-invasive"},
-        {"method": "膀胱镜+活检", "indication": "尿细胞学异常/反复血尿", "cost_level": "high", "invasiveness": "invasive"},
-        {"method": "CTU(CT尿路造影)", "indication": "上尿路评估", "cost_level": "high", "radiation": "medium"}
+        {
+          "method": "尿细胞学",
+          "indication": "血尿/高危人群",
+          "cost_level": "low",
+          "invasiveness": "non-invasive"
+        },
+        {
+          "method": "NMP22检测",
+          "indication": "血尿辅助筛查",
+          "cost_level": "medium",
+          "invasiveness": "non-invasive"
+        },
+        {
+          "method": "膀胱镜+活检",
+          "indication": "尿细胞学异常/反复血尿",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        },
+        {
+          "method": "CTU(CT尿路造影)",
+          "indication": "上尿路评估",
+          "cost_level": "high",
+          "radiation": "medium"
+        }
       ]
     },
     "卵巢癌": {
@@ -217,12 +376,36 @@
         }
       ],
       "followup_methods": [
-        {"method": "盆腔MRI", "indication": "超声可疑占位", "cost_level": "high", "radiation": "none"},
-        {"method": "HE4联合CA125(ROMA)", "indication": "辅助鉴别良恶性", "cost_level": "medium", "invasiveness": "non-invasive"},
-        {"method": "BRCA基因检测", "indication": "高危家族史", "cost_level": "high", "invasiveness": "minimally-invasive"},
-        {"method": "腹腔镜探查+活检", "indication": "高度可疑恶性", "cost_level": "very_high", "invasiveness": "invasive"}
+        {
+          "method": "盆腔MRI",
+          "indication": "超声可疑占位",
+          "cost_level": "high",
+          "radiation": "none"
+        },
+        {
+          "method": "HE4联合CA125(ROMA)",
+          "indication": "辅助鉴别良恶性",
+          "cost_level": "medium",
+          "invasiveness": "non-invasive"
+        },
+        {
+          "method": "BRCA基因检测",
+          "indication": "高危家族史",
+          "cost_level": "high",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "腹腔镜探查+活检",
+          "indication": "高度可疑恶性",
+          "cost_level": "very_high",
+          "invasiveness": "invasive"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 87.9, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 87.9,
+        "specificity": 99.1
+      }
     },
     "肾癌": {
       "primary_screening": [
@@ -238,9 +421,24 @@
         }
       ],
       "followup_methods": [
-        {"method": "增强CT", "indication": "超声发现占位", "cost_level": "high", "radiation": "medium"},
-        {"method": "肾脏MRI", "indication": "CT不确定/肾功能不全", "cost_level": "very_high", "radiation": "none"},
-        {"method": "穿刺活检", "indication": "影像学不确定/小肾肿瘤", "cost_level": "high", "invasiveness": "invasive"}
+        {
+          "method": "增强CT",
+          "indication": "超声发现占位",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "肾脏MRI",
+          "indication": "CT不确定/肾功能不全",
+          "cost_level": "very_high",
+          "radiation": "none"
+        },
+        {
+          "method": "穿刺活检",
+          "indication": "影像学不确定/小肾肿瘤",
+          "cost_level": "high",
+          "invasiveness": "invasive"
+        }
       ]
     },
     "头颈肿瘤": {
@@ -257,9 +455,24 @@
         }
       ],
       "followup_methods": [
-        {"method": "增强MRI", "indication": "鼻咽镜异常", "cost_level": "high", "radiation": "none"},
-        {"method": "鼻咽活检", "indication": "可疑病变", "cost_level": "medium", "invasiveness": "minimally-invasive"},
-        {"method": "PET-CT", "indication": "分期/转移评估", "cost_level": "very_high", "radiation": "high"}
+        {
+          "method": "增强MRI",
+          "indication": "鼻咽镜异常",
+          "cost_level": "high",
+          "radiation": "none"
+        },
+        {
+          "method": "鼻咽活检",
+          "indication": "可疑病变",
+          "cost_level": "medium",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "PET-CT",
+          "indication": "分期/转移评估",
+          "cost_level": "very_high",
+          "radiation": "high"
+        }
       ]
     },
     "胆道肿瘤": {
@@ -276,10 +489,30 @@
         }
       ],
       "followup_methods": [
-        {"method": "MRCP", "indication": "胆管扩张/CA19-9升高", "cost_level": "high", "radiation": "none"},
-        {"method": "增强CT", "indication": "评估可切除性", "cost_level": "high", "radiation": "medium"},
-        {"method": "ERCP+刷检", "indication": "胆管狭窄鉴别", "cost_level": "very_high", "invasiveness": "invasive"},
-        {"method": "EUS+FNA", "indication": "胆囊/胆管占位", "cost_level": "very_high", "invasiveness": "invasive"}
+        {
+          "method": "MRCP",
+          "indication": "胆管扩张/CA19-9升高",
+          "cost_level": "high",
+          "radiation": "none"
+        },
+        {
+          "method": "增强CT",
+          "indication": "评估可切除性",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "ERCP+刷检",
+          "indication": "胆管狭窄鉴别",
+          "cost_level": "very_high",
+          "invasiveness": "invasive"
+        },
+        {
+          "method": "EUS+FNA",
+          "indication": "胆囊/胆管占位",
+          "cost_level": "very_high",
+          "invasiveness": "invasive"
+        }
       ]
     },
     "胰腺癌": {
@@ -296,18 +529,42 @@
         }
       ],
       "followup_methods": [
-        {"method": "胰腺增强CT", "indication": "CA19-9升高/超声异常", "cost_level": "high", "radiation": "medium"},
-        {"method": "EUS(超声内镜)", "indication": "CT阴性但临床高度怀疑", "cost_level": "very_high", "invasiveness": "minimally-invasive"},
-        {"method": "EUS-FNA", "indication": "胰腺占位取材", "cost_level": "very_high", "invasiveness": "invasive"},
-        {"method": "MRCP", "indication": "胰管评估", "cost_level": "high", "radiation": "none"}
+        {
+          "method": "胰腺增强CT",
+          "indication": "CA19-9升高/超声异常",
+          "cost_level": "high",
+          "radiation": "medium"
+        },
+        {
+          "method": "EUS(超声内镜)",
+          "indication": "CT阴性但临床高度怀疑",
+          "cost_level": "very_high",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "EUS-FNA",
+          "indication": "胰腺占位取材",
+          "cost_level": "very_high",
+          "invasiveness": "invasive"
+        },
+        {
+          "method": "MRCP",
+          "indication": "胰管评估",
+          "cost_level": "high",
+          "radiation": "none"
+        }
       ],
-      "liquid_biopsy": {"method": "吉早安", "sensitivity": 66.7, "specificity": 99.1}
+      "liquid_biopsy": {
+        "method": "吉早安",
+        "sensitivity": 66.7,
+        "specificity": 99.1
+      }
     },
     "甲状腺癌": {
       "primary_screening": [
         {
-          "method": "甲状腺及颈部淋巴结超声",
-          "description": "甲状腺及颈部淋巴结超声",
+          "method": "甲状腺和颈部淋巴结彩超",
+          "description": "甲状腺和颈部淋巴结彩超",
           "sensitivity": 90,
           "specificity": 75,
           "cost_level": "very_low",
@@ -317,16 +574,41 @@
         }
       ],
       "followup_methods": [
-        {"method": "超声引导FNA", "indication": "TIRADS 4/5类结节", "cost_level": "low", "invasiveness": "minimally-invasive"},
-        {"method": "增强CT/MRI", "indication": "评估淋巴结转移", "cost_level": "high", "radiation": "medium"}
+        {
+          "method": "超声引导FNA",
+          "indication": "TIRADS 4/5类结节",
+          "cost_level": "low",
+          "invasiveness": "minimally-invasive"
+        },
+        {
+          "method": "增强CT/MRI",
+          "indication": "评估淋巴结转移",
+          "cost_level": "high",
+          "radiation": "medium"
+        }
       ]
     }
   },
   "cost_levels": {
-    "very_low": {"range": "<100元", "description": "基础检查"},
-    "low": {"range": "100-500元", "description": "常规检查"},
-    "medium": {"range": "500-2000元", "description": "专项检查"},
-    "high": {"range": "2000-5000元", "description": "高级检查"},
-    "very_high": {"range": ">5000元", "description": "特殊检查"}
+    "very_low": {
+      "range": "<100元",
+      "description": "基础检查"
+    },
+    "low": {
+      "range": "100-500元",
+      "description": "常规检查"
+    },
+    "medium": {
+      "range": "500-2000元",
+      "description": "专项检查"
+    },
+    "high": {
+      "range": "2000-5000元",
+      "description": "高级检查"
+    },
+    "very_high": {
+      "range": ">5000元",
+      "description": "特殊检查"
+    }
   }
 }
