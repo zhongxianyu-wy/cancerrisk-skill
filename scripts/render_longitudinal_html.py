@@ -46,7 +46,6 @@ def _load_factor_zh_map(evidence_store_root: Path | None = None) -> dict[str, st
     if evidence_store_root:
         candidates.append(evidence_store_root / "ontology" / "risk_factors.json")
     candidates += [
-        SKILL_ROOT / "evidence_store_v1" / "ontology" / "risk_factors.json",
         SKILL_ROOT / "evidence_store" / "ontology" / "risk_factors.json",
     ]
     for path in candidates:

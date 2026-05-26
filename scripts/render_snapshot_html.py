@@ -76,7 +76,10 @@ def _prob_after_delta(base_log_odds: float | None, delta: float) -> float | None
     return z / (1.0 + z)
 
 
-def _section1_table(cancers: list[dict[str, Any]]) -> str:
+def _section1_table(
+    cancers: list[dict[str, Any]],
+    unmatched_findings: list[dict[str, Any]] | None = None,
+) -> str:
     rows = []
     for r in cancers:
         raw_tier = r.get("risk_tier") or ""
@@ -105,7 +108,22 @@ def _section1_table(cancers: list[dict[str, Any]]) -> str:
         '<table><tr><th>癌种</th><th>先验概率（年）</th><th>后验概率</th>'
         '<th>风险等级</th><th>备注</th></tr>'
     )
-    return header + "".join(rows) + "</table>"
+    table_html = header + "".join(rows) + "</table>"
+    if not unmatched_findings:
+        return table_html
+    items = "".join(
+        f'<li>{_esc(f.get("finding_text", ""))}'
+        + (f' — {_esc(f["reason"])}' if f.get("reason") else "")
+        + "</li>"
+        for f in unmatched_findings
+    )
+    ps_html = (
+        '<p style="margin-top:0.8em;font-size:0.85em;color:#666;">'
+        '<strong>PS：</strong>以下发现因信息不完整，未纳入证据风险因子计算：'
+        f'<ul style="margin:0.3em 0 0 1.2em;padding:0">{items}</ul>'
+        '如需准确评估，建议补充完善相关检查报告中的分级或量化信息。</p>'
+    )
+    return table_html + ps_html
 
 
 
@@ -436,7 +454,10 @@ def render_snapshot_html(
         "__PERSON_AGE__": _esc(person.get("age") if person.get("age") is not None else "—"),
         "__GENERATED_AT__": _esc(datetime.now().strftime("%Y-%m-%d %H:%M")),
         "__EVIDENCE_VERSION__": _esc(evidence_version or "—"),
-        "__SECTION1_TABLE__": _section1_table(snapshot.get("cancers", [])),
+        "__SECTION1_TABLE__": _section1_table(
+            snapshot.get("cancers", []),
+            snapshot.get("unmatched_findings"),
+        ),
         "__SECTION2_BODY__": _section2_body(snapshot.get("cancers", []), section4_filter),
         "__SECTION3_BODY__": _section3_body(snapshot, contact),
         "__SECTION4_BODY__": _section4_body(snapshot.get("section4_screening", [])),

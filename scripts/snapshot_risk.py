@@ -774,6 +774,13 @@ def run_snapshot_stage(
         factor_name_map=_factor_zh,
     )
 
+    cp3_audit_path = artifacts / "cp3_audit_result.json"
+    if cp3_audit_path.is_file():
+        cp3_audit = json.loads(cp3_audit_path.read_text(encoding="utf-8"))
+        unmatched = cp3_audit.get("unmatched_findings", [])
+        if unmatched:
+            snapshot["unmatched_findings"] = unmatched
+
     output_name = risk_cfg.get("snapshot_output_json", "snapshot_risk.json")
     output_path = artifacts / output_name
     output_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

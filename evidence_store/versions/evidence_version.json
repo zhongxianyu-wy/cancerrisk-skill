@@ -1,15 +1,16 @@
 {
-  "version": "evidence-v0002",
-  "built_at": "2026-05-13T18:54:26Z",
+  "version": "evidence-v0003",
+  "built_at": "2026-05-26T00:00:00Z",
   "source": {
-    "v2_evidence_store": "cancerrisk-skill/evidence_store",
-    "oncorag_source_path": "/Volumes/exp/geneplu_work/1.skill_tijian/28.project_tijian/oncoRAG"
+    "v3_evidence_store": "cancerrisk-skill/evidence_store",
+    "parent_version": "evidence-v0002",
+    "changelog": "DOR-calibrated OR values for tumor markers (Meta-analysis DOR-based); added thyroid_cancer priors; added thyroid_cancer screening recommendations and VoI methods"
   },
   "counts": {
-    "cancers": 13,
+    "cancers": 14,
     "risk_factors": 101,
     "assertions": 111,
     "detection_tests": 7,
-    "screening_cancers": 13
+    "screening_cancers": 14
   }
 }

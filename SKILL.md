@@ -159,6 +159,30 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    {"no_omissions": false, "added_factor_keys": ["factor_key_1", ...]}
    ```
 
+   Additionally, if any finding from the report **cannot be matched to an
+   evidence risk factor due to incomplete information** (e.g., a thyroid
+   nodule reported without TIRADS grade, a lesion without size/density
+   grading), record it in `unmatched_findings` so the snapshot report can
+   display a PS note explaining why those findings were not scored:
+
+   ```json
+   {
+     "no_omissions": false,
+     "added_factor_keys": [],
+     "unmatched_findings": [
+       {
+         "finding_text": "甲状腺结节，大小约1.2×0.8cm（无TIRADS分级）",
+         "reason": "分级未明确，无法匹配TIRADS 4a/4b风险因子",
+         "related_cancer": "thyroid_cancer"
+       }
+     ]
+   }
+   ```
+
+   `finding_text` should be a brief literal quote from the report.
+   `reason` is a concise human-readable explanation (one clause).
+   `related_cancer` is optional; omit if ambiguous.
+
    Then continue to health-summary:
 
 8. Run to health-summary API:
