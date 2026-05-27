@@ -118,10 +118,11 @@ def _section1_table(
         for f in unmatched_findings
     )
     ps_html = (
-        '<p style="margin-top:0.8em;font-size:0.85em;color:#666;">'
+        '<div class="muted" style="margin-top:0.8em;font-size:0.85em;">'
         '<strong>PS：</strong>以下发现因信息不完整，未纳入证据风险因子计算：'
-        f'<ul style="margin:0.3em 0 0 1.2em;padding:0">{items}</ul>'
-        '如需准确评估，建议补充完善相关检查报告中的分级或量化信息。</p>'
+        f'<ul style="margin:0.3em 0 0 1.2em;padding:0;">{items}</ul>'
+        '如需准确评估，建议补充完善相关检查报告中的分级或量化信息。'
+        '</div>'
     )
     return table_html + ps_html
 

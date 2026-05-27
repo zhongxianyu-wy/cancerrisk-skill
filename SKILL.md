@@ -59,6 +59,26 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 - For the four agent checkpoints below, do the file reads/writes in this
   agent loop. Do not delegate these deterministic fills to sub-agents.
 
+## Pipeline Stages
+
+| # | Stage | Script | Key output | Action needed? |
+|---|---|---|---|---|
+| 1 | MinerU OCR | `mineru_client.py` | `artifacts/mineru/<id>/content.md` | — |
+| 2 | **Refine** | _(agent writes `refined.md`)_ | `artifacts/mineru/<id>/refined.md` | **CP1** |
+| 3 | Demographics | `demographics.py` | `artifacts/demographics.json` | — |
+| 4 | Master template scaffold | `build_assertion_fill_template.py` | `risk_factor_master.json`, candidate scaffolds | — |
+| 5 | **Interactive answers** | `interactive_completion.py` | `interactive_questionnaire.json` | **CP2** |
+| 6 | **Master fill + audit** | _(agent fills candidates; validates; writes `cp3_audit_result.json`)_ | candidate JSONs + `cp3_audit_result.json` | **CP3/3.1** |
+| 7 | Risk factor gate | `risk_factor_gate.py` | `structured_risk_factors_timeline.json` | — |
+| 8 | Health-summary API | `render_health_summary.py` | `health_summary_api_response.md` | — |
+| 9 | **Health-summary structuring** | `finalize_structured_summary.py` | `health_summary_structured_summary.json` | **CP4** |
+| 10 | Snapshot + VoI | `snapshot_risk.py` + `voi_calculator.py` + renders | `snapshot_risk.html`, `voi_ranking.json` | — |
+| 11 | Longitudinal | `longitudinal_risk.py` + `render_longitudinal_html.py` | `longitudinal_risk.html` | — |
+| 12 | Archive proposal | `archive_manager.py` | `archive_update_proposal.json` | exit-4 (user confirm) |
+| 13 | Index + manifest | `render_index.py` + `write_manifest.py` | `index.html`, `manifest.json` | — |
+
+Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirmation (exit code 4). All other rows run automatically inside `run_formal_analysis.py`.
+
 ## Minimal Workflow
 
 > **Flag convention**: In steps 3–10, `...` means carry the same
@@ -111,6 +131,7 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    ```
 
 6. **Checkpoint 3: Master fill + imaging + tumor markers.**
+   _(Extractor role: translate report findings into timeline records.)_
    Fill `structured_risk_factors_timeline.candidate.json` and
    `tumor_markers.candidate.json` using only emitted allowlists. Validate:
 
@@ -129,6 +150,7 @@ dosing, urgent triage, or single-symptom clinical Q&A.
    ```
 
 7. **Checkpoint 3.1: Verification audit (mandatory).**
+   _(Auditor role: verify completeness — cognitive reset from CP3 extractor context.)_
    The orchestrator prints a structured audit task. As an **independent
    auditor** (not the CP3 extractor), re-read each `refined.md` and
    check for omissions:
