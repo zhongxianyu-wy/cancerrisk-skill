@@ -77,6 +77,22 @@ def main() -> int:
         if not qid:
             continue
         expected_qids.add(qid)
+
+        # conditional_on: skip validation when the trigger condition is not met.
+        # e.g. q_family_history_detail is only required when q_family_history_cancer="yes";
+        # q_jizaoan_top1/top2 are only required when q_jizaoan_result="positive".
+        cond = question.get("conditional_on")
+        if cond:
+            cond_qid = str(cond.get("question_id") or "")
+            cond_val = str(cond.get("value") or "").lower()
+            actual_val = str(answers.get(cond_qid) or "").lower()
+            if actual_val != cond_val:
+                continue  # condition not met — question is legitimately absent
+
+        # required=False questions are optional even without a condition.
+        if question.get("required") is False and qid not in answers:
+            continue
+
         if qid not in answers:
             hard_errors.append(f"missing answer for {qid!r} (prompt: {question.get('prompt', '')!r})")
             continue
@@ -94,6 +110,11 @@ def main() -> int:
                 int(value)
             except (TypeError, ValueError):
                 hard_errors.append(f"{qid}: expected an integer, got {value!r}")
+        elif qtype == "multi_select":
+            if not isinstance(value, list):
+                hard_errors.append(
+                    f"{qid}: expected a JSON array for multi_select, got {type(value).__name__}: {value!r}"
+                )
 
     extras = [k for k in answers.keys() if k not in expected_qids]
     if extras:

@@ -156,6 +156,17 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    ```
 
    Include `q_family_history_detail` only when `q_family_history_cancer` = `"yes"`.
+   Omit `q_jizaoan_top1` / `q_jizaoan_top2` when `q_jizaoan_result` ≠ `"positive"`.
+
+   **4d. Validate before re-running** (recommended):
+
+   ```bash
+   uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/validate_answers.py \
+     --questionnaire <out>/artifacts/interactive_questionnaire.json \
+     --answers <out>/answers.json
+   ```
+
+   Exit 0 = safe to continue. Exit 1 = hard error (fix answers first). Exit 2 = file not found.
 
    Fast ask-first path — run this **before** the first pipeline invocation
    when sex/age are already known, to preview the questionnaire:
