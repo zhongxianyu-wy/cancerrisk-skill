@@ -136,15 +136,20 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
 
    _(Extractor role: translate report findings into timeline records.)_
 
-   **Knowledge-layer fill order (v1.3+):**
-   Step A — Fill `artifacts/indicator_fill_schemas.json` (24 lightweight templates, one per observable exam/lab indicator — only `exists`, `tier_id`, `evidence_text`, `confidence`).
-   Step B — Run `merge_filled_template.py` to map tier selections to full evidence-backed `risk_factor_assertion_template.json`.
-   Step C — Fill `structured_risk_factors_timeline.candidate.json` and `tumor_markers.candidate.json` using the merged template.
+   Execute in order — do not skip steps:
 
-   The indicator fill schema (Step A) contains only indicator+unit+tier descriptions — no OR values, no cancer associations. Focus on correctly identifying which tier applies for each indicator found in the refined report.
+   **6a.** Fill `artifacts/indicator_fill_schemas.json` — 24 lightweight templates
+   (one per exam/lab indicator). Fill only `exists`, `tier_id`, `evidence_text`,
+   `confidence`. No OR values or cancer associations are visible here; focus solely
+   on which tier applies for each indicator in the refined report.
 
-   Fill `structured_risk_factors_timeline.candidate.json` and
-   `tumor_markers.candidate.json` using only emitted allowlists. Validate:
+   **6b.** Run `merge_filled_template.py` to map tier selections to the full
+   evidence-backed `risk_factor_assertion_template.json`.
+
+   **6c.** Fill `structured_risk_factors_timeline.candidate.json` and
+   `tumor_markers.candidate.json` using the merged template and emitted allowlists.
+
+   Validate both candidates:
 
    ```bash
    uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/validate_timeline_candidate.py \
