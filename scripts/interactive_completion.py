@@ -63,13 +63,16 @@ FACTOR_FANOUT: dict[tuple[str, str], list[tuple[str, str]]] = {
     ("family_history_cancer", "present"): [
         ("family_history_first_degree", "present"),
     ],
+    # smoking_adenocarcinoma removed: the ontology has only esophageal_cancer (not separate
+    # squamous/adenocarcinoma cancer_ids), so keeping both would double-count the smoking
+    # contribution to esophageal_cancer. smoking_squamous (OR=2.9) is retained as the
+    # representative assertion because squamous cell carcinoma is >90% of Chinese esophageal cancer.
     ("smoking_current", "current"): [
         ("smoking_current", "present"),
         ("smoking_general", "present"),
         ("smoking_male", "present"),
         ("smoking_continuous", "present"),
         ("smoking_squamous", "present"),
-        ("smoking_adenocarcinoma", "present"),
     ],
     ("alcohol_heavy", "heavy"): [
         ("alcohol_30g_per_day", "present"),

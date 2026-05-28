@@ -146,6 +146,13 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    → If q_family_history_cancer = "no" or "unknown"  → omit key
    ```
 
+   **`text_fill` answers are plain strings — write the user's verbatim response.**
+   Do NOT pre-parse, structure, or summarize the text. The pipeline (`apply_fixed_answers`)
+   automatically extracts cancer-specific family history records from the raw Chinese text
+   (e.g. "父亲胃癌 1 人" → `family_history_gastric_first`). If you rewrite the text or
+   reduce it to structured JSON, the parser cannot run and the cancer-specific risk
+   contributions will be lost.
+
    Omit `multi_select` keys entirely if the user skips without selecting any option.
 
    **Never pre-fill, guess, or infer answers from the report.** "No smoking

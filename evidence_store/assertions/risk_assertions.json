@@ -452,24 +452,6 @@
       "v2_factor_zh": "吸烟(鳞癌)"
     },
     {
-      "assertion_id": "asrt_esophageal_cancer_smoking_adenocarcinoma",
-      "cancer_id": "esophageal_cancer",
-      "factor_id": "smoking_adenocarcinoma",
-      "factor_level": "present",
-      "effect_type": "OR",
-      "effect_value": 1.9,
-      "ci_low": 1.5,
-      "ci_high": 2.4,
-      "evidence_grade": "IA",
-      "population": null,
-      "source_id": "Freedman ND",
-      "source_doc": "OR值调研文档.md",
-      "source_line": 86,
-      "citation_text": "Freedman ND, 2007",
-      "v2_assertion_id": "asrt-0026",
-      "v2_factor_zh": "吸烟(腺癌)"
-    },
-    {
       "assertion_id": "asrt_esophageal_cancer_alcohol_squamous_3plus",
       "cancer_id": "esophageal_cancer",
       "factor_id": "alcohol_squamous_3plus",

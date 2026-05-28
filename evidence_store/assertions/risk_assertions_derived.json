@@ -351,20 +351,6 @@
       "source_id": "Freedman ND"
     },
     {
-      "assertion_id": "asrt_esophageal_cancer_smoking_adenocarcinoma",
-      "assertion_key": "esophageal_cancer|smoking_adenocarcinoma|present|asrt_esophageal_cancer_smoking_adenocarcinoma",
-      "cancer_id": "esophageal_cancer",
-      "factor_id": "smoking_adenocarcinoma",
-      "factor_level": "present",
-      "effect_type": "OR",
-      "calculation_value": 1.9,
-      "log_odds_delta": 0.6418538861723947,
-      "conversion_rule": "ln(OR)",
-      "conversion_status": "usable",
-      "approximation": false,
-      "source_id": "Freedman ND"
-    },
-    {
       "assertion_id": "asrt_esophageal_cancer_alcohol_squamous_3plus",
       "assertion_key": "esophageal_cancer|alcohol_squamous_3plus|present|asrt_esophageal_cancer_alcohol_squamous_3plus",
       "cancer_id": "esophageal_cancer",
