@@ -139,19 +139,19 @@
     {
       "test_id": "afp_serum",
       "cancer_id": "liver_cancer",
-      "raw_sensitivity": 0.65,
-      "raw_specificity": 0.85,
-      "sensitivity": 0.65,
-      "specificity": 0.85,
+      "raw_sensitivity": 0.61,
+      "raw_specificity": 0.87,
+      "sensitivity": 0.61,
+      "specificity": 0.87,
       "probability_boundary_adjustment": false,
-      "lr_positive": 4.333333333333333,
-      "lr_negative": 0.4117647058823529,
-      "positive_log_odds_delta": 1.466337068793427,
-      "negative_log_odds_delta": -0.8873031950009028,
+      "lr_positive": 4.692307692307692,
+      "lr_negative": 0.4482758620689655,
+      "positive_log_odds_delta": 1.5459245067117744,
+      "negative_log_odds_delta": -0.8023464725249373,
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "He XX, 2015 (PLoS One)"
+      "source_id": "Pang BY et al., Ann Med 2023, PMID:36476015"
     },
     {
       "test_id": "cea_serum",
@@ -190,36 +190,36 @@
     {
       "test_id": "cea_serum",
       "cancer_id": "breast_cancer",
-      "raw_sensitivity": 0.25,
+      "raw_sensitivity": 0.2,
       "raw_specificity": 0.85,
-      "sensitivity": 0.25,
+      "sensitivity": 0.2,
       "specificity": 0.85,
       "probability_boundary_adjustment": false,
-      "lr_positive": 1.6666666666666665,
-      "lr_negative": 0.8823529411764706,
-      "positive_log_odds_delta": 0.5108256237659906,
-      "negative_log_odds_delta": -0.12516314295400605,
+      "lr_positive": 1.3333333333333333,
+      "lr_negative": 0.9411764705882354,
+      "positive_log_odds_delta": 0.28768207245178085,
+      "negative_log_odds_delta": -0.060624621816434736,
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (辅助指标)"
+      "source_id": "Evidence_20260527.md sec 1.3; clinical practice standard"
     },
     {
       "test_id": "cea_serum",
       "cancer_id": "lung_cancer",
-      "raw_sensitivity": 0.27,
-      "raw_specificity": 0.85,
-      "sensitivity": 0.27,
-      "specificity": 0.85,
+      "raw_sensitivity": 0.54,
+      "raw_specificity": 0.94,
+      "sensitivity": 0.54,
+      "specificity": 0.94,
       "probability_boundary_adjustment": false,
-      "lr_positive": 1.7999999999999998,
-      "lr_negative": 0.8588235294117647,
-      "positive_log_odds_delta": 0.587786664902119,
-      "negative_log_odds_delta": -0.15219181534192538,
+      "lr_positive": 8.999999999999993,
+      "lr_negative": 0.48936170212765956,
+      "positive_log_odds_delta": 2.1972245773362187,
+      "negative_log_odds_delta": -0.714653385780909,
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (辅助指标)"
+      "source_id": "Shi HZ et al., Respirology 2008; Cheng C et al., Expert Rev Respir Med 2022"
     },
     {
       "test_id": "ca199_serum",
@@ -253,24 +253,24 @@
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (辅助指标)"
+      "source_id": "Evidence_20260527.md sec 1.5; Kumar Y et al., Eur J Gastroenterol Hepatol 2007"
     },
     {
       "test_id": "ca199_serum",
       "cancer_id": "colorectal_cancer",
-      "raw_sensitivity": 0.18,
+      "raw_sensitivity": 0.25,
       "raw_specificity": 0.78,
-      "sensitivity": 0.18,
+      "sensitivity": 0.25,
       "specificity": 0.78,
       "probability_boundary_adjustment": false,
-      "lr_positive": 0.8181818181818182,
-      "lr_negative": 1.0512820512820513,
-      "positive_log_odds_delta": -0.2006706954621511,
-      "negative_log_odds_delta": 0.050010420574661416,
-      "conversion_status": "unusable",
-      "conversion_rule": "not_admitted",
-      "unusable_reason": "counterinformative_likelihood_ratio",
-      "source_id": "补充调研文档.md (辅助指标)"
+      "lr_positive": 1.1363636363636365,
+      "lr_negative": 0.9615384615384615,
+      "positive_log_odds_delta": 0.127833371509885,
+      "negative_log_odds_delta": -0.039220713153281385,
+      "conversion_status": "usable",
+      "conversion_rule": "LR+/LR- from sensitivity/specificity",
+      "unusable_reason": null,
+      "source_id": "Evidence_20260527.md sec 1.4; Pin-Vieito N et al., World J Gastroenterol 2021"
     },
     {
       "test_id": "ca199_serum",
@@ -287,7 +287,7 @@
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (辅助指标)"
+      "source_id": "Evidence_20260527.md sec 1.7; Ghose et al., Ther Adv Med Oncol 2024"
     },
     {
       "test_id": "ca199_serum",
@@ -304,7 +304,7 @@
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (胰腺癌CA19-9)"
+      "source_id": "Ben-Ami R et al., Gut 2024, PMID:38123998"
     },
     {
       "test_id": "ca125_serum",
@@ -377,19 +377,19 @@
     {
       "test_id": "cyfra211_serum",
       "cancer_id": "lung_cancer",
-      "raw_sensitivity": 0.55,
-      "raw_specificity": 0.85,
-      "sensitivity": 0.55,
-      "specificity": 0.85,
+      "raw_sensitivity": 0.72,
+      "raw_specificity": 0.94,
+      "sensitivity": 0.72,
+      "specificity": 0.94,
       "probability_boundary_adjustment": false,
-      "lr_positive": 3.6666666666666665,
-      "lr_negative": 0.5294117647058824,
-      "positive_log_odds_delta": 1.2992829841302609,
-      "negative_log_odds_delta": -0.6359887667199967,
+      "lr_positive": 11.99999999999999,
+      "lr_negative": 0.29787234042553196,
+      "positive_log_odds_delta": 2.4849066497879995,
+      "negative_log_odds_delta": -1.2110902720947998,
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "Wieskopf B, 1995"
+      "source_id": "Fu L et al., Int J Biol Markers 2019; Cui C et al., J Cancer Res Ther 2014"
     },
     {
       "test_id": "cyfra211_serum",
@@ -474,7 +474,7 @@
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "补充调研文档.md (辅助指标)"
+      "source_id": "Vassilakopoulos T et al., Lung Cancer 2001; confirmed by evidence_20260527.md sec 1.2"
     },
     {
       "test_id": "scc_serum",
@@ -530,19 +530,70 @@
     {
       "test_id": "ca153_serum",
       "cancer_id": "breast_cancer",
-      "raw_sensitivity": 0.35,
+      "raw_sensitivity": 0.2,
       "raw_specificity": 0.85,
-      "sensitivity": 0.35,
+      "sensitivity": 0.2,
       "specificity": 0.85,
       "probability_boundary_adjustment": false,
-      "lr_positive": 2.333333333333333,
-      "lr_negative": 0.7647058823529412,
-      "positive_log_odds_delta": 0.8472978603872034,
-      "negative_log_odds_delta": -0.26826398659467926,
+      "lr_positive": 1.3333333333333333,
+      "lr_negative": 0.9411764705882354,
+      "positive_log_odds_delta": 0.28768207245178085,
+      "negative_log_odds_delta": -0.060624621816434736,
       "conversion_status": "usable",
       "conversion_rule": "LR+/LR- from sensitivity/specificity",
       "unusable_reason": null,
-      "source_id": "Duffy MJ, 2006"
+      "source_id": "Fu Y et al., Med Sci Monit 2016; evidence_20260527.md sec 1.3"
+    },
+    {
+      "test_id": "nse_serum",
+      "cancer_id": "lung_cancer",
+      "raw_sensitivity": 0.688,
+      "raw_specificity": 0.921,
+      "sensitivity": 0.688,
+      "specificity": 0.921,
+      "probability_boundary_adjustment": false,
+      "lr_positive": 8.708860759493675,
+      "lr_negative": 0.3387622149837134,
+      "positive_log_odds_delta": 2.1643409854663225,
+      "negative_log_odds_delta": -1.0824568484458243,
+      "conversion_status": "usable",
+      "conversion_rule": "LR+/LR- from sensitivity/specificity",
+      "unusable_reason": null,
+      "source_id": "Huang L et al., Oncotarget 2017, PMID:28969076"
+    },
+    {
+      "test_id": "progrp_serum",
+      "cancer_id": "lung_cancer",
+      "raw_sensitivity": 0.64,
+      "raw_specificity": 0.94,
+      "sensitivity": 0.64,
+      "specificity": 0.94,
+      "probability_boundary_adjustment": false,
+      "lr_positive": 10.666666666666657,
+      "lr_negative": 0.3829787234042553,
+      "positive_log_odds_delta": 2.367123614131616,
+      "negative_log_odds_delta": -0.9597758438138939,
+      "conversion_status": "usable",
+      "conversion_rule": "LR+/LR- from sensitivity/specificity",
+      "unusable_reason": null,
+      "source_id": "Wang H et al., J Cancer Res Ther 2016"
+    },
+    {
+      "test_id": "hpv_dna_test",
+      "cancer_id": "cervical_cancer",
+      "raw_sensitivity": 0.95,
+      "raw_specificity": 0.85,
+      "sensitivity": 0.95,
+      "specificity": 0.85,
+      "probability_boundary_adjustment": false,
+      "lr_positive": 6.333333333333332,
+      "lr_negative": 0.05882352941176476,
+      "positive_log_odds_delta": 1.8458266904983305,
+      "negative_log_odds_delta": -2.8332133440562153,
+      "conversion_status": "usable",
+      "conversion_rule": "LR+/LR- from sensitivity/specificity",
+      "unusable_reason": null,
+      "source_id": "Yu et al., Int J Cancer 2018; ASCCP Guidelines 2019"
     }
   ]
 }

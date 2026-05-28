@@ -237,6 +237,656 @@
           ]
         }
       ]
+    },
+    {
+      "question_group": "family_history_pancreatic",
+      "factor_id": "family_history_pancreatic",
+      "prompt": "请补充：一级亲属（父母/兄弟姐妹/子女）中是否有胰腺癌患者？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "pancreatic_cancer|family_history_pancreatic|present|asrt_pancreatic_cancer_family_history_pancreatic",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "pancreatic_cancer|family_history_pancreatic|present|asrt_pancreatic_cancer_family_history_pancreatic",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "pancreatic_cancer|family_history_pancreatic|present|asrt_pancreatic_cancer_family_history_pancreatic",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_thyroid",
+      "factor_id": "family_history_thyroid",
+      "prompt": "请补充：一级亲属（父母/兄弟姐妹/子女）中是否有甲状腺癌患者？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid|present|asrt_thyroid_cancer_family_history_thyroid",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid|present|asrt_thyroid_cancer_family_history_thyroid",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid|present|asrt_thyroid_cancer_family_history_thyroid",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "brca1_mutation_carrier",
+      "factor_id": "brca1_mutation_carrier",
+      "prompt": "请补充：是否已知携带 BRCA1 基因突变？（基因检测确认）",
+      "factor_type": "genetic",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca1_mutation_carrier|present|asrt_breast_cancer_brca1_mutation_carrier",
+              "exists": true
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca1_mutation_carrier|present|asrt_pancreatic_cancer_brca1_mutation_carrier",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca1_mutation_carrier|present|asrt_breast_cancer_brca1_mutation_carrier",
+              "exists": false
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca1_mutation_carrier|present|asrt_pancreatic_cancer_brca1_mutation_carrier",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/未检测",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca1_mutation_carrier|present|asrt_breast_cancer_brca1_mutation_carrier",
+              "exists": "unknown"
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca1_mutation_carrier|present|asrt_pancreatic_cancer_brca1_mutation_carrier",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "brca2_mutation_carrier",
+      "factor_id": "brca2_mutation_carrier",
+      "prompt": "请补充：是否已知携带 BRCA2 基因突变？（基因检测确认）",
+      "factor_type": "genetic",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca2_mutation_carrier|present|asrt_breast_cancer_brca2_mutation_carrier",
+              "exists": true
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca2_mutation_carrier|present|asrt_pancreatic_cancer_brca2_mutation_carrier",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca2_mutation_carrier|present|asrt_breast_cancer_brca2_mutation_carrier",
+              "exists": false
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca2_mutation_carrier|present|asrt_pancreatic_cancer_brca2_mutation_carrier",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/未检测",
+          "updates": [
+            {
+              "assertion_key": "breast_cancer|brca2_mutation_carrier|present|asrt_breast_cancer_brca2_mutation_carrier",
+              "exists": "unknown"
+            },
+            {
+              "assertion_key": "pancreatic_cancer|brca2_mutation_carrier|present|asrt_pancreatic_cancer_brca2_mutation_carrier",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "lynch_syndrome",
+      "factor_id": "lynch_syndrome_mlh1",
+      "prompt": "请补充：是否已知携带 Lynch 综合征相关基因突变？（MLH1 / MSH2 / MSH6 / PMS2 基因检测确认）",
+      "factor_type": "genetic",
+      "options": [
+        {
+          "value": "mlh1",
+          "label": "是，MLH1 突变",
+          "updates": [
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_mlh1|present|asrt_colorectal_cancer_lynch_mlh1",
+              "exists": true
+            },
+            {
+              "assertion_key": "ovarian_cancer|lynch_syndrome_mlh1|present|asrt_ovarian_cancer_lynch_mlh1",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "msh2",
+          "label": "是，MSH2 突变",
+          "updates": [
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_msh2|present|asrt_colorectal_cancer_lynch_msh2",
+              "exists": true
+            },
+            {
+              "assertion_key": "gastric_cancer|lynch_syndrome_msh2|present|asrt_gastric_cancer_lynch_msh2",
+              "exists": true
+            },
+            {
+              "assertion_key": "ovarian_cancer|lynch_syndrome_msh2|present|asrt_ovarian_cancer_lynch_msh2",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "msh6",
+          "label": "是，MSH6 突变",
+          "updates": [
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_msh6|present|asrt_colorectal_cancer_lynch_msh6",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "pms2",
+          "label": "是，PMS2 突变",
+          "updates": [
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_pms2|present|asrt_colorectal_cancer_lynch_pms2",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否/未检测",
+          "updates": [
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_mlh1|present|asrt_colorectal_cancer_lynch_mlh1",
+              "exists": false
+            },
+            {
+              "assertion_key": "ovarian_cancer|lynch_syndrome_mlh1|present|asrt_ovarian_cancer_lynch_mlh1",
+              "exists": false
+            },
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_msh2|present|asrt_colorectal_cancer_lynch_msh2",
+              "exists": false
+            },
+            {
+              "assertion_key": "gastric_cancer|lynch_syndrome_msh2|present|asrt_gastric_cancer_lynch_msh2",
+              "exists": false
+            },
+            {
+              "assertion_key": "ovarian_cancer|lynch_syndrome_msh2|present|asrt_ovarian_cancer_lynch_msh2",
+              "exists": false
+            },
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_msh6|present|asrt_colorectal_cancer_lynch_msh6",
+              "exists": false
+            },
+            {
+              "assertion_key": "colorectal_cancer|lynch_syndrome_pms2|present|asrt_colorectal_cancer_lynch_pms2",
+              "exists": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_cervical",
+      "factor_id": "family_history_cervical",
+      "prompt": "请补充：一级亲属（母亲/姐妹/女儿）中是否有宫颈癌患者？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "cervical_cancer|family_history_cervical|present|asrt_cervical_cancer_family_history_cervical",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "cervical_cancer|family_history_cervical|present|asrt_cervical_cancer_family_history_cervical",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "cervical_cancer|family_history_cervical|present|asrt_cervical_cancer_family_history_cervical",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_head_neck",
+      "factor_id": "family_history_head_neck",
+      "prompt": "请补充：一级亲属（父母/兄弟姐妹/子女）中是否有头颈部肿瘤患者（口腔癌、咽喉癌、舌癌等）？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "head_neck_cancer|family_history_head_neck|present|asrt_head_neck_cancer_family_history_head_neck",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "head_neck_cancer|family_history_head_neck|present|asrt_head_neck_cancer_family_history_head_neck",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "head_neck_cancer|family_history_head_neck|present|asrt_head_neck_cancer_family_history_head_neck",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_biliary",
+      "factor_id": "family_history_biliary",
+      "prompt": "请补充：一级亲属（父母/兄弟姐妹/子女）中是否有胆囊癌或胆管癌患者？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "yes",
+          "label": "是",
+          "updates": [
+            {
+              "assertion_key": "biliary_tract_cancer|family_history_biliary|present|asrt_biliary_tract_cancer_family_history_biliary",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "no",
+          "label": "否",
+          "updates": [
+            {
+              "assertion_key": "biliary_tract_cancer|family_history_biliary|present|asrt_biliary_tract_cancer_family_history_biliary",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "biliary_tract_cancer|family_history_biliary|present|asrt_biliary_tract_cancer_family_history_biliary",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_gastric_multiple",
+      "factor_id": "family_history_gastric_multiple",
+      "prompt": "请补充：一级亲属中患胃癌的人数？（若前述已填写胃癌家族史阳性，此题补充人数）",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属患胃癌",
+          "updates": [
+            {
+              "assertion_key": "gastric_cancer|family_history_gastric_multiple|present|asrt_gastric_cancer_family_history_gastric_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患胃癌",
+          "updates": [
+            {
+              "assertion_key": "gastric_cancer|family_history_gastric_multiple|present|asrt_gastric_cancer_family_history_gastric_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "gastric_cancer|family_history_gastric_multiple|present|asrt_gastric_cancer_family_history_gastric_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_esophageal_multiple",
+      "factor_id": "family_history_esophageal_multiple",
+      "prompt": "请补充：一级亲属中患食管癌的人数？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属患食管癌",
+          "updates": [
+            {
+              "assertion_key": "esophageal_cancer|family_history_esophageal_multiple|present|asrt_esophageal_cancer_family_history_esophageal_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患食管癌",
+          "updates": [
+            {
+              "assertion_key": "esophageal_cancer|family_history_esophageal_multiple|present|asrt_esophageal_cancer_family_history_esophageal_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "esophageal_cancer|family_history_esophageal_multiple|present|asrt_esophageal_cancer_family_history_esophageal_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_ovarian_multiple",
+      "factor_id": "family_history_ovarian_multiple",
+      "prompt": "请补充：一级亲属中患卵巢癌的人数？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属（如母亲+姐妹均患卵巢癌）",
+          "updates": [
+            {
+              "assertion_key": "ovarian_cancer|family_history_ovarian_multiple|present|asrt_ovarian_cancer_family_history_ovarian_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患卵巢癌",
+          "updates": [
+            {
+              "assertion_key": "ovarian_cancer|family_history_ovarian_multiple|present|asrt_ovarian_cancer_family_history_ovarian_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "ovarian_cancer|family_history_ovarian_multiple|present|asrt_ovarian_cancer_family_history_ovarian_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_liver_multiple",
+      "factor_id": "family_history_liver_multiple",
+      "prompt": "请补充：一级亲属中患肝癌的人数？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属患肝癌",
+          "updates": [
+            {
+              "assertion_key": "liver_cancer|family_history_liver_multiple|present|asrt_liver_cancer_family_history_liver_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患肝癌",
+          "updates": [
+            {
+              "assertion_key": "liver_cancer|family_history_liver_multiple|present|asrt_liver_cancer_family_history_liver_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "liver_cancer|family_history_liver_multiple|present|asrt_liver_cancer_family_history_liver_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_bladder_multiple",
+      "factor_id": "family_history_bladder_multiple",
+      "prompt": "请补充：一级亲属中患膀胱癌的人数？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": ">1名一级亲属患膀胱癌",
+          "updates": [
+            {
+              "assertion_key": "bladder_cancer|family_history_bladder_multiple|present|asrt_bladder_cancer_family_history_bladder_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患膀胱癌",
+          "updates": [
+            {
+              "assertion_key": "bladder_cancer|family_history_bladder_multiple|present|asrt_bladder_cancer_family_history_bladder_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "bladder_cancer|family_history_bladder_multiple|present|asrt_bladder_cancer_family_history_bladder_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_kidney_multiple",
+      "factor_id": "family_history_kidney_multiple",
+      "prompt": "请补充：一级亲属中患肾癌的人数？",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属患肾癌",
+          "updates": [
+            {
+              "assertion_key": "kidney_cancer|family_history_kidney_multiple|present|asrt_kidney_cancer_family_history_kidney_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患肾癌",
+          "updates": [
+            {
+              "assertion_key": "kidney_cancer|family_history_kidney_multiple|present|asrt_kidney_cancer_family_history_kidney_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "kidney_cancer|family_history_kidney_multiple|present|asrt_kidney_cancer_family_history_kidney_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question_group": "family_history_thyroid_multiple",
+      "factor_id": "family_history_thyroid_multiple",
+      "prompt": "请补充：一级亲属中患甲状腺癌的人数？（≥2名提示家族性非髓样甲状腺癌 FNMTC）",
+      "factor_type": "family_history",
+      "options": [
+        {
+          "value": "multiple",
+          "label": "≥2名一级亲属患甲状腺癌（FNMTC）",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid_multiple|present|asrt_thyroid_cancer_family_history_thyroid_multiple",
+              "exists": true
+            }
+          ]
+        },
+        {
+          "value": "single",
+          "label": "仅1名一级亲属患甲状腺癌",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid_multiple|present|asrt_thyroid_cancer_family_history_thyroid_multiple",
+              "exists": false
+            }
+          ]
+        },
+        {
+          "value": "unknown",
+          "label": "不清楚/暂不提供",
+          "updates": [
+            {
+              "assertion_key": "thyroid_cancer|family_history_thyroid_multiple|present|asrt_thyroid_cancer_family_history_thyroid_multiple",
+              "exists": "unknown"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

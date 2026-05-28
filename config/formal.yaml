@@ -110,6 +110,24 @@ interactive:
           - {value: occasional, label: "偶尔饮酒",   exists: false}
           - {value: heavy,      label: "经常大量饮酒", exists: true}
           - {value: unknown,    label: "不愿透露"}
+      - question_id: q_genetic_mutations
+        prompt: "是否有以下基因突变（可多选；若无或未做基因检测请选「均无/未检测」）？"
+        type: multi_select
+        options:
+          - {value: brca1, label: "BRCA1 突变", factor_id: brca1_mutation_carrier, factor_level: present, exists: true}
+          - {value: brca2, label: "BRCA2 突变", factor_id: brca2_mutation_carrier, factor_level: present, exists: true}
+          - {value: mlh1,  label: "Lynch MLH1 突变", factor_id: lynch_syndrome_mlh1, factor_level: present, exists: true}
+          - {value: msh2,  label: "Lynch MSH2 突变", factor_id: lynch_syndrome_msh2, factor_level: present, exists: true}
+          - {value: msh6,  label: "Lynch MSH6 突变", factor_id: lynch_syndrome_msh6, factor_level: present, exists: true}
+          - {value: pms2,  label: "Lynch PMS2 突变", factor_id: lynch_syndrome_pms2, factor_level: present, exists: true}
+          - {value: none,  label: "均无 / 未检测"}
+      # text_fill: shown only when q_family_history_cancer=yes; placement=last
+      # ensures it follows all single-choice questions regardless of yaml order.
+      - question_id: q_family_history_detail
+        prompt: "请补充具体家族史（仅限癌症）：哪种癌症、单名（1 人）还是多名（≥2 人）亲属？\n（例如：父亲肺癌 1 人、母亲乳腺癌 多人）"
+        type: text_fill
+        conditional_on: {question_id: q_family_history_cancer, value: "yes"}
+        placement: last
     male:
       - question_id: q_psa_screening
         prompt: "近一年内是否做过 PSA（前列腺特异性抗原）检测？"

@@ -759,6 +759,16 @@ def run_api_phase(
 
     api_config = _health_api_config(config)
     api_input_text, api_input_audit = _prepare_api_input(refined_text, artifacts_dir)
+
+    # Append interactive questionnaire answers so the health-summary API
+    # receives jizaoan result, smoking, family history etc.
+    _answers_md = artifacts_dir / "interactive_answers.md"
+    if _answers_md.is_file():
+        _q_block = "\n\n" + _answers_md.read_text(encoding="utf-8").strip()
+        # Trim OCR compact text to keep total within the API budget
+        _budget = max(0, _API_MAX_CHARS - len(_q_block))
+        api_input_text = api_input_text[:_budget] + _q_block
+
     messages = _build_messages(api_input_text)
     (artifacts_dir / "health_summary_api_messages.json").write_text(
         json.dumps(

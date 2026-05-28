@@ -84,11 +84,12 @@
       "test_id": "afp_serum",
       "test_name": "甲胎蛋白 AFP (≥20 ng/mL)",
       "cancer_id": "liver_cancer",
-      "sensitivity": 0.65,
-      "specificity": 0.85,
+      "sensitivity": 0.61,
+      "specificity": 0.87,
       "population": "general adult",
-      "source_id": "He XX, 2015 (PLoS One)",
-      "threshold": "≥20 ng/mL"
+      "source_id": "Pang BY et al., Ann Med 2023, PMID:36476015",
+      "threshold": "≥20 ng/mL",
+      "notes": "Meta-analysis of 83 studies (n=9546). AFP alone: sensitivity 61%, specificity 87%, AUC=0.78. Combined with AFP-L3+DCP raises AUC to 0.91."
     },
     {
       "test_id": "cea_serum",
@@ -114,23 +115,23 @@
       "test_id": "cea_serum",
       "test_name": "癌胚抗原 CEA (≥5 ng/mL)",
       "cancer_id": "breast_cancer",
-      "sensitivity": 0.25,
+      "sensitivity": 0.2,
       "specificity": 0.85,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
+      "source_id": "Evidence_20260527.md sec 1.3; clinical practice standard",
       "threshold": "≥5 ng/mL",
-      "notes": "补充调研文档列为'辅助指标'，未列具体文献"
+      "notes": "CEA for early breast cancer: <20% sensitivity. Metastatic: 30-50%. Using early-stage value for primary screening context. CA15-3 is preferred primary marker."
     },
     {
       "test_id": "cea_serum",
       "test_name": "癌胚抗原 CEA (≥5 ng/mL)",
       "cancer_id": "lung_cancer",
-      "sensitivity": 0.27,
-      "specificity": 0.85,
+      "sensitivity": 0.54,
+      "specificity": 0.94,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
+      "source_id": "Shi HZ et al., Respirology 2008; Cheng C et al., Expert Rev Respir Med 2022",
       "threshold": "≥5 ng/mL",
-      "notes": "补充调研文档列为'辅助指标'，未列具体文献"
+      "notes": "CEA for lung adenocarcinoma (serum): sensitivity 54%, specificity 94%, DOR=22.5 (Shi 2008). Pleural effusion context higher at DOR=47.26. Using serum values for general screening context."
     },
     {
       "test_id": "ca199_serum",
@@ -149,18 +150,20 @@
       "sensitivity": 0.25,
       "specificity": 0.78,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
-      "threshold": "≥37 U/mL"
+      "source_id": "Evidence_20260527.md sec 1.5; Kumar Y et al., Eur J Gastroenterol Hepatol 2007",
+      "threshold": "≥37 U/mL",
+      "notes": "CA19-9 for gastric cancer: sensitivity 20-40%. CA72-4 is preferred gastric marker (sensitivity 20-40%, specificity > CEA)."
     },
     {
       "test_id": "ca199_serum",
       "test_name": "CA19-9 (≥37 U/mL)",
       "cancer_id": "colorectal_cancer",
-      "sensitivity": 0.18,
+      "sensitivity": 0.25,
       "specificity": 0.78,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
-      "threshold": "≥37 U/mL"
+      "source_id": "Evidence_20260527.md sec 1.4; Pin-Vieito N et al., World J Gastroenterol 2021",
+      "threshold": "≥37 U/mL",
+      "notes": "CA19-9 for CRC: sensitivity range 20-40%. FIT is preferred CRC screening tool. CA19-9 used as supplementary indicator."
     },
     {
       "test_id": "ca199_serum",
@@ -169,8 +172,9 @@
       "sensitivity": 0.25,
       "specificity": 0.78,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
-      "threshold": "≥37 U/mL"
+      "source_id": "Evidence_20260527.md sec 1.7; Ghose et al., Ther Adv Med Oncol 2024",
+      "threshold": "≥37 U/mL",
+      "notes": "CA19-9 is a secondary/supplementary marker for ovarian cancer. CA125 (+HE4 ROMA index) is primary. CA19-9 alone has limited specificity."
     },
     {
       "test_id": "ca199_serum",
@@ -179,8 +183,9 @@
       "sensitivity": 0.75,
       "specificity": 0.85,
       "population": "general adult",
-      "source_id": "补充调研文档.md (胰腺癌CA19-9)",
-      "threshold": "≥37 U/mL"
+      "source_id": "Ben-Ami R et al., Gut 2024, PMID:38123998",
+      "threshold": "≥37 U/mL",
+      "notes": "CA19-9 in early pancreatic cancer: AUC=0.82 (95%CI 0.72-0.92) in validation set. Sensitivity range 70-80%, specificity 80-90% across train/test/validation cohorts. Not recommended for general population screening."
     },
     {
       "test_id": "ca125_serum",
@@ -226,12 +231,12 @@
       "test_id": "cyfra211_serum",
       "test_name": "CYFRA21-1 (≥3.3 ng/mL)",
       "cancer_id": "lung_cancer",
-      "sensitivity": 0.55,
-      "specificity": 0.85,
+      "sensitivity": 0.72,
+      "specificity": 0.94,
       "population": "general adult",
-      "source_id": "Wieskopf B, 1995",
+      "source_id": "Fu L et al., Int J Biol Markers 2019; Cui C et al., J Cancer Res Ther 2014",
       "threshold": "≥3.3 ng/mL",
-      "notes": "肺鳞癌 50-60%、肺腺癌 30-40%；取上界 55%"
+      "notes": "Lung squamous: sensitivity 72%, specificity 94%, DOR=27.30 (Fu 2019). NSCLC: DOR=22.57 (Cui 2014). Significantly higher performance than Wieskopf 1995 estimates."
     },
     {
       "test_id": "cyfra211_serum",
@@ -280,8 +285,9 @@
       "sensitivity": 0.45,
       "specificity": 0.85,
       "population": "general adult",
-      "source_id": "补充调研文档.md (辅助指标)",
-      "threshold": "≥1.5 ng/mL"
+      "source_id": "Vassilakopoulos T et al., Lung Cancer 2001; confirmed by evidence_20260527.md sec 1.2",
+      "threshold": "≥1.5 ng/mL",
+      "notes": "SCCAg for NSCLC: sensitivity 32-55%, specificity 78-100% (Vassilakopoulos 2001). HR=5.823 (3.30-10.28) as prognostic marker. Current value 0.45/0.85 within range; source updated."
     },
     {
       "test_id": "scc_serum",
@@ -317,11 +323,42 @@
       "test_id": "ca153_serum",
       "test_name": "CA15-3 (≥30 U/mL)",
       "cancer_id": "breast_cancer",
-      "sensitivity": 0.35,
+      "sensitivity": 0.2,
       "specificity": 0.85,
       "population": "female adult",
-      "source_id": "Duffy MJ, 2006",
-      "threshold": "≥30 U/mL"
+      "source_id": "Fu Y et al., Med Sci Monit 2016; evidence_20260527.md sec 1.3",
+      "threshold": "≥30 U/mL",
+      "notes": "CA15-3 for early-stage breast cancer: sensitivity <20%. Metastatic: 50-70%. Downgraded from 0.35 to 0.20 to reflect early-screening context. High sensitivity in metastatic monitoring is not applicable for primary screening."
+    },
+    {
+      "test_id": "nse_serum",
+      "test_name": "神经元特异性烯醇化酶 NSE",
+      "cancer_id": "lung_cancer",
+      "population": "general adult (primarily SCLC)",
+      "sensitivity": 0.688,
+      "specificity": 0.921,
+      "source_id": "Huang L et al., Oncotarget 2017, PMID:28969076",
+      "notes": "Meta-analysis: sensitivity 68.8%, specificity 92.1%, DOR=25.83 (95%CI 17.49-38.14). Primarily a marker for small-cell lung cancer (SCLC). Asian subgroup: sensitivity 59.0%, specificity 90.1%."
+    },
+    {
+      "test_id": "progrp_serum",
+      "test_name": "胃泌素释放肽前体 ProGRP",
+      "cancer_id": "lung_cancer",
+      "population": "general adult (primarily SCLC)",
+      "sensitivity": 0.64,
+      "specificity": 0.94,
+      "source_id": "Wang H et al., J Cancer Res Ther 2016",
+      "notes": "ProGRP for SCLC: sensitivity 64%, specificity 94%, DOR=40.98 (95%CI 27.77-60.64). Combined ProGRP+NSE: sensitivity 88.9%, specificity 72.82%. Highest performance among SCLC markers."
+    },
+    {
+      "test_id": "hpv_dna_test",
+      "test_name": "HPV DNA 检测",
+      "cancer_id": "cervical_cancer",
+      "population": "female adult 21-65 years",
+      "sensitivity": 0.95,
+      "specificity": 0.85,
+      "source_id": "Yu et al., Int J Cancer 2018; ASCCP Guidelines 2019",
+      "notes": "HPV DNA primary screening: sensitivity >95%, specificity ~85%. HPV-16/18 genotyping accounts for ~80% of cervical cancers. Combined with p16/Ki-67 dual stain for triage of non-16/18 high-risk types."
     }
   ]
 }

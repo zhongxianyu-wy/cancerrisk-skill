@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re as _re
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -56,16 +57,11 @@ JIZAOAN_ID = "jizaoan_multi_cancer_screening"
 # ---------------------------------------------------------------------------
 
 FACTOR_FANOUT: dict[tuple[str, str], list[tuple[str, str]]] = {
+    # family_history_cancer "yes" only sets the generic first-degree factor.
+    # Specific per-cancer factors (family_history_lung_first, etc.) are derived
+    # by parsing the q_family_history_detail free-text answer.
     ("family_history_cancer", "present"): [
         ("family_history_first_degree", "present"),
-        ("family_history_crc_first", "present"),
-        ("family_history_crc_multiple", "present"),
-        ("family_history_gastric_first", "present"),
-        ("family_history_esophageal", "present"),
-        ("family_history_kidney", "present"),
-        ("family_history_prostate", "present"),
-        ("family_history_multiple", "present"),
-        ("family_history_multiple_same", "present"),
     ],
     ("smoking_current", "current"): [
         ("smoking_current", "present"),
@@ -93,6 +89,88 @@ SCREENING_FACTOR_IDS: set[str] = {
     "cervical_screening_recent",
     "breast_screening_recent",
 }
+
+# ---------------------------------------------------------------------------
+# Family history free-text parser (for q_family_history_detail text_fill)
+# ---------------------------------------------------------------------------
+
+# Maps Chinese cancer keyword → (single-relative factor_id, multiple-relative factor_id | None)
+# Longer strings must come before shorter ones sharing the same characters.
+_CANCER_FH_FACTORS: dict[str, tuple[str, str | None]] = {
+    "结直肠": ("family_history_crc_first", "family_history_crc_multiple"),
+    "大肠":   ("family_history_crc_first", "family_history_crc_multiple"),
+    "食管":   ("family_history_esophageal", "family_history_esophageal_multiple"),
+    "甲状腺": ("family_history_thyroid", "family_history_thyroid_multiple"),
+    "前列腺": ("family_history_prostate", None),
+    "胰腺":   ("family_history_pancreatic", None),
+    "胆道":   ("family_history_biliary", None),
+    "胆管":   ("family_history_biliary", None),
+    "胆囊":   ("family_history_biliary", None),
+    "头颈":   ("family_history_head_neck", None),
+    "宫颈":   ("family_history_cervical", None),
+    "卵巢":   ("family_history_ovarian_first", "family_history_ovarian_multiple"),
+    "乳腺":   ("family_history_breast_first", None),
+    "乳房":   ("family_history_breast_first", None),
+    "膀胱":   ("family_history_bladder", "family_history_bladder_multiple"),
+    "胃":     ("family_history_gastric_first", "family_history_gastric_multiple"),
+    "肝":     ("family_history_liver", "family_history_liver_multiple"),
+    "肺":     ("family_history_first_degree", None),  # no lung-specific factor
+    "肾":     ("family_history_kidney", "family_history_kidney_multiple"),
+    "肠":     ("family_history_crc_first", "family_history_crc_multiple"),
+}
+
+# Multiple-relatives markers in Chinese text
+_MULTIPLE_RE = _re.compile(r"多[人名位个]|≥\s*2|>=\s*2|两[人名位个]|三[人名位个]|四[人名位个]|多位|多名|以上")
+
+
+def _parse_family_history_text(text: str) -> list[dict[str, Any]]:
+    """Parse free-text family history answer into timeline-ready factor records.
+
+    Input: "父亲肺癌（1人）、母亲乳腺癌（多人）"
+    Output: [{factor_id: family_history_first_degree, ...}, {factor_id: family_history_breast_first, ...}]
+    """
+    # Split into per-person segments to prevent count markers from one entry
+    # bleeding into the keyword context of an adjacent entry.
+    segments = [s.strip() for s in _re.split(r"[，,、\n；;]+", text) if s.strip()]
+    if not segments:
+        segments = [text]
+
+    records: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    cancer_count: int = 0
+    sorted_factors = sorted(_CANCER_FH_FACTORS.items(), key=lambda x: -len(x[0]))
+
+    for seg in segments:
+        is_multiple = bool(_MULTIPLE_RE.search(seg))
+        for keyword, (single_fid, multi_fid) in sorted_factors:
+            if keyword not in seg:
+                continue
+            factor_id = (multi_fid if (is_multiple and multi_fid) else single_fid)
+            if factor_id and factor_id not in seen:
+                seen.add(factor_id)
+                cancer_count += 1
+                records.append({
+                    "factor_key": f"{factor_id}|present",
+                    "factor_id": factor_id,
+                    "factor_level": "present",
+                    "factor_type": "family_history",
+                    "exists": True,
+                    "evidence_text": text,
+                })
+            break  # only first matched keyword per segment
+
+    # ≥2 distinct cancer types → generic multiple-type marker
+    if cancer_count >= 2 and "family_history_multiple" not in seen:
+        records.append({
+            "factor_key": "family_history_multiple|present",
+            "factor_id": "family_history_multiple",
+            "factor_level": "present",
+            "factor_type": "family_history",
+            "exists": True,
+            "evidence_text": text,
+        })
+
+    return records
 
 
 # ---------------------------------------------------------------------------
@@ -141,12 +219,17 @@ def build_fixed_questionnaire(
         if q.get("factor_id") not in SCREENING_FACTOR_IDS
     ]
 
-    max_total = int(interactive_cfg.get("max_total_questions") or interactive_cfg.get("max_questions") or 10)
-    if len(yaml_questions) > max_total:
-        yaml_questions = yaml_questions[:max_total]
+    # placement=last questions are separated out so they always appear after
+    # all other questions (outside the cap), regardless of yaml order.
+    last_questions = [q for q in yaml_questions if q.get("placement") == "last"]
+    main_questions = [q for q in yaml_questions if q.get("placement") != "last"]
 
-    # Jizaoan is always required — prepend unconditionally, outside the yaml cap.
-    questions = _jizaoan_questions() + yaml_questions
+    max_total = int(interactive_cfg.get("max_total_questions") or interactive_cfg.get("max_questions") or 10)
+    if len(main_questions) > max_total:
+        main_questions = main_questions[:max_total]
+
+    # Jizaoan prepended outside cap; placement=last questions appended outside cap.
+    questions = _jizaoan_questions() + main_questions + last_questions
 
     return {
         "schema_version": "interactive-questionnaire-v2",
@@ -281,7 +364,81 @@ def apply_fixed_answers(
                     md_lines.append(f"- 年龄：{age} 岁")
             continue
 
-        # timeline-targeted single-choice / boolean questions
+        q_type = question.get("type") or "single_choice"
+
+        # ---- text_fill (free-text, conditional) ----
+        if q_type == "text_fill":
+            cond = question.get("conditional_on")
+            if cond:
+                cond_qid = str(cond.get("question_id") or "")
+                cond_val = str(cond.get("value") or "")
+                if _normalize_answer_value(answers.get(cond_qid)) != _normalize_answer_value(cond_val):
+                    continue  # trigger condition not met — skip
+            raw_text = (answers.get(qid) or "").strip()
+            if not raw_text or _normalize_answer_value(raw_text) in {"unknown"}:
+                skipped.append({"question_id": qid, "reason": "no_text_provided"})
+                md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}：（未提供）")
+                continue
+            md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}")
+            md_lines.append(f"  答：{raw_text}")
+            parsed = _parse_family_history_text(raw_text)
+            for rec in parsed:
+                timeline_records.append({
+                    **rec,
+                    "exam_date": "now",
+                    "source_md": None,
+                    "source_data_id": "interactive_answers",
+                    "source": "user_reported",
+                    "confidence": 0.9,
+                })
+            if not parsed:
+                md_lines.append("  （未能解析出已知癌种，仅作文字记录）")
+            continue
+
+        # ---- multi_select ----
+        if q_type == "multi_select":
+            raw = answers.get(qid)
+            if isinstance(raw, list):
+                selected = [str(v).strip() for v in raw if str(v).strip()]
+            elif isinstance(raw, str):
+                selected = [v.strip() for v in raw.split(",") if v.strip()]
+            else:
+                selected = []
+            selected_set = set(selected)
+            selected_labels: list[str] = []
+            for opt in question.get("options", []):
+                opt_value = str(opt.get("value") or "")
+                if opt_value not in selected_set:
+                    continue
+                opt_label = opt.get("label") or opt_value
+                opt_factor_id = opt.get("factor_id")
+                opt_factor_level = opt.get("factor_level", "present")
+                opt_exists = opt.get("exists")
+                if opt_factor_id and opt_exists is True:
+                    selected_labels.append(opt_label)
+                    factor_key = f"{opt_factor_id}|{opt_factor_level}"
+                    timeline_records.append({
+                        "factor_key": factor_key,
+                        "factor_id": opt_factor_id,
+                        "factor_level": opt_factor_level,
+                        "factor_type": "genetic_predisposition",
+                        "exists": True,
+                        "exam_date": "now",
+                        "source_md": None,
+                        "source_data_id": "interactive_answers",
+                        "source": "user_reported",
+                        "evidence_text": opt_label,
+                        "confidence": 1.0,
+                    })
+            if not selected or selected_set == {"none"}:
+                md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}：均无/未检测")
+            elif selected_labels:
+                md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}：{', '.join(selected_labels)}")
+            else:
+                md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}：（未提供）")
+            continue
+
+        # ---- single_choice / boolean (default) ----
         option = _resolve_option(question, value)
         if option is None or "exists" not in option:
             skipped.append({"question_id": qid, "value": value, "reason": "no_exists_mapping"})

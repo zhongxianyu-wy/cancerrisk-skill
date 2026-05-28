@@ -25,7 +25,7 @@ from typing import Any
 
 import yaml
 
-from snapshot_risk import logit, sigmoid, assign_tier
+from snapshot_risk import logit, sigmoid, assign_tier, MAX_NON_PATHOLOGY_PROBABILITY
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_VERSION = "longitudinal-risk-v1"
@@ -373,7 +373,7 @@ def _replay_posteriors(prior_log_odds: float, points: list[dict[str, Any]]) -> l
         series.append({
             "exam_date": point["exam_date"],
             "posterior_log_odds": posterior_log_odds,
-            "posterior_probability": sigmoid(posterior_log_odds),
+            "posterior_probability": min(sigmoid(posterior_log_odds), MAX_NON_PATHOLOGY_PROBABILITY),
             "added_components": added_components,
             "screening": screening,
         })

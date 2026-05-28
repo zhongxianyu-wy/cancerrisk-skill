@@ -1,16 +1,19 @@
 {
   "version": "evidence-v0003",
-  "built_at": "2026-05-26T00:00:00Z",
+  "built_at": "2026-05-27T00:00:00Z",
   "source": {
     "v3_evidence_store": "cancerrisk-skill/evidence_store",
     "parent_version": "evidence-v0002",
-    "changelog": "DOR-calibrated OR values for tumor markers (Meta-analysis DOR-based); added thyroid_cancer priors; added thyroid_cancer screening recommendations and VoI methods"
+    "patch_file": "versions/v1.3_evidence_patches.json",
+    "changelog": "v1.3: (1) DOR-calibrated detection performance for AFP/CA19-9/CYFRA21-1/CEA/SCC/CA15-3; (2) New tests: NSE, ProGRP (SCLC), HPV-DNA; (3) Lynch MLH1/MSH2/MSH6/PMS2 factors + CRC/OC/GC assertions; (4) BRCA1/BRCA2 split assertions (breast + pancreatic); (5) family_history_pancreatic + family_history_thyroid; (6) OR corrections: lung family_history (1.97→1.63), gastric mirror atrophy/IM (4→3.5), HPV persistent (100→150); (7) Imaging: liver_mass PPV 50-70%, pancreatic_mass PPV 40-60%"
   },
   "counts": {
     "cancers": 14,
-    "risk_factors": 101,
-    "assertions": 111,
-    "detection_tests": 7,
-    "screening_cancers": 14
+    "risk_factors": 139,
+    "assertions": 210,
+    "detection_tests": 35,
+    "imaging_findings": 18,
+    "interaction_question_groups": 20,
+    "indicator_fill_schemas": 24
   }
 }

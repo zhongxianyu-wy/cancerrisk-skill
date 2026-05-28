@@ -278,6 +278,23 @@ def build_assertion_fill_template(
         "counts": {"risk_factor_templates": len(records)},
     }
 
+_FEMALE_ONLY_TEMPLATES = {"cervical_hpv", "cervical_tct", "ovarian_mass", "breast_biopsy", "breast_density_ge75"}
+_MALE_ONLY_TEMPLATES = {"prostate_mri"}
+
+
+def _emit_indicator_schema(evidence_store: Path, sex: str | None, out_path: Path) -> None:
+    """Copy indicator_fill_schemas.json filtered for patient sex to out_path."""
+    src = evidence_store / "ontology" / "indicator_fill_schemas.json"
+    schemas = json.loads(src.read_text(encoding="utf-8"))
+    if sex == "male":
+        schemas["templates"] = [t for t in schemas["templates"] if t["template_id"] not in _FEMALE_ONLY_TEMPLATES]
+    elif sex == "female":
+        schemas["templates"] = [t for t in schemas["templates"] if t["template_id"] not in _MALE_ONLY_TEMPLATES]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(schemas, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"[assertion_fill_template] indicator_schemas sex={sex} templates={len(schemas['templates'])} -> {out_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evidence-store", required=True)
@@ -285,6 +302,11 @@ def main() -> None:
     parser.add_argument("--age", type=int, default=None)
     parser.add_argument("--enabled-cancers", default=None)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--indicator-schema-output",
+        default=None,
+        help="If provided, write sex-filtered indicator_fill_schemas.json to this path",
+    )
     args = parser.parse_args()
 
     enabled = None
@@ -298,6 +320,9 @@ def main() -> None:
         f"[assertion_fill_template] sex={args.sex} age={args.age} "
         f"templates={payload['counts']['risk_factor_templates']} -> {out}"
     )
+
+    if args.indicator_schema_output:
+        _emit_indicator_schema(Path(args.evidence_store), args.sex, Path(args.indicator_schema_output))
 
 
 if __name__ == "__main__":

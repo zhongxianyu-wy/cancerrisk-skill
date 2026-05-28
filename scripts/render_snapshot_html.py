@@ -26,6 +26,8 @@ _TIER_CSS = {
     "urgent_workup": "high", "high_workup": "high", "moderate_workup": "medium",
 }
 
+_MAX_NON_PATHOLOGY_PROB = 0.75
+
 
 def _esc(value: Any) -> str:
     return html.escape("" if value is None else str(value))
@@ -184,7 +186,7 @@ def _section2_body(cancers: list[dict[str, Any]], section_filter: dict[str, Any]
                 ev_display = _esc(evidence[:80] + ("…" if len(evidence) > 80 else ""))
                 if running_lo is not None:
                     running_lo = running_lo + delta
-                    prob_after = _prob_after_delta(running_lo, 0.0)
+                    prob_after = min(_prob_after_delta(running_lo, 0.0), _MAX_NON_PATHOLOGY_PROB)
                     prob_str = f"→ 累计风险 <strong>{_pct(prob_after)}</strong>"
                     or_val = math.exp(abs(delta))
                     or_str = f"OR≈{or_val:.2f}"
@@ -205,7 +207,7 @@ def _section2_body(cancers: list[dict[str, Any]], section_filter: dict[str, Any]
                 test_label = _esc(sc.get("test_name") or sc.get("test_id") or "")
                 if running_lo is not None:
                     running_lo = running_lo + delta
-                    prob_after = _prob_after_delta(running_lo, 0.0)
+                    prob_after = min(_prob_after_delta(running_lo, 0.0), _MAX_NON_PATHOLOGY_PROB)
                     prob_str = f"→ 累计风险 <strong>{_pct(prob_after)}</strong>"
                 else:
                     prob_str = ""

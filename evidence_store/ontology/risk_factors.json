@@ -1,5 +1,5 @@
 {
-  "version": "evidence-v0002",
+  "version": "evidence-v0003",
   "risk_factors": [
     {
       "factor_id": "smoking_general",
@@ -1770,6 +1770,246 @@
         "significant"
       ],
       "interaction_needed_if_missing": false
+    },
+    {
+      "factor_id": "lynch_syndrome_mlh1",
+      "factor_name_zh": "Lynch综合征（MLH1突变）",
+      "factor_name_en": "Lynch Syndrome (MLH1 mutation)",
+      "factor_type": "genetic",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "lynch_syndrome",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "lynch_syndrome_msh2",
+      "factor_name_zh": "Lynch综合征（MSH2突变）",
+      "factor_name_en": "Lynch Syndrome (MSH2 mutation)",
+      "factor_type": "genetic",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "lynch_syndrome",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "lynch_syndrome_msh6",
+      "factor_name_zh": "Lynch综合征（MSH6突变）",
+      "factor_name_en": "Lynch Syndrome (MSH6 mutation)",
+      "factor_type": "genetic",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "lynch_syndrome",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "lynch_syndrome_pms2",
+      "factor_name_zh": "Lynch综合征（PMS2突变）",
+      "factor_name_en": "Lynch Syndrome (PMS2 mutation)",
+      "factor_type": "genetic",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "lynch_syndrome",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_pancreatic",
+      "factor_name_zh": "胰腺癌家族史（一级亲属）",
+      "factor_name_en": "Family history of pancreatic cancer (first-degree)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": true,
+      "interaction_question_group": "family_history_pancreatic",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_thyroid",
+      "factor_name_zh": "甲状腺癌家族史（一级亲属）",
+      "factor_name_en": "Family history of thyroid cancer (first-degree)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": true,
+      "interaction_question_group": "family_history_thyroid",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_cervical",
+      "factor_name_zh": "宫颈癌家族史（一级亲属，SCC型）",
+      "factor_name_en": "Family history of cervical SCC (first-degree)",
+      "factor_type": "family_history",
+      "applicable_sex": "female",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": true,
+      "interaction_question_group": "family_history_cervical",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_head_neck",
+      "factor_name_zh": "头颈肿瘤家族史（一级亲属）",
+      "factor_name_en": "Family history of head and neck cancer (first-degree)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": true,
+      "interaction_question_group": "family_history_head_neck",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_biliary",
+      "factor_name_zh": "胆道肿瘤家族史（一级亲属，胆囊癌为主）",
+      "factor_name_en": "Family history of biliary tract cancer (first-degree, primarily gallbladder)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": true,
+      "interaction_question_group": "family_history_biliary",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_gastric_multiple",
+      "factor_name_zh": "胃癌家族史（≥2名一级亲属）",
+      "factor_name_en": "Family history of gastric cancer (2+ first-degree relatives)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_gastric_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_esophageal_multiple",
+      "factor_name_zh": "食管癌家族史（≥2名一级亲属）",
+      "factor_name_en": "Family history of esophageal cancer (2+ first-degree relatives)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_esophageal_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_ovarian_multiple",
+      "factor_name_zh": "卵巢癌家族史（≥2名一级亲属）",
+      "factor_name_en": "Family history of ovarian cancer (2+ first-degree relatives)",
+      "factor_type": "family_history",
+      "applicable_sex": "female",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_ovarian_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_liver_multiple",
+      "factor_name_zh": "肝癌家族史（≥2名一级亲属）",
+      "factor_name_en": "Family history of liver cancer (2+ first-degree relatives)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_liver_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_bladder_multiple",
+      "factor_name_zh": "膀胱癌家族史（>1名一级亲属）",
+      "factor_name_en": "Family history of bladder cancer (>1 first-degree relative)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_bladder_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_kidney_multiple",
+      "factor_name_zh": "肾癌家族史（≥2名一级亲属）",
+      "factor_name_en": "Family history of kidney cancer (2+ first-degree relatives)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_kidney_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
+    },
+    {
+      "factor_id": "family_history_thyroid_multiple",
+      "factor_name_zh": "甲状腺癌家族史（≥2名一级亲属，家族性NMTC）",
+      "factor_name_en": "Family history of thyroid cancer (2+ first-degree relatives, FNMTC)",
+      "factor_type": "family_history",
+      "applicable_sex": "all",
+      "applicable_age_min": null,
+      "applicable_age_max": null,
+      "interaction_needed_if_missing": false,
+      "interaction_question_group": "family_history_thyroid_multiple",
+      "level_schema": [
+        "present",
+        "absent"
+      ]
     }
   ]
 }

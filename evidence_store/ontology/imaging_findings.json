@@ -12,7 +12,10 @@
       "finding_name_zh": "肺结节 <5mm",
       "finding_name_en": "Lung nodule <5mm",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.0, 0.01],
+      "malignancy_ppv_range": [
+        0.0,
+        0.01
+      ],
       "source_id": "Fleischner Society 2017",
       "next_step": "若低危人群可不随访；高危人群 12 月随访 LDCT"
     },
@@ -21,7 +24,10 @@
       "finding_name_zh": "肺结节 5-8mm",
       "finding_name_en": "Lung nodule 5-8mm",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.01, 0.15],
+      "malignancy_ppv_range": [
+        0.01,
+        0.15
+      ],
       "source_id": "Fleischner Society 2017",
       "next_step": "6-12 月 LDCT 随访；可疑形态考虑 PET-CT"
     },
@@ -30,7 +36,10 @@
       "finding_name_zh": "肺结节 >8mm",
       "finding_name_en": "Lung nodule >8mm",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.15, 0.50],
+      "malignancy_ppv_range": [
+        0.15,
+        0.5
+      ],
       "source_id": "Fleischner Society 2017",
       "next_step": "PET-CT 评估代谢活性；考虑活检或 3 月短期随访"
     },
@@ -39,7 +48,10 @@
       "finding_name_zh": "肺磨玻璃密度结节",
       "finding_name_en": "Pure ground-glass nodule (GGO)",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.10, 0.30],
+      "malignancy_ppv_range": [
+        0.1,
+        0.3
+      ],
       "source_id": "Henschke CI 2013 (Radiology)",
       "next_step": "高分辨率 CT 随访 3-6 月；持续性 GGO 考虑活检"
     },
@@ -48,7 +60,10 @@
       "finding_name_zh": "肺部分实性结节",
       "finding_name_en": "Part-solid lung nodule",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.30, 0.50],
+      "malignancy_ppv_range": [
+        0.3,
+        0.5
+      ],
       "source_id": "Fleischner Society 2017",
       "next_step": "尽快胸外科会诊；多数需要活检或手术切除"
     },
@@ -57,17 +72,22 @@
       "finding_name_zh": "肺结节伴毛刺征",
       "finding_name_en": "Lung nodule with spiculation",
       "cancer_id": "lung_cancer",
-      "malignancy_ppv_range": [0.50, 0.80],
+      "malignancy_ppv_range": [
+        0.5,
+        0.8
+      ],
       "source_id": "MacMahon H 2017",
       "next_step": "高度提示恶性，建议胸外科活检/手术"
     },
-
     {
       "finding_id": "breast_birads_3",
       "finding_name_zh": "乳腺 BI-RADS 3 (可能良性)",
       "finding_name_en": "Breast BI-RADS 3",
       "cancer_id": "breast_cancer",
-      "malignancy_ppv_range": [0.0, 0.02],
+      "malignancy_ppv_range": [
+        0.0,
+        0.02
+      ],
       "source_id": "ACR BI-RADS",
       "next_step": "6 个月短期随访乳腺 X 线 / 超声"
     },
@@ -76,7 +96,10 @@
       "finding_name_zh": "乳腺 BI-RADS 4A (低度可疑)",
       "finding_name_en": "Breast BI-RADS 4A",
       "cancer_id": "breast_cancer",
-      "malignancy_ppv_range": [0.02, 0.10],
+      "malignancy_ppv_range": [
+        0.02,
+        0.1
+      ],
       "source_id": "ACR BI-RADS",
       "next_step": "建议活检（粗针穿刺或细针穿刺）"
     },
@@ -85,7 +108,10 @@
       "finding_name_zh": "乳腺 BI-RADS 4B (中度可疑)",
       "finding_name_en": "Breast BI-RADS 4B",
       "cancer_id": "breast_cancer",
-      "malignancy_ppv_range": [0.10, 0.50],
+      "malignancy_ppv_range": [
+        0.1,
+        0.5
+      ],
       "source_id": "ACR BI-RADS",
       "next_step": "强烈建议活检"
     },
@@ -94,7 +120,10 @@
       "finding_name_zh": "乳腺 BI-RADS 4C (高度可疑)",
       "finding_name_en": "Breast BI-RADS 4C",
       "cancer_id": "breast_cancer",
-      "malignancy_ppv_range": [0.50, 0.95],
+      "malignancy_ppv_range": [
+        0.5,
+        0.95
+      ],
       "source_id": "ACR BI-RADS",
       "next_step": "活检 + 乳腺外科会诊"
     },
@@ -103,17 +132,22 @@
       "finding_name_zh": "乳腺 BI-RADS 5 (高度提示恶性)",
       "finding_name_en": "Breast BI-RADS 5",
       "cancer_id": "breast_cancer",
-      "malignancy_ppv_range": [0.95, 1.0],
+      "malignancy_ppv_range": [
+        0.95,
+        1.0
+      ],
       "source_id": "ACR BI-RADS",
       "next_step": "活检确诊；乳腺外科紧急会诊安排手术"
     },
-
     {
       "finding_id": "thyroid_tirads_3",
       "finding_name_zh": "甲状腺 TI-RADS 3 (可能良性)",
       "finding_name_en": "Thyroid TI-RADS 3",
       "cancer_id": "thyroid_cancer",
-      "malignancy_ppv_range": [0.0, 0.05],
+      "malignancy_ppv_range": [
+        0.0,
+        0.05
+      ],
       "source_id": "Kwak TI-RADS 2011",
       "next_step": "12 月超声随访"
     },
@@ -122,7 +156,10 @@
       "finding_name_zh": "甲状腺 TI-RADS 4A (低度可疑)",
       "finding_name_en": "Thyroid TI-RADS 4A",
       "cancer_id": "thyroid_cancer",
-      "malignancy_ppv_range": [0.05, 0.10],
+      "malignancy_ppv_range": [
+        0.05,
+        0.1
+      ],
       "source_id": "Kwak TI-RADS 2011",
       "next_step": "考虑细针穿刺活检 (FNA)"
     },
@@ -131,7 +168,10 @@
       "finding_name_zh": "甲状腺 TI-RADS 4B/4C (中高度可疑)",
       "finding_name_en": "Thyroid TI-RADS 4B/4C",
       "cancer_id": "thyroid_cancer",
-      "malignancy_ppv_range": [0.10, 0.50],
+      "malignancy_ppv_range": [
+        0.1,
+        0.5
+      ],
       "source_id": "Kwak TI-RADS 2011",
       "next_step": "强烈建议细针穿刺活检 (FNA)"
     },
@@ -140,7 +180,10 @@
       "finding_name_zh": "甲状腺 TI-RADS 5 (高度提示恶性)",
       "finding_name_en": "Thyroid TI-RADS 5",
       "cancer_id": "thyroid_cancer",
-      "malignancy_ppv_range": [0.90, 1.0],
+      "malignancy_ppv_range": [
+        0.9,
+        1.0
+      ],
       "source_id": "Kwak TI-RADS 2011",
       "next_step": "FNA 确诊；甲状腺外科会诊"
     },
@@ -149,10 +192,43 @@
       "finding_name_zh": "甲状腺结节伴钙化（未明分级）",
       "finding_name_en": "Thyroid nodule with calcification (grade unspecified)",
       "cancer_id": "thyroid_cancer",
-      "malignancy_ppv_range": [0.10, 0.50],
+      "malignancy_ppv_range": [
+        0.1,
+        0.5
+      ],
       "source_id": "Kwak TI-RADS 2011 (按 4B/4C 估计)",
       "next_step": "建议甲状腺专科行超声细分级 + FNA 评估",
       "notes": "中国体检报告常只写'结节伴钙化'未给 TI-RADS 分级；伴钙化属高风险征象，按 4B/4C 处置"
+    },
+    {
+      "finding_id": "liver_mass_suspicious",
+      "finding_name_zh": "肝脏占位（超声/CT可疑）",
+      "finding_name_en": "Suspicious liver mass (ultrasound/CT)",
+      "cancer_id": "liver_cancer",
+      "malignancy_ppv_range": [
+        0.5,
+        0.7
+      ],
+      "source_id": "AASLD Practice Guidelines",
+      "citation_text": "AASLD guidelines. Suspicious liver lesion on ultrasound: malignancy PPV approximately 50-70%. Applies to non-cirrhotic background; cirrhotic liver with LI-RADS 4-5 features warrants dedicated HCC workup.",
+      "source_doc": "cancer_risk_factors_complete_evidence_20260527.md",
+      "source_line": 365,
+      "next_step": "增强CT或MRI进一步评估；肝硬化背景建议按LI-RADS分级管理；多学科会诊"
+    },
+    {
+      "finding_id": "pancreatic_mass_suspicious",
+      "finding_name_zh": "胰腺占位（CT/MRI可疑）",
+      "finding_name_en": "Suspicious pancreatic mass (CT/MRI)",
+      "cancer_id": "pancreatic_cancer",
+      "malignancy_ppv_range": [
+        0.4,
+        0.6
+      ],
+      "source_id": "Multiple studies; cancer_risk_factors_complete_evidence_20260527.md §4.2",
+      "citation_text": "Multiple studies. Suspicious pancreatic mass on CT/MRI: malignancy PPV approximately 40-60%. Pancreatic ductal adenocarcinoma is most common; cystic lesions with high-risk features (mural nodules, dilated MPD) also confer elevated risk.",
+      "source_doc": "cancer_risk_factors_complete_evidence_20260527.md",
+      "source_line": 366,
+      "next_step": "多学科会诊（胰腺外科/肿瘤内科）；EUS-FNA活检评估；CA19-9+CEA联合检测；评估手术可切除性"
     }
   ]
 }

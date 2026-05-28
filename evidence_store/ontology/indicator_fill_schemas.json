@@ -1,0 +1,319 @@
+{
+  "schema_version": "indicator-fill-schema-v1",
+  "description": "Lightweight indicator templates for CP3 LLM extraction. LLM fills exists/tier_id/evidence_text/confidence only. Math values (OR, log_odds_delta) are retrieved after filling via merge_filled_template.py using template_id+tier_id → factor_key lookup.",
+  "templates": [
+    {
+      "template_id": "alt_ast",
+      "type": "tiered_numeric",
+      "display_name": "肝酶异常（ALT/AST）",
+      "unit": "U/L（倍正常上限）",
+      "reference_range": "正常上限（ULN）：ALT 40 U/L，AST 40 U/L",
+      "source_section_hints": ["肝功能", "生化全套", "肝脏相关指标"],
+      "tier_schema": [
+        {"tier_id": "normal", "label": "正常（<1×ULN）", "threshold": "ALT/AST 均 < 正常上限"},
+        {"tier_id": "1_2x", "label": "轻度升高（1-2×ULN）", "threshold": "ALT 或 AST 在 1-2 倍正常上限之间"},
+        {"tier_id": "2_5x", "label": "中度升高（2-5×ULN）", "threshold": "ALT 或 AST 在 2-5 倍正常上限之间"},
+        {"tier_id": "gt_5x", "label": "显著升高（>5×ULN）", "threshold": "ALT 或 AST 超过 5 倍正常上限"}
+      ]
+    },
+    {
+      "template_id": "egfr",
+      "type": "tiered_numeric",
+      "display_name": "肾功能异常（eGFR）",
+      "unit": "mL/min/1.73m²",
+      "reference_range": "正常：eGFR ≥ 90",
+      "source_section_hints": ["肾功能", "肌酐", "生化全套"],
+      "tier_schema": [
+        {"tier_id": "ge_90", "label": "正常（≥90）", "threshold": "eGFR ≥ 90"},
+        {"tier_id": "60_89", "label": "轻度下降（60-89）", "threshold": "60 ≤ eGFR < 90"},
+        {"tier_id": "30_59", "label": "中度下降（30-59）", "threshold": "30 ≤ eGFR < 60"},
+        {"tier_id": "lt_30", "label": "重度下降（<30）", "threshold": "eGFR < 30"}
+      ]
+    },
+    {
+      "template_id": "bilirubin_alp_ggt",
+      "type": "tiered_numeric",
+      "display_name": "胆道酶学异常（胆红素/ALP/GGT）",
+      "unit": "U/L 或 μmol/L",
+      "reference_range": "正常：总胆红素 < 21 μmol/L；ALP < 125 U/L；GGT < 60 U/L",
+      "source_section_hints": ["肝功能", "胆红素", "ALP", "GGT", "生化全套"],
+      "tier_schema": [
+        {"tier_id": "normal", "label": "正常", "threshold": "胆红素/ALP/GGT 均正常"},
+        {"tier_id": "single_mild", "label": "单项轻度升高", "threshold": "仅一项指标轻度升高（1-2×ULN）"},
+        {"tier_id": "multiple_moderate", "label": "多项中度升高", "threshold": "≥2项升高，或单项中度升高（2-5×ULN）"},
+        {"tier_id": "significant", "label": "显著异常", "threshold": "任意项显著升高（>5×ULN）或合并黄疸"}
+      ]
+    },
+    {
+      "template_id": "hematuria",
+      "type": "tiered_categorical",
+      "display_name": "血尿",
+      "unit": "镜检/肉眼",
+      "reference_range": "正常：无红细胞",
+      "source_section_hints": ["尿常规", "尿液分析", "尿沉渣"],
+      "tier_schema": [
+        {"tier_id": "none", "label": "无血尿", "threshold": "尿常规红细胞阴性"},
+        {"tier_id": "microscopic", "label": "镜下血尿", "threshold": "镜检发现红细胞，肉眼不可见"},
+        {"tier_id": "gross", "label": "肉眼血尿（一过性）", "threshold": "肉眼可见血尿，单次或偶发"},
+        {"tier_id": "persistent_gross", "label": "持续性肉眼血尿", "threshold": "反复或持续性肉眼血尿"}
+      ]
+    },
+    {
+      "template_id": "ebv_dna",
+      "type": "tiered_numeric",
+      "display_name": "EBV-DNA 载量",
+      "unit": "copies/mL 或 IU/mL",
+      "reference_range": "正常：检测不到（< 100 copies/mL）",
+      "source_section_hints": ["EBV", "EB病毒", "病毒载量"],
+      "tier_schema": [
+        {"tier_id": "negative", "label": "阴性/检测不到", "threshold": "< 100 copies/mL"},
+        {"tier_id": "low", "label": "低载量", "threshold": "100–10,000 copies/mL"},
+        {"tier_id": "moderate", "label": "中载量", "threshold": "10,000–100,000 copies/mL"},
+        {"tier_id": "high_persistent", "label": "高载量/持续性", "threshold": "> 100,000 copies/mL 或多次检测持续阳性"}
+      ]
+    },
+    {
+      "template_id": "fatty_liver",
+      "type": "tiered_categorical",
+      "display_name": "脂肪肝",
+      "unit": "超声分级",
+      "reference_range": "正常：无脂肪变",
+      "source_section_hints": ["腹部超声", "肝脏超声", "脂肪肝"],
+      "tier_schema": [
+        {"tier_id": "mild", "label": "轻度脂肪肝", "threshold": "超声提示轻度脂肪肝"},
+        {"tier_id": "moderate", "label": "中度脂肪肝", "threshold": "超声提示中度脂肪肝"},
+        {"tier_id": "severe", "label": "重度脂肪肝", "threshold": "超声提示重度脂肪肝"}
+      ]
+    },
+    {
+      "template_id": "kidney_mass",
+      "type": "tiered_categorical",
+      "display_name": "肾脏占位",
+      "unit": "cm（最大径）",
+      "reference_range": "正常：无占位",
+      "source_section_hints": ["泌尿系超声", "肾脏超声", "CT泌尿系", "肾占位"],
+      "tier_schema": [
+        {"tier_id": "none", "label": "无占位", "threshold": "未见肾脏占位性病变"},
+        {"tier_id": "le_1cm", "label": "占位 ≤1cm", "threshold": "肾脏小占位，最大径 ≤ 1 cm"},
+        {"tier_id": "1_4cm", "label": "占位 1–4cm", "threshold": "肾脏占位 1–4 cm"},
+        {"tier_id": "gt_4cm", "label": "占位 >4cm", "threshold": "肾脏占位最大径 > 4 cm"}
+      ]
+    },
+    {
+      "template_id": "pancreas_mass",
+      "type": "tiered_categorical",
+      "display_name": "胰腺占位",
+      "unit": "cm（最大径）或影像描述",
+      "reference_range": "正常：无占位",
+      "source_section_hints": ["腹部CT", "胰腺超声", "腹部超声", "胰腺占位"],
+      "tier_schema": [
+        {"tier_id": "none", "label": "无占位", "threshold": "未见胰腺占位或信号异常"},
+        {"tier_id": "abnormal_signal", "label": "信号异常（无明确占位）", "threshold": "胰腺信号不均匀或轻度异常，无明确占位"},
+        {"tier_id": "le_2cm", "label": "占位 ≤2cm", "threshold": "胰腺占位性病变，最大径 ≤ 2 cm"},
+        {"tier_id": "gt_2cm", "label": "占位 >2cm", "threshold": "胰腺占位最大径 > 2 cm"}
+      ]
+    },
+    {
+      "template_id": "ovarian_mass",
+      "type": "tiered_categorical",
+      "display_name": "卵巢占位",
+      "unit": "cm（最大径）",
+      "reference_range": "正常：无占位",
+      "source_section_hints": ["妇科超声", "盆腔超声", "卵巢", "附件"],
+      "tier_schema": [
+        {"tier_id": "none", "label": "无占位", "threshold": "未见卵巢/附件占位"},
+        {"tier_id": "le_3cm_simple", "label": "≤3cm 单纯囊肿", "threshold": "卵巢简单囊肿，最大径 ≤ 3 cm"},
+        {"tier_id": "3_7cm_complex", "label": "3–7cm 复杂囊肿/混合回声", "threshold": "3–7 cm 复杂囊性病变或混合回声"},
+        {"tier_id": "gt_7cm_ascites", "label": ">7cm 或伴腹水", "threshold": "占位 > 7 cm，或伴腹水，或实性成分为主"}
+      ]
+    },
+    {
+      "template_id": "prostate_mri",
+      "type": "tiered_categorical",
+      "display_name": "前列腺MRI（PI-RADS分级）",
+      "unit": "PI-RADS评分",
+      "reference_range": "PI-RADS 1-2：良性可能",
+      "source_section_hints": ["前列腺MRI", "PI-RADS", "多参数MRI", "mpMRI"],
+      "tier_schema": [
+        {"tier_id": "pi_rads_1_2", "label": "PI-RADS 1-2（良性可能）", "threshold": "PI-RADS 评分 1 或 2"},
+        {"tier_id": "pi_rads_3", "label": "PI-RADS 3（可疑，不确定）", "threshold": "PI-RADS 评分 3"},
+        {"tier_id": "pi_rads_4", "label": "PI-RADS 4（中-高度可疑恶性）", "threshold": "PI-RADS 评分 4"},
+        {"tier_id": "pi_rads_5", "label": "PI-RADS 5（高度可疑恶性）", "threshold": "PI-RADS 评分 5"}
+      ]
+    },
+    {
+      "template_id": "gastric_mirror",
+      "type": "tiered_categorical",
+      "display_name": "胃镜病理分级",
+      "unit": "病理分级",
+      "reference_range": "正常：黏膜正常或浅表性胃炎",
+      "source_section_hints": ["胃镜", "上消化道内镜", "胃黏膜活检", "病理"],
+      "tier_schema": [
+        {"tier_id": "none_superficial", "label": "无异常/浅表性炎症", "threshold": "正常黏膜或浅表性胃炎，无萎缩/化生"},
+        {"tier_id": "atrophy_intestinal_metaplasia", "label": "萎缩性胃炎/肠上皮化生", "threshold": "病理报告萎缩性胃炎（atrophic gastritis）或肠上皮化生（intestinal metaplasia）"},
+        {"tier_id": "low_grade_dysplasia", "label": "低级别上皮内瘤变", "threshold": "低级别不典型增生（low-grade dysplasia / LGD）"},
+        {"tier_id": "high_grade_dysplasia", "label": "高级别上皮内瘤变", "threshold": "高级别不典型增生（high-grade dysplasia / HGD）或原位癌"}
+      ]
+    },
+    {
+      "template_id": "esophageal_mirror",
+      "type": "tiered_categorical",
+      "display_name": "食管镜病理分级",
+      "unit": "病理分级",
+      "reference_range": "正常：食管黏膜正常",
+      "source_section_hints": ["食管镜", "上消化道内镜", "食管黏膜活检"],
+      "tier_schema": [
+        {"tier_id": "none", "label": "无异常", "threshold": "食管黏膜正常，无不典型增生"},
+        {"tier_id": "mild_dysplasia", "label": "轻度不典型增生", "threshold": "轻度不典型增生（mild dysplasia）"},
+        {"tier_id": "moderate_dysplasia", "label": "中度不典型增生", "threshold": "中度不典型增生（moderate dysplasia）"},
+        {"tier_id": "severe_dysplasia_cis", "label": "重度不典型增生/原位癌", "threshold": "重度不典型增生（severe dysplasia）或原位癌（carcinoma in situ）"}
+      ]
+    },
+    {
+      "template_id": "colorectal_mirror",
+      "type": "tiered_categorical",
+      "display_name": "肠镜病理分级",
+      "unit": "病理分级/息肉描述",
+      "reference_range": "正常：无息肉，无不典型增生",
+      "source_section_hints": ["肠镜", "结肠镜", "结直肠内镜", "病理"],
+      "tier_schema": [
+        {"tier_id": "none_hyperplastic", "label": "无异常/增生性息肉", "threshold": "无息肉或仅增生性/炎性息肉"},
+        {"tier_id": "1_2_small_adenoma", "label": "1-2枚小腺瘤（<10mm）", "threshold": "1–2枚管状腺瘤，最大径 < 10 mm，无高级别不典型增生"},
+        {"tier_id": "multiple_large_high_grade", "label": "多枚或大腺瘤/高级别", "threshold": "≥3枚腺瘤，或任意腺瘤 ≥ 10 mm，或含高级别不典型增生/绒毛状成分"},
+        {"tier_id": "cancer_high_grade_dysplasia", "label": "癌变/原位癌", "threshold": "活检提示腺癌或高级别不典型增生（原位癌）"}
+      ]
+    },
+    {
+      "template_id": "cervical_tct",
+      "type": "tiered_categorical",
+      "display_name": "宫颈TCT（薄层液基细胞学）",
+      "unit": "TBS分级",
+      "reference_range": "正常：NILM（无上皮内病变或恶性病变）",
+      "source_section_hints": ["TCT", "宫颈细胞学", "液基细胞学", "TBS"],
+      "tier_schema": [
+        {"tier_id": "normal_nilm", "label": "正常/NILM", "threshold": "NILM（Negative for Intraepithelial Lesion or Malignancy）"},
+        {"tier_id": "ascus_lsil", "label": "ASCUS / LSIL", "threshold": "ASCUS（意义不明的不典型鳞状细胞）或 LSIL（低级别鳞状上皮内病变）"},
+        {"tier_id": "hsil", "label": "HSIL（高级别鳞状上皮内病变）", "threshold": "HSIL（High-grade Squamous Intraepithelial Lesion）"},
+        {"tier_id": "cin2_3", "label": "CIN2-3 / 原位癌", "threshold": "病理活检确认 CIN2、CIN3 或宫颈原位癌"}
+      ]
+    },
+    {
+      "template_id": "cervical_hpv",
+      "type": "tiered_categorical",
+      "display_name": "宫颈HPV分型检测",
+      "unit": "HPV分型",
+      "reference_range": "正常：HPV 阴性",
+      "source_section_hints": ["HPV", "宫颈HPV", "高危HPV", "HPV-DNA"],
+      "tier_schema": [
+        {"tier_id": "negative", "label": "阴性", "threshold": "HPV 检测阴性（所有亚型）"},
+        {"tier_id": "low_risk", "label": "低危型HPV阳性", "threshold": "HPV 低危型阳性（6、11等），高危型阴性"},
+        {"tier_id": "high_risk_16_18", "label": "高危型HPV阳性（16/18型）", "threshold": "HPV 16 或 18 型阳性"},
+        {"tier_id": "high_risk_persistent", "label": "高危型HPV持续感染", "threshold": "高危型HPV（非16/18）阳性，或16/18型持续≥1年复查仍阳性"}
+      ]
+    },
+    {
+      "template_id": "urine_cytology",
+      "type": "tiered_categorical",
+      "display_name": "尿细胞学",
+      "unit": "Paris分类",
+      "reference_range": "正常：阴性",
+      "source_section_hints": ["尿细胞学", "尿液脱落细胞", "Paris分类"],
+      "tier_schema": [
+        {"tier_id": "negative", "label": "阴性（正常）", "threshold": "无异常细胞"},
+        {"tier_id": "atypia", "label": "非典型尿路上皮细胞（AUC）", "threshold": "Paris I类（非典型，不确定），AUC（atypical urothelial cells）"},
+        {"tier_id": "suspicious", "label": "可疑恶性", "threshold": "Paris IV 类（可疑高级别尿路上皮癌）"},
+        {"tier_id": "positive", "label": "阳性/恶性", "threshold": "Paris V 类（高级别尿路上皮癌）"}
+      ]
+    },
+    {
+      "template_id": "breast_biopsy",
+      "type": "tiered_categorical",
+      "display_name": "乳腺活检/穿刺病理",
+      "unit": "病理分级",
+      "reference_range": "正常：良性/纤维腺瘤",
+      "source_section_hints": ["乳腺活检", "乳腺穿刺", "穿刺病理", "BI-RADS活检"],
+      "tier_schema": [
+        {"tier_id": "normal", "label": "正常/良性", "threshold": "良性乳腺组织，无异常增生"},
+        {"tier_id": "fibroadenoma_hyperplasia", "label": "纤维腺瘤/普通增生", "threshold": "纤维腺瘤或普通型增生，无不典型性"},
+        {"tier_id": "atypical_hyperplasia", "label": "不典型增生（ADH/ALH）", "threshold": "不典型导管增生（ADH）或小叶增生（ALH）"},
+        {"tier_id": "dcis_early_invasive", "label": "DCIS/早期浸润癌", "threshold": "导管原位癌（DCIS）或早期浸润性乳腺癌"}
+      ]
+    },
+    {
+      "template_id": "atrophic_gastritis",
+      "type": "tiered_categorical",
+      "display_name": "萎缩性胃炎（木村-竹本分型）",
+      "unit": "分型（木村-竹本）",
+      "reference_range": "正常：C1（极轻度，贲门侧）",
+      "source_section_hints": ["胃镜", "萎缩性胃炎", "木村竹本分型", "胃黏膜萎缩"],
+      "tier_schema": [
+        {"tier_id": "absent", "label": "无萎缩（正常胃黏膜）", "threshold": "胃黏膜无萎缩性改变"},
+        {"tier_id": "present", "label": "萎缩（未分型）", "threshold": "萎缩性胃炎，未按木村-竹本分型"},
+        {"tier_id": "C1", "label": "C1型（轻度，贲门侧限定）", "threshold": "木村-竹本 C1：萎缩仅限于胃贲门侧"},
+        {"tier_id": "C2", "label": "C2型（中度，未过胃角）", "threshold": "木村-竹本 C2：萎缩扩展至胃体但未过胃角"},
+        {"tier_id": "O1", "label": "O1型（重度，过胃角）", "threshold": "木村-竹本 O1：萎缩越过胃角"},
+        {"tier_id": "O2", "label": "O2型（重度，近幽门侧）", "threshold": "木村-竹本 O2：萎缩波及幽门前区"}
+      ]
+    },
+    {
+      "template_id": "barrett_esophagus",
+      "type": "binary",
+      "display_name": "Barrett食管",
+      "source_section_hints": ["食管镜", "上消化道内镜", "Barrett"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在", "threshold": "内镜活检确认 Barrett 食管（特化性肠上皮化生）"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "无 Barrett 食管证据"}
+      ]
+    },
+    {
+      "template_id": "gerd_reflux_esophagitis",
+      "type": "binary",
+      "display_name": "GERD/反流性食管炎",
+      "source_section_hints": ["食管镜", "胃食管反流", "反流性食管炎", "GERD"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在", "threshold": "内镜或症状确认胃食管反流病（GERD）或反流性食管炎"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "无反流性食管炎证据"}
+      ]
+    },
+    {
+      "template_id": "intestinal_metaplasia",
+      "type": "binary",
+      "display_name": "肠上皮化生（胃）",
+      "source_section_hints": ["胃镜活检", "病理", "肠上皮化生"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在", "threshold": "活检病理报告肠上皮化生（intestinal metaplasia）"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "无肠上皮化生"}
+      ]
+    },
+    {
+      "template_id": "adenomatous_polyp",
+      "type": "binary",
+      "display_name": "腺瘤性息肉（结直肠）",
+      "source_section_hints": ["肠镜", "结肠镜", "腺瘤", "息肉"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在", "threshold": "肠镜活检确认腺瘤性息肉（管状/绒毛状/混合型）"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "无腺瘤性息肉"}
+      ]
+    },
+    {
+      "template_id": "breast_density_ge75",
+      "type": "binary",
+      "display_name": "乳腺密度 ≥75%（极致密型）",
+      "source_section_hints": ["乳腺钼靶", "乳腺X光", "BI-RADS", "乳腺密度"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在（致密型乳腺，BI-RADS C/D类）", "threshold": "乳腺密度 ≥75%（ACR BI-RADS C或D类）"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "乳腺密度 < 75%（BI-RADS A或B类）"}
+      ]
+    },
+    {
+      "template_id": "bone_density_high",
+      "type": "binary",
+      "display_name": "骨密度增高",
+      "source_section_hints": ["骨密度检查", "DXA", "骨扫描"],
+      "tier_schema": [
+        {"tier_id": "present", "label": "存在（骨密度异常增高）", "threshold": "骨密度检查提示骨密度异常增高"},
+        {"tier_id": "absent", "label": "不存在", "threshold": "骨密度正常或降低"}
+      ]
+    }
+  ]
+}
