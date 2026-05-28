@@ -95,10 +95,11 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
 
 2. 🔴 **CHECKPOINT · 🛑 STOP — CP1 Refine** (agent action required)
 
-   For each `artifacts/mineru/<data_id>/content.md`, write `refined.md`
-   in the same folder. Keep demographics, abnormal rows, tumor-marker rows
-   including normal values, imaging/test conclusions, and positive
-   findings. See `references/runtime_workflow.md`.
+   For each `artifacts/mineru/<data_id>/content.md`, **first check content quality**:
+   - If `content.md` is fewer than 20 lines **or** contains none of {检查, 化验, 报告, 结果, 项目}: the OCR output is likely empty or corrupt — **stop, alert the user** ("content.md looks empty or non-medical — please verify the input file and re-run MinerU"), do **not** write `refined.md`.
+   - Otherwise: write `refined.md` in the same folder keeping demographics, abnormal rows, tumor-marker rows including normal values, imaging/test conclusions, and positive findings.
+
+   See `references/runtime_workflow.md`.
 
 3. Run to interactive:
 
