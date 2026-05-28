@@ -119,21 +119,34 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    `prompt`, and (for choice questions) `options`.
 
    **4b. Ask the user every question** using your channel (AskUserQuestion /
-   form / chat). Handle each `type` as follows:
+   form / chat). Follow the **two-phase flow** below — do NOT batch all
+   questions into one call and skip the conditional check.
+
+   **Phase 1 — ask all non-conditional questions** (type ≠ `text_fill` with `conditional_on`):
 
    | `type` | Presentation | Answer format in JSON |
    |---|---|---|
    | `single_choice` | Offer the option labels as choices | One option `value` string |
    | `integer` | Ask for a number | Number (no quotes) |
    | `multi_select` | "Select all that apply" with checkboxes | JSON array e.g. `["brca1","mlh1"]`; use `["none"]` if none apply |
-   | `text_fill` | Ask for free-text input | String; only ask if `conditional_on` condition is met |
-
-   `conditional_on` rule: a `text_fill` question like `q_family_history_detail`
-   has `"conditional_on": {"question_id": "q_family_history_cancer", "value": "yes"}`.
-   Ask it **only** if the referenced question was answered with that value.
 
    Use `"unknown"` for any `single_choice` question the user declines to answer.
-   Omit `text_fill` / `multi_select` keys entirely if skipped.
+
+   **Phase 2 — check every `text_fill` question for its trigger** (mandatory, do not skip):
+
+   For each question with `"type": "text_fill"` and a `conditional_on` field:
+   - Look up the referenced `question_id` in the Phase 1 answers you just collected.
+   - If the user's answer **matches the trigger `value`** → **you MUST ask this follow-up question before writing `answers.json`**. It is not optional.
+   - If the user's answer does not match → omit the key from `answers.json`.
+
+   Example:
+   ```
+   q_family_history_detail  has  conditional_on: {question_id: q_family_history_cancer, value: "yes"}
+   → If q_family_history_cancer = "yes"  → MUST ask q_family_history_detail
+   → If q_family_history_cancer = "no" or "unknown"  → omit key
+   ```
+
+   Omit `multi_select` keys entirely if the user skips without selecting any option.
 
    **Never pre-fill, guess, or infer answers from the report.** "No smoking
    mentioned" is not evidence the patient never smoked.
@@ -429,6 +442,8 @@ Run focused tests for edited areas before full verification.
 - Declare a stage complete without running the required script and verifying its exit code.
 - Pre-fill interactive questionnaire answers (Checkpoint 2) with values inferred from the report — the user must answer every question explicitly.
 - Copy the type/option markers from step 4c (`<male | female>`, `<never | former | ...>`, etc.) as actual answer values — those markers are documentation only, never valid data.
+- Skip a `text_fill` follow-up question (e.g. `q_family_history_detail`) when its `conditional_on` trigger was met during Phase 1 of step 4b — a trigger match makes the follow-up **mandatory**, not optional.
+- Ask all questionnaire questions in a single batch without a Phase 2 conditional check — `text_fill` questions require a two-phase flow (ask main questions → inspect answers → ask triggered follow-ups).
 - Write `archive_update_proposal.json` to the archive without first presenting a summary and receiving an explicit "是" confirmation from the user.
 - Summarize pipeline results using language that implies the full analysis is done when only a partial stage has run.
 
@@ -465,7 +480,7 @@ Any other non-zero exit code is **unrecoverable**: print stderr verbatim and hal
 3. **Re-read the SKILL.md checkpoint** for the current stage and retry from there.
 4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
 5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
-6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response.
+6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response. After collecting Phase 1 answers, inspect every `text_fill` question in the questionnaire for a met `conditional_on` trigger — if found, ask the follow-up before writing `answers.json`.
 
 ### Common failure scenarios
 
