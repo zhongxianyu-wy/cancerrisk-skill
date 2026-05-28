@@ -118,31 +118,43 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    and inspect the `questions` array. Each entry has `question_id`, `type`,
    `prompt`, and (for choice questions) `options`.
 
-   **4b. Present each question to the actual user** via AskUserQuestion / IM / form.
-   Read the `questions` array from the questionnaire file. For each question in order:
+   **4b. Socratic Q&A — one question per call, triggers resolved immediately**
 
-   - Show the user the `prompt` field verbatim.
-   - For `single_choice`: present the option `label` values as choices; record the selected option's `value`.
-   - For `integer`: ask the user for a number; record it as a number (no quotes).
-   - For `multi_select`: show all option `label` values with "select all that apply"; record selected `value` strings as a JSON array.
-   - For `text_fill` with `conditional_on`: **do not ask until the trigger fires**. After asking the trigger question and recording the user's answer, check: if the answer matches the `conditional_on.value` → **immediately ask this follow-up** before continuing. If it does not match → skip this question entirely.
+   **Three hard rules:**
+   - **One question per AskUserQuestion call.** Never bundle.
+   - **Trigger fires → resolve the follow-up chain before moving on.** Do not continue to the next unrelated question while a triggered follow-up is outstanding.
+   - **Incomplete answer → ask once more to clarify.** Do not write a partial answer and continue.
 
-   Use `"unknown"` for any `single_choice` question the user declines to answer. Omit `multi_select` or `text_fill` keys if the user skips them.
+   Work through the questionnaire's `questions` array in order. For each question:
+   1. Show the user the `prompt` verbatim and, for `single_choice` / `multi_select`, the option labels as choices.
+   2. Wait for the user's response.
+   3. Apply the trigger rules below before moving to the next question.
+   4. Use `"unknown"` only when the user explicitly declines to answer.
 
-   **Never pre-fill, guess, or infer any answer from the report.** "No smoking mentioned" is not evidence the patient never smoked. Write only answers the user actually gave in this conversation.
+   **Trigger rules (mandatory in-sequence — never defer to a later question):**
 
-   **4c. Write `<out>/answers.json`** containing only the answers collected in 4b:
+   | Question answered | User's answer | Immediate action before next question |
+   |---|---|---|
+   | `q_family_history_cancer` | `"yes"` | Ask `q_family_history_detail`: "请说明具体家族史 — 哪种癌症、有多少位亲属患病？（例如：父亲胃癌1人、母亲乳腺癌多人）" |
+   | `q_family_history_detail` (any draft) | Text lacks a specific cancer name **or** lacks a relative count | Ask again: "请确认具体癌症类型和患病亲属人数，缺一不可。" — repeat until **both** are present |
+   | `q_jizaoan_result` | `"positive"` | Ask `q_jizaoan_top1`: "吉早安报告溯源的第1位癌种是哪个？" then `q_jizaoan_top2`: "第2位癌种是哪个？（如报告只给了1个，选「不清楚」）" |
+
+   **Completeness criteria:**
+   - `q_family_history_detail` is complete only when the user's text names at least one **specific cancer** (胃癌 / 乳腺癌 / 肺癌 / 肝癌 / 结直肠癌 / 食管癌 / 甲状腺癌 etc.) **AND** a relative count (1人 / 多人 / ≥2人) for each mentioned cancer. "有家族史" or "父亲有癌" alone is **not** complete — ask the clarifying follow-up.
+   - `q_jizaoan_top1` must be a specific cancer ID (not `"unknown"`) when result is `"positive"`. If the user cannot name it, ask them to check their report before proceeding.
+
+   **Never pre-fill, guess, or infer any answer from the report.** "No smoking mentioned" is not evidence the patient never smoked.
+
+   **4c. Write `<out>/answers.json`** containing only answers collected in 4b:
 
    ```json
    {"answers": {"<question_id>": "<user's actual answer>", ...}}
    ```
 
-   - `question_id` keys come from the questionnaire's `questions` array — use only keys for questions that were asked and answered.
-   - Value format for each type comes from the questionnaire's `options` and `type` fields — do not invent valid values.
-   - `text_fill` answer must be the user's verbatim free-text string — do not reformat or summarize it.
+   - Keys and value formats come from the questionnaire, not from this file.
+   - `text_fill` value must be the user's verbatim string — do not reformat or summarize.
    - Omit any key whose `conditional_on` trigger was not met.
-
-   ⛔ **Do not pre-populate this file before asking the user.** Every key must correspond to a question the user was asked in this session.
+   - ⛔ Do not write any key before the user has answered that question in this session.
 
    **4d. Validate before re-running** (recommended):
 

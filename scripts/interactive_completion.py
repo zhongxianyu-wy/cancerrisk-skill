@@ -696,7 +696,7 @@ def _jizaoan_questions() -> list[dict[str, Any]]:
             "factor_type": "screening_test",
             "prompt": "若吉早安为阳性，请补充溯源 top1 癌种。",
             "type": "single_choice",
-            "required": False,
+            "required": True,
             "conditional_on": {"question_id": "q_jizaoan_result", "value": "positive"},
             "options": cancer_options,
         },
