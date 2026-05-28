@@ -123,7 +123,7 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    **Three hard rules:**
    - **One question per AskUserQuestion call.** Never bundle.
    - **Trigger fires → resolve the follow-up chain before moving on.** Do not continue to the next unrelated question while a triggered follow-up is outstanding.
-   - **Incomplete answer → ask once more to clarify.** Do not write a partial answer and continue.
+   - **Incomplete answer → re-ask using the completeness criteria below; loop until the criteria are met.** Do not write a partial value and continue.
 
    Work through the questionnaire's `questions` array in order. For each question:
    1. Show the user the `prompt` verbatim and, for `single_choice` / `multi_select`, the option labels as choices.
@@ -141,7 +141,7 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
 
    **Completeness criteria:**
    - `q_family_history_detail` is complete only when the user's text names at least one **specific cancer** (胃癌 / 乳腺癌 / 肺癌 / 肝癌 / 结直肠癌 / 食管癌 / 甲状腺癌 etc.) **AND** a relative count (1人 / 多人 / ≥2人) for each mentioned cancer. "有家族史" or "父亲有癌" alone is **not** complete — ask the clarifying follow-up.
-   - `q_jizaoan_top1` must be a specific cancer ID (not `"unknown"`) when result is `"positive"`. If the user cannot name it, ask them to check their report before proceeding.
+   - `q_jizaoan_top1` should be a specific cancer ID when result is `"positive"`. Ask the user to check their jizaoan report. If they confirm they cannot locate it, accept `"unknown"` as a last resort — the signal is recorded as unresolved but the pipeline continues. Do not accept `"unknown"` before making at least one request to locate the report.
 
    **Never pre-fill, guess, or infer any answer from the report.** "No smoking mentioned" is not evidence the patient never smoked.
 
