@@ -124,6 +124,13 @@ def main() -> int:
     if extras:
         smells.append(f"unexpected answer key(s): {extras} — questionnaire did not ask these")
 
+    # Jizaoan-specific: positive result with unknown top1 is a soft warning.
+    if answers.get("q_jizaoan_result") == "positive" and answers.get("q_jizaoan_top1") == "unknown":
+        smells.append(
+            "q_jizaoan_top1 is 'unknown' despite q_jizaoan_result='positive' — "
+            "confirm user was asked to locate the jizaoan report before accepting 'unknown'"
+        )
+
     # Scan ALL string values in the answers payload for inference smells.
     def _walk(node, path="$"):
         if isinstance(node, str):
