@@ -38,6 +38,10 @@ SMELL_TOKENS = (
     "inferred", "guessed", "assumed", "from report", "based on report",
     "report did not mention", "no mention",
     "由于这是测试", "fixture",
+    # Copied SKILL.md format-marker tokens (placeholders, not real values):
+    "from user", "← from user", "<male | female>", "<integer>",
+    "<yes | no | unknown>", "<never | former | current", "<free-text>",
+    "<positive | negative",
 )
 
 

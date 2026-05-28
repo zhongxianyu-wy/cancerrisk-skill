@@ -739,12 +739,12 @@ def main():
             "WHAT TO DO NEXT (Agent Checkpoint 2):\n"
             f"  1. Read the questionnaire: {questionnaire_path}\n"
             "  2. Ask the user every question via AskUserQuestion.\n"
-            "  3. Write their answers to a JSON file:\n"
-            '       {"answers": {"q_demographics_sex": "male",\n'
-            '                    "q_demographics_age": 29,\n'
-            '                    "q_family_history_cancer": "no",\n'
-            '                    "q_smoking_status": "never",\n'
-            '                    "q_alcohol_status": "never", ...}}\n'
+            "  3. Write their answers to a JSON file (values from the user, NOT placeholders):\n"
+            '       {"answers": {"q_demographics_sex": "<male|female — user said>",\n'
+            '                    "q_demographics_age": <integer — user said>,\n'
+            '                    "q_family_history_cancer": "<yes|no|unknown — user said>",\n'
+            '                    "q_smoking_status": "<never|former|current|unknown — user said>",\n'
+            '                    "q_alcohol_status": "<never|occasional|heavy|unknown — user said>", ...}}\n'
             "  4. Re-run with `--answers <that-file>`.\n"
             f"\nSentinel file: {sentinel}",
             file=sys.stderr,

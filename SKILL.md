@@ -140,20 +140,28 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
 
    **4c. Write `<out>/answers.json`** with this structure:
 
-   ```json
+   > ⛔ **ZERO TEMPLATE VALUES** — every field below must contain exactly what
+   > the real user told you in step 4b. If you have not yet asked a question,
+   > you may not write its value. Do not copy, infer, or guess.
+
+   ```
    {
      "answers": {
-       "q_demographics_sex": "male",
-       "q_demographics_age": 55,
-       "q_family_history_cancer": "yes",
-       "q_smoking_status": "never",
-       "q_alcohol_status": "occasional",
-       "q_genetic_mutations": ["none"],
-       "q_family_history_detail": "父亲胃癌（1人）",
-       "q_jizaoan_result": "negative"
+       "q_demographics_sex":        <male | female>               ← from user
+       "q_demographics_age":        <integer>                     ← from user
+       "q_family_history_cancer":   <yes | no | unknown>          ← from user
+       "q_smoking_status":          <never | former | current | unknown>  ← from user
+       "q_alcohol_status":          <never | occasional | heavy | unknown> ← from user
+       "q_genetic_mutations":       [<brca1|brca2|mlh1|other|none>]       ← from user
+       "q_family_history_detail":   <free-text>  ← ONLY if q_family_history_cancer = "yes"
+       "q_jizaoan_result":          <positive | negative | not_done | unknown> ← from user
      }
    }
    ```
+
+   The schema above is intentionally not valid JSON — the `<...>` tokens are
+   type/option markers, not copyable values. Replace each with the user's
+   actual answer before writing the file.
 
    Include `q_family_history_detail` only when `q_family_history_cancer` = `"yes"`.
    Omit `q_jizaoan_top1` / `q_jizaoan_top2` when `q_jizaoan_result` ≠ `"positive"`.
@@ -420,6 +428,7 @@ Run focused tests for edited areas before full verification.
 - Produce a health-risk analysis, cancer probability, or screening recommendation using its own knowledge instead of running the pipeline scripts.
 - Declare a stage complete without running the required script and verifying its exit code.
 - Pre-fill interactive questionnaire answers (Checkpoint 2) with values inferred from the report — the user must answer every question explicitly.
+- Copy the type/option markers from step 4c (`<male | female>`, `<never | former | ...>`, etc.) as actual answer values — those markers are documentation only, never valid data.
 - Write `archive_update_proposal.json` to the archive without first presenting a summary and receiving an explicit "是" confirmation from the user.
 - Summarize pipeline results using language that implies the full analysis is done when only a partial stage has run.
 
