@@ -118,73 +118,31 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    and inspect the `questions` array. Each entry has `question_id`, `type`,
    `prompt`, and (for choice questions) `options`.
 
-   **4b. Ask the user every question** using your channel (AskUserQuestion /
-   form / chat). Follow the **two-phase flow** below — do NOT batch all
-   questions into one call and skip the conditional check.
+   **4b. Present each question to the actual user** via AskUserQuestion / IM / form.
+   Read the `questions` array from the questionnaire file. For each question in order:
 
-   **Phase 1 — ask all non-conditional questions** (type ≠ `text_fill` with `conditional_on`):
+   - Show the user the `prompt` field verbatim.
+   - For `single_choice`: present the option `label` values as choices; record the selected option's `value`.
+   - For `integer`: ask the user for a number; record it as a number (no quotes).
+   - For `multi_select`: show all option `label` values with "select all that apply"; record selected `value` strings as a JSON array.
+   - For `text_fill` with `conditional_on`: **do not ask until the trigger fires**. After asking the trigger question and recording the user's answer, check: if the answer matches the `conditional_on.value` → **immediately ask this follow-up** before continuing. If it does not match → skip this question entirely.
 
-   | `type` | Presentation | Answer format in JSON |
-   |---|---|---|
-   | `single_choice` | Offer the option labels as choices | One option `value` string |
-   | `integer` | Ask for a number | Number (no quotes) |
-   | `multi_select` | "Select all that apply" with checkboxes | JSON array e.g. `["brca1","mlh1"]`; use `["none"]` if none apply |
+   Use `"unknown"` for any `single_choice` question the user declines to answer. Omit `multi_select` or `text_fill` keys if the user skips them.
 
-   Use `"unknown"` for any `single_choice` question the user declines to answer.
+   **Never pre-fill, guess, or infer any answer from the report.** "No smoking mentioned" is not evidence the patient never smoked. Write only answers the user actually gave in this conversation.
 
-   **Phase 2 — check every `text_fill` question for its trigger** (mandatory, do not skip):
+   **4c. Write `<out>/answers.json`** containing only the answers collected in 4b:
 
-   For each question with `"type": "text_fill"` and a `conditional_on` field:
-   - Look up the referenced `question_id` in the Phase 1 answers you just collected.
-   - If the user's answer **matches the trigger `value`** → **you MUST ask this follow-up question before writing `answers.json`**. It is not optional.
-   - If the user's answer does not match → omit the key from `answers.json`.
-
-   Example:
-   ```
-   q_family_history_detail  has  conditional_on: {question_id: q_family_history_cancer, value: "yes"}
-   → If q_family_history_cancer = "yes"  → MUST ask q_family_history_detail
-   → If q_family_history_cancer = "no" or "unknown"  → omit key
+   ```json
+   {"answers": {"<question_id>": "<user's actual answer>", ...}}
    ```
 
-   **`text_fill` answers are plain strings — write the user's verbatim response.**
-   Do NOT pre-parse, structure, or summarize the text. The pipeline (`apply_fixed_answers`)
-   automatically extracts cancer-specific family history records from the raw Chinese text
-   (e.g. "父亲胃癌 1 人" → `family_history_gastric_first`). If you rewrite the text or
-   reduce it to structured JSON, the parser cannot run and the cancer-specific risk
-   contributions will be lost.
+   - `question_id` keys come from the questionnaire's `questions` array — use only keys for questions that were asked and answered.
+   - Value format for each type comes from the questionnaire's `options` and `type` fields — do not invent valid values.
+   - `text_fill` answer must be the user's verbatim free-text string — do not reformat or summarize it.
+   - Omit any key whose `conditional_on` trigger was not met.
 
-   Omit `multi_select` keys entirely if the user skips without selecting any option.
-
-   **Never pre-fill, guess, or infer answers from the report.** "No smoking
-   mentioned" is not evidence the patient never smoked.
-
-   **4c. Write `<out>/answers.json`** with this structure:
-
-   > ⛔ **ZERO TEMPLATE VALUES** — every field below must contain exactly what
-   > the real user told you in step 4b. If you have not yet asked a question,
-   > you may not write its value. Do not copy, infer, or guess.
-
-   ```
-   {
-     "answers": {
-       "q_demographics_sex":        <male | female>               ← from user
-       "q_demographics_age":        <integer>                     ← from user
-       "q_family_history_cancer":   <yes | no | unknown>          ← from user
-       "q_smoking_status":          <never | former | current | unknown>  ← from user
-       "q_alcohol_status":          <never | occasional | heavy | unknown> ← from user
-       "q_genetic_mutations":       [<brca1|brca2|mlh1|other|none>]       ← from user
-       "q_family_history_detail":   <free-text>  ← ONLY if q_family_history_cancer = "yes"
-       "q_jizaoan_result":          <positive | negative | not_done | unknown> ← from user
-     }
-   }
-   ```
-
-   The schema above is intentionally not valid JSON — the `<...>` tokens are
-   type/option markers, not copyable values. Replace each with the user's
-   actual answer before writing the file.
-
-   Include `q_family_history_detail` only when `q_family_history_cancer` = `"yes"`.
-   Omit `q_jizaoan_top1` / `q_jizaoan_top2` when `q_jizaoan_result` ≠ `"positive"`.
+   ⛔ **Do not pre-populate this file before asking the user.** Every key must correspond to a question the user was asked in this session.
 
    **4d. Validate before re-running** (recommended):
 
@@ -448,9 +406,9 @@ Run focused tests for edited areas before full verification.
 - Produce a health-risk analysis, cancer probability, or screening recommendation using its own knowledge instead of running the pipeline scripts.
 - Declare a stage complete without running the required script and verifying its exit code.
 - Pre-fill interactive questionnaire answers (Checkpoint 2) with values inferred from the report — the user must answer every question explicitly.
-- Copy the type/option markers from step 4c (`<male | female>`, `<never | former | ...>`, etc.) as actual answer values — those markers are documentation only, never valid data.
-- Skip a `text_fill` follow-up question (e.g. `q_family_history_detail`) when its `conditional_on` trigger was met during Phase 1 of step 4b — a trigger match makes the follow-up **mandatory**, not optional.
-- Ask all questionnaire questions in a single batch without a Phase 2 conditional check — `text_fill` questions require a two-phase flow (ask main questions → inspect answers → ask triggered follow-ups).
+- Pre-populate `answers.json` before asking the user, or write any `question_id` key whose question was not presented to the actual user in this session.
+- Skip a `text_fill` follow-up question (e.g. `q_family_history_detail`) when its `conditional_on` trigger was met — a trigger match makes the follow-up **mandatory**, ask it immediately after the trigger question.
+- Ask all questionnaire questions in a single batch without checking `conditional_on` follow-ups — each trigger question must be immediately followed by its gated `text_fill` question if the user's answer matches the trigger value.
 - Write `archive_update_proposal.json` to the archive without first presenting a summary and receiving an explicit "是" confirmation from the user.
 - Summarize pipeline results using language that implies the full analysis is done when only a partial stage has run.
 
@@ -487,7 +445,7 @@ Any other non-zero exit code is **unrecoverable**: print stderr verbatim and hal
 3. **Re-read the SKILL.md checkpoint** for the current stage and retry from there.
 4. If the same error recurs twice, halt immediately and report the exact error message plus the failing command to the user — do not attempt further recovery.
 5. **Never generate numeric values** (OR/RR/HR, probabilities, sensitivity, specificity, LR, screening intervals) as error recovery — all numbers must come from `evidence_store/`.
-6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response. After collecting Phase 1 answers, inspect every `text_fill` question in the questionnaire for a met `conditional_on` trigger — if found, ask the follow-up before writing `answers.json`.
+6. The interactive Q&A (Checkpoint 2) must never be bypassed or pre-filled; missing answers always require a user response. After each trigger question, check the questionnaire for `text_fill` questions that `conditional_on` that trigger — if the user's answer matches, ask the follow-up immediately before writing `answers.json`.
 
 ### Common failure scenarios
 
