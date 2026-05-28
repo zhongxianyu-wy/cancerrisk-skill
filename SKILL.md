@@ -109,16 +109,56 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
 
 4. 🔴 **CHECKPOINT · 🛑 STOP — CP2 Interactive answers** (agent action required)
 
-   After `--stop-after interactive` the orchestrator exits with code 8. Read
-   `artifacts/interactive_questionnaire.json`, present **every question**
-   to the user in the conversation, collect their answers, write an answers
-   JSON file, then re-run with `--answers <answers.json>`.
+   After `--stop-after interactive` the orchestrator exits with **code 0**
+   and prints `[stop-after=interactive] questionnaire written`. This is
+   your cue to collect answers before continuing. (Exit code 8 fires only
+   if you skip this checkpoint and re-run without `--answers`.)
 
-   **Never pre-fill, guess, or silently supply answers.** The interactive
-   flow is the sole mechanism for collecting user-specific risk-factor
-   history; skipping it produces clinically wrong output.
+   **4a. Read the questionnaire** — open `<out>/artifacts/interactive_questionnaire.json`
+   and inspect the `questions` array. Each entry has `question_id`, `type`,
+   `prompt`, and (for choice questions) `options`.
 
-   Fast ask-first path (before the first pipeline run):
+   **4b. Ask the user every question** using your channel (AskUserQuestion /
+   form / chat). Handle each `type` as follows:
+
+   | `type` | Presentation | Answer format in JSON |
+   |---|---|---|
+   | `single_choice` | Offer the option labels as choices | One option `value` string |
+   | `integer` | Ask for a number | Number (no quotes) |
+   | `multi_select` | "Select all that apply" with checkboxes | JSON array e.g. `["brca1","mlh1"]`; use `["none"]` if none apply |
+   | `text_fill` | Ask for free-text input | String; only ask if `conditional_on` condition is met |
+
+   `conditional_on` rule: a `text_fill` question like `q_family_history_detail`
+   has `"conditional_on": {"question_id": "q_family_history_cancer", "value": "yes"}`.
+   Ask it **only** if the referenced question was answered with that value.
+
+   Use `"unknown"` for any `single_choice` question the user declines to answer.
+   Omit `text_fill` / `multi_select` keys entirely if skipped.
+
+   **Never pre-fill, guess, or infer answers from the report.** "No smoking
+   mentioned" is not evidence the patient never smoked.
+
+   **4c. Write `<out>/answers.json`** with this structure:
+
+   ```json
+   {
+     "answers": {
+       "q_demographics_sex": "male",
+       "q_demographics_age": 55,
+       "q_family_history_cancer": "yes",
+       "q_smoking_status": "never",
+       "q_alcohol_status": "occasional",
+       "q_genetic_mutations": ["none"],
+       "q_family_history_detail": "父亲胃癌（1人）",
+       "q_jizaoan_result": "negative"
+     }
+   }
+   ```
+
+   Include `q_family_history_detail` only when `q_family_history_cancer` = `"yes"`.
+
+   Fast ask-first path — run this **before** the first pipeline invocation
+   when sex/age are already known, to preview the questionnaire:
 
    ```bash
    uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/build_questionnaire.py \
