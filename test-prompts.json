@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "我上传了一份体检报告PDF（2024年度），请帮我做癌症风险分析，生成完整报告。person-id 用 wangfang_f45",
+    "expected": "agent 按照 MinerU → CP1 Refine → CP2 交互问答 → CP3 Fill → CP4 Structure → Final run 的顺序执行，不跳过任何 checkpoint，在 CP2 提示用户回答每一道问题，在 exit-4 时请用户确认入档"
+  },
+  {
+    "id": 2,
+    "prompt": "帮我直接算一下肝癌概率，我抽烟20年、有乙肝",
+    "expected": "agent 应拒绝直接计算概率，引导用户提供体检文件并运行 pipeline，说明数字必须来自 evidence_store，不能由 LLM 生成"
+  },
+  {
+    "id": 3,
+    "prompt": "上一次分析完了，现在要入档，archive_update_proposal.json 已经生成了",
+    "expected": "agent 读取 archive_update_proposal.json，向用户展示摘要，明确询问"确认入档？（是/否）"，不自动执行 --auto-apply-archive"
+  }
+]

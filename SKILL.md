@@ -93,9 +93,10 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --input <input> --analysis-output <out> --stop-after mineru
    ```
 
-2. **Checkpoint 1: Refine.** For each
-   `artifacts/mineru/<data_id>/content.md`, write `refined.md` in the
-   same folder. Keep demographics, abnormal rows, tumor-marker rows
+2. 🔴 **CHECKPOINT · 🛑 STOP — CP1 Refine** (agent action required)
+
+   For each `artifacts/mineru/<data_id>/content.md`, write `refined.md`
+   in the same folder. Keep demographics, abnormal rows, tumor-marker rows
    including normal values, imaging/test conclusions, and positive
    findings. See `references/runtime_workflow.md`.
 
@@ -106,8 +107,9 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --stop-after interactive
    ```
 
-4. **Checkpoint 2: Interactive answers.** After `--stop-after interactive`
-   the orchestrator exits with code 8. Read
+4. 🔴 **CHECKPOINT · 🛑 STOP — CP2 Interactive answers** (agent action required)
+
+   After `--stop-after interactive` the orchestrator exits with code 8. Read
    `artifacts/interactive_questionnaire.json`, present **every question**
    to the user in the conversation, collect their answers, write an answers
    JSON file, then re-run with `--answers <answers.json>`.
@@ -130,8 +132,17 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --stop-after master-template
    ```
 
-6. **Checkpoint 3: Master fill + imaging + tumor markers.**
+6. 🔴 **CHECKPOINT · 🛑 STOP — CP3 Master fill + imaging + tumor markers** (agent action required)
+
    _(Extractor role: translate report findings into timeline records.)_
+
+   **Knowledge-layer fill order (v1.3+):**
+   Step A — Fill `artifacts/indicator_fill_schemas.json` (24 lightweight templates, one per observable exam/lab indicator — only `exists`, `tier_id`, `evidence_text`, `confidence`).
+   Step B — Run `merge_filled_template.py` to map tier selections to full evidence-backed `risk_factor_assertion_template.json`.
+   Step C — Fill `structured_risk_factors_timeline.candidate.json` and `tumor_markers.candidate.json` using the merged template.
+
+   The indicator fill schema (Step A) contains only indicator+unit+tier descriptions — no OR values, no cancer associations. Focus on correctly identifying which tier applies for each indicator found in the refined report.
+
    Fill `structured_risk_factors_timeline.candidate.json` and
    `tumor_markers.candidate.json` using only emitted allowlists. Validate:
 
@@ -149,7 +160,8 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --stop-after cp3-verify
    ```
 
-7. **Checkpoint 3.1: Verification audit (mandatory).**
+7. 🔴 **CHECKPOINT · 🛑 STOP — CP3.1 Verification audit** (mandatory, independent auditor role)
+
    _(Auditor role: verify completeness — cognitive reset from CP3 extractor context.)_
    The orchestrator prints a structured audit task. As an **independent
    auditor** (not the CP3 extractor), re-read each `refined.md` and
@@ -214,8 +226,9 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --stop-after health-summary-api
    ```
 
-9. **Checkpoint 4: Health-summary structuring.** Convert the API
-   markdown into `health_summary_structured_summary.json`. **MUST use
+9. 🔴 **CHECKPOINT · 🛑 STOP — CP4 Health-summary structuring** (agent action required)
+
+   Convert the API markdown into `health_summary_structured_summary.json`. **MUST use
    `finalize_structured_summary.py` — do NOT write the JSON directly
    (direct writes are truncated by most agent runtimes):**
 
@@ -234,6 +247,8 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    **Exit code 4** means the archive proposal is ready but not yet written.
    The orchestrator stderr will contain `[task8] HALT_FOR_USER_CONFIRMATION`
    with the proposal file path.
+
+   🔴 **CHECKPOINT · 🛑 STOP — 入档确认** (explicit user confirmation required)
 
    **Agent MUST follow this exact flow — no skipping:**
 
@@ -343,10 +358,10 @@ Run focused tests for edited areas before full verification.
 
 ### TL;DR
 
-- **CP1 (Refine):** write `refined.md` for every `content.md`; re-run with next `--stop-after`.
-- **CP2 (Interactive):** ask the user every question; collect answers; re-run with `--answers`.
-- **CP3/3.1 (Master fill + audit):** fill candidates, validate, run independent audit, write `cp3_audit_result.json`, re-run.
-- **CP4 (Archive):** show proposal; ask "确认入档？（是/否）"; add `--auto-apply-archive` only on "是".
+- 🔴 **CP1 (Refine):** write `refined.md` for every `content.md`; re-run with next `--stop-after`.
+- 🔴 **CP2 (Interactive):** ask the user every question; collect answers; re-run with `--answers`.
+- 🔴 **CP3/3.1 (Master fill + audit):** fill candidates, validate, run independent audit, write `cp3_audit_result.json`, re-run.
+- 🔴 **CP4 (Archive):** show proposal; ask "确认入档？（是/否）"; add `--auto-apply-archive` only on "是".
 
 ### Prohibited behaviors — the agent MUST NOT:
 
