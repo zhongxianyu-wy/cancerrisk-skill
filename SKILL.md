@@ -127,7 +127,8 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
    - **Incomplete answer → re-ask using the completeness criteria below; loop until the criteria are met.** Do not write a partial value and continue.
 
    Work through the questionnaire's `questions` array in order. For each question:
-   1. Show the user the `prompt` verbatim and, for `single_choice` / `multi_select`, the option labels as choices.
+   0. **`conditional_on` check (before showing the question)**: if the question has a `conditional_on` field, look up `conditional_on.question_id` in the answers collected so far. If the recorded value **does not equal** `conditional_on.value` → **skip** this question entirely. If it matches (or there is no `conditional_on`) → continue.
+   1. Present the `prompt` verbatim and, for `single_choice` / `multi_select`, list the option `label` strings as choices. **After the user replies, map the selected label back to the matching option's `value` string and record that value** (e.g., user sees "阳性" → record `"positive"`; user sees "阴性" → record `"negative"`). Never record the raw label as the answer.
    2. Wait for the user's response.
    3. Apply the trigger rules below before moving to the next question.
    4. Use `"unknown"` only when the user explicitly declines to answer.
