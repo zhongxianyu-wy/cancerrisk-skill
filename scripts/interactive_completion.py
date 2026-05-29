@@ -252,6 +252,7 @@ def build_fixed_questionnaire(
         "max_total_questions": max_total,
         "questions": questions,
         "question_count": len(questions),
+        "question_scope": f"最多{max_total}题，部分问题视答案条件进行补充",
     }
 
 
