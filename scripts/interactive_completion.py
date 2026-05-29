@@ -370,6 +370,11 @@ def apply_fixed_answers(
 
         q_type = question.get("type") or "single_choice"
 
+        if target == "gate":
+            # Gate questions control routing only — no timeline records
+            md_lines.append(f"- {question.get('prompt', qid).splitlines()[0]}：{value or '（未答）'}")
+            continue
+
         # ---- text_fill (free-text, conditional) ----
         if q_type == "text_fill":
             cond = question.get("conditional_on")
@@ -401,6 +406,12 @@ def apply_fixed_answers(
 
         # ---- multi_select ----
         if q_type == "multi_select":
+            cond = question.get("conditional_on")
+            if cond:
+                cond_qid = str(cond.get("question_id") or "")
+                cond_val = str(cond.get("value") or "")
+                if _normalize_answer_value(answers.get(cond_qid)) != _normalize_answer_value(cond_val):
+                    continue  # trigger condition not met — skip
             raw = answers.get(qid)
             if isinstance(raw, list):
                 selected = [str(v).strip() for v in raw if str(v).strip()]
