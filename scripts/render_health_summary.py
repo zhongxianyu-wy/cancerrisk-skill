@@ -79,7 +79,6 @@ PATIENT_FIELDS = (
 )
 
 ASSESSMENT_SCALAR_FIELDS = (
-    "adr_score",
     "risk_level",
     "core_risk_factors",
     "overall_assessment",
@@ -519,7 +518,6 @@ def _structured_summary_skeleton(
             "exam_source": "用户提供的体检报告",
         },
         "assessment_result": {
-            "adr_score": "",
             "risk_level": "",
             "core_risk_factors": "",
             "overall_assessment": "",
@@ -562,7 +560,6 @@ def build_api_fallback_summary(refined_bundle_path: Path) -> dict[str, Any]:
             "exam_source": "",
         },
         "assessment_result": {
-            "adr_score": "",
             "risk_level": "",
             "core_risk_factors": "",
             "overall_assessment": "",
@@ -651,7 +648,6 @@ def _build_report_data(summary: dict[str, Any]) -> dict[str, str]:
         "MEDICATION": patient["medication"],
         "EXAM_DATE": patient["exam_date"],
         "EXAM_SOURCE": patient["exam_source"],
-        "ADR_SCORE": str(assessment["adr_score"]),
         "RISK_LEVEL": assessment["risk_level"],
         "CORE_RISK_FACTORS": assessment["core_risk_factors"],
         "OVERALL_ASSESSMENT": assessment["overall_assessment"],

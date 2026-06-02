@@ -795,7 +795,7 @@
       "factor_name_zh": "BRCA1携带者",
       "factor_name_en": "BRCA1 carrier",
       "factor_type": "medical_history",
-      "applicable_sex": "female",
+      "applicable_sex": "all",
       "applicable_age_min": null,
       "applicable_age_max": null,
       "level_schema": [
@@ -809,7 +809,7 @@
       "factor_name_zh": "BRCA1突变携带者",
       "factor_name_en": "BRCA1 mutation carrier",
       "factor_type": "medical_history",
-      "applicable_sex": "female",
+      "applicable_sex": "all",
       "applicable_age_min": null,
       "applicable_age_max": null,
       "level_schema": [
@@ -823,7 +823,7 @@
       "factor_name_zh": "BRCA2突变携带者",
       "factor_name_en": "BRCA2 mutation carrier",
       "factor_type": "medical_history",
-      "applicable_sex": "female",
+      "applicable_sex": "all",
       "applicable_age_min": null,
       "applicable_age_max": null,
       "level_schema": [

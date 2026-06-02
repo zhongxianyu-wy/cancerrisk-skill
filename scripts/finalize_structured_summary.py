@@ -24,7 +24,7 @@ Recommended Checkpoint 4 flow:
     {
       "patient_data": { "name": "钟贤宇", "age": "29", ... },
       "assessment_result": {
-        "adr_score": "68", "risk_level": "🟠 高风险", ...,
+        "risk_level": "🟠 高风险", ...,
         "lab_results_table":  "@/tmp/lab.html",
         "abnormal_table":     "@/tmp/abnormal.html",
         "disease_cards":      "@/tmp/cards.html",
@@ -40,7 +40,7 @@ Recommended Checkpoint 4 flow:
     python cancerrisk-skill/scripts/finalize_structured_summary.py \\
       --analysis-output <out> \\
       --field patient_data.name=钟贤宇 \\
-      --field assessment_result.adr_score=68 \\
+
       --fragment assessment_result.lab_results_table=/tmp/lab.html \\
       --fragment assessment_result.disease_cards=/tmp/cards.html
 
