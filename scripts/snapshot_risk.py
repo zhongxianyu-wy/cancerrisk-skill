@@ -496,13 +496,7 @@ def compute_snapshot(
             cancer_results.append(result)
             continue
 
-        annual_prob = prior_record["annual_probability"]
-        # Convert annual incidence to 10-year cumulative probability so that the
-        # Bayesian prior and tier thresholds (low≤0.5%, medium≤2%) operate on the
-        # same clinical time window.  Using annual rates directly caused OR-based
-        # risk factors to have negligible visible impact (annual baseline ~0.03%
-        # for most cancers → even OR=3 keeps posterior well below tier boundaries).
-        prior = 1.0 - (1.0 - annual_prob) ** 10
+        prior = prior_record["annual_probability"]
         if not math.isfinite(prior) or prior <= 0 or prior >= 1:
             result["status_reason"] = "invalid_prior_probability"
             result["uncertainties"].append({"reason": "prior_out_of_range", "value": prior})
