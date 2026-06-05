@@ -56,6 +56,13 @@ REQUIRED_FIXTURES = tuple(str(_SKILL_ROOT / p) for p in (
     "templates/snapshot_risk_v42.html",
     "templates/longitudinal_risk_v3.html",
     "templates/index_v3.html",
+    # v1.4 evidence_store_v14 契约文件 + KB 索引
+    "evidence_store_v14/assertions/risk_assertions_derived.json",
+    "evidence_store_v14/assertions/detection_performance_derived.json",
+    "evidence_store_v14/ontology/cancer_age_sex_priors.json",
+    "evidence_store_v14/ontology/cancers.json",
+    "evidence_store_v14/screening/screening_recommendations.json",
+    "evidence_store_v14/kb/index.json",
 ))
 
 OPTIONAL_FIXTURES = tuple(str(_SKILL_ROOT / p) for p in (
