@@ -1,0 +1,28 @@
+{
+  "_comment": "按需加载索引 — 将 cancer_id 和 topic 映射到对应 MD 文件（相对于 kb/ 目录）。肾癌/头颈/胆道无专属筛查 MD，统一指向居民常见恶性肿瘤筛查推荐2025。",
+  "cancers": {
+    "lung_cancer": "肺癌筛查指南.md",
+    "liver_cancer": "肝癌筛查指南.md",
+    "gastric_cancer": "胃癌筛查指南.md",
+    "esophageal_cancer": "食管癌筛查指南.md",
+    "colorectal_cancer": "结直肠癌筛查指南.md",
+    "breast_cancer": "乳腺癌筛查指南.md",
+    "cervical_cancer": "宫颈癌筛查指南.md",
+    "prostate_cancer": "前列腺癌筛查指南.md",
+    "bladder_cancer": "膀胱癌筛查指南.md",
+    "ovarian_cancer": "卵巢癌筛查指南.md",
+    "thyroid_cancer": "甲状腺癌筛查指南.md",
+    "pancreatic_cancer": "胰腺癌筛查指南.md",
+    "kidney_cancer": "03-居民常见恶性肿瘤筛查推荐2025.md",
+    "head_neck_cancer": "03-居民常见恶性肿瘤筛查推荐2025.md",
+    "biliary_tract_cancer": "03-居民常见恶性肿瘤筛查推荐2025.md"
+  },
+  "topics": {
+    "price": "08-体检筛查项目价格参考.md",
+    "liquid_biopsy": "05-基于液体活检的多癌种联合筛查.md",
+    "genetic": "09-遗传性高危基因证据.md",
+    "methylation": "06-肿瘤DNA甲基化标志物检测.md",
+    "prevention": "07-肿瘤预防与健康管理.md",
+    "screening_overview": "03-居民常见恶性肿瘤筛查推荐2025.md"
+  }
+}
