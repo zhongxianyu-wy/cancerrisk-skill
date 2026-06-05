@@ -2,6 +2,14 @@
 
 **最后更新:** 2026-06-05
 
+## ✅ P0 已全部完成（T1–T8，18 测试全绿，已推送 origin/v1.4-p0-knowledge-db）
+- 产物:`evidence_store_v14/`(引擎兼容,15 癌种,含 Lynch 8 断言、吉早安 8 癌种性能含胰腺、甲状腺/胰腺风险因子、screening 含 NPC/肾/胆道决策)、`evidence_store_v14/kb/` + `index.json`(15 癌种+6 专题按需加载)、3 套测试、`scripts/patch_evidence_store_v14.py`、`env_check.py` 已校验 v14。
+- **下一步**:① 对 P0 整体做一次独立 code review;② 把 `v1.4-p0-knowledge-db` 合并/PR 回 `v1.4`;③ 开 **P1(管线改造为单报告)** 计划。建议新会话进行。
+- 进入改 skill 结构(P1/P2)时:严格用 `skill-creator`;每轮后 `skill-creator`+`darwin-skill` 联合迭代(spec §6)。
+
+---
+## (以下为 P0 执行期参考,已完成)
+
 ## 现在在哪
 - 仓库：`cancerrisk-skill`，远程 `git@github.com:zhongxianyu-wy/cancerrisk-skill.git`。
 - 开发分支：**`v1.4`**（基于远程 `v1.3`）。P0 工作分支：**`v1.4-p0-knowledge-db`**（已 push）。
