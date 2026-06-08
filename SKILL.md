@@ -2,10 +2,10 @@
 name: cancerrisk-formal-v3
 description: |
   Use when converting health-checkup files (体检报告, 体检文件, medical checkup, 癌症风险分析,
-  cancer risk report, health checkup analysis, 体检报告分析) into four audit-grade CancerRisk
-  reports with MinerU OCR, ontology-backed factor filling, deterministic
-  snapshot/longitudinal risk math, screening recommendations, and a
-  per-person health record archive. Output path <out> is a writable directory;
+  cancer risk report, health checkup analysis, 体检报告分析) into a single integrated
+  audit-grade CancerRisk report (report.html) with MinerU OCR, ontology-backed
+  factor filling, deterministic snapshot risk math, screening recommendations,
+  and an auto-updated per-person health record archive. Output path <out> is a writable directory;
   person ID <person-id> is a stable ASCII slug (e.g. zhangsan_m68).
   Triggers: 体检, 体检报告, cancer risk, 癌症风险, 健康档案, checkup analysis.
 safety: |
@@ -34,9 +34,9 @@ deliberate relocation.
 
 Use for:
 
-- health-checkup files that need `health_summary.html`,
-  `snapshot_risk.html`, `longitudinal_risk.html`, and `index.html`;
-- longitudinal runs for the same person;
+- health-checkup files that need a single integrated cancer-risk report
+  (`report.html`);
+- reruns that refresh the same person's health archive;
 - reruns against updated evidence, answers, or archive history.
 
 Refuse or redirect for diagnosis, treatment selection, medication
@@ -53,9 +53,9 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 - `evidence_text` must be a literal substring of the named source md.
 - Do not skip required user answers in real runs. If answers are missing,
   stop and ask the user.
-- Do not write to the personal archive before longitudinal analysis.
-  `archive_update_proposal.json` is the入档 prompt; confirmed入档 is a
-  separate step.
+- The personal health archive updates automatically after the snapshot risk
+  stage; `archive_update_proposal.json` is kept as an audit trail of what was
+  merged into `docudatabase/<person_id>/`.
 - For the four agent checkpoints below, do the file reads/writes in this
   agent loop. Do not delegate these deterministic fills to sub-agents.
 
@@ -72,12 +72,11 @@ dosing, urgent triage, or single-symptom clinical Q&A.
 | 7 | Risk factor gate | `risk_factor_gate.py` | `structured_risk_factors_timeline.json` | — |
 | 8 | Health-summary API | `render_health_summary.py` | `health_summary_api_response.md` | — |
 | 9 | **Health-summary structuring** | `finalize_structured_summary.py` | `health_summary_structured_summary.json` | **CP4** |
-| 10 | Snapshot + VoI | `snapshot_risk.py` + `voi_calculator.py` + renders | `snapshot_risk.html`, `voi_ranking.json` | — |
-| 11 | Longitudinal | `longitudinal_risk.py` + `render_longitudinal_html.py` | `longitudinal_risk.html` | — |
-| 12 | Archive proposal | `archive_manager.py` | `archive_update_proposal.json` | exit-4 (user confirm) |
-| 13 | Index + manifest | `render_index.py` + `write_manifest.py` | `index.html`, `manifest.json` | — |
+| 10 | Snapshot + VoI | `snapshot_risk.py` + `voi_calculator.py` | `snapshot_risk.json`, `voi_ranking.json` | — |
+| 11 | Archive (auto) | `archive_manager.py` | `archive_update_proposal.json` + `docudatabase/<person_id>/` | — |
+| 12 | Integrated report | `build_report_json.py` + `render_report.py` + `write_manifest.py` | `report.json`, `report.html`, `manifest.json` | — |
 
-Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirmation (exit code 4). All other rows run automatically inside `run_formal_analysis.py`.
+Rows 2, 5, 6, and 9 require agent action; the archive is applied automatically (no user confirmation step). All other rows run automatically inside `run_formal_analysis.py`.
 
 ## Minimal Workflow
 
@@ -288,44 +287,27 @@ Rows 2, 5, 6, and 9 require agent action; row 12 requires explicit user confirma
      --analysis-output <out> --fills <fills.json>
    ```
 
-10. Run the final pipeline (without `--auto-apply-archive` first):
+10. Run the final pipeline:
 
    ```bash
    uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
      --person-id <id>
    ```
 
-   **Exit code 4** means the archive proposal is ready but not yet written.
-   The orchestrator stderr will contain `[task8] HALT_FOR_USER_CONFIRMATION`
-   with the proposal file path.
-
-   🔴 **CHECKPOINT · 🛑 STOP — 入档确认** (explicit user confirmation required)
-
-   **Agent MUST follow this exact flow — no skipping:**
-
-   1. Read `<out>/artifacts/archive_update_proposal.json` and show a summary
-      to the user.
-   2. Ask the user **explicitly**: "确认入档？（是/否）"
-   3. Wait for the user's answer:
-      - **用户选"是"** → re-invoke adding `--auto-apply-archive`:
-        ```bash
-        uv run --python 3.11 --with PyYAML --with jsonschema --with jinja2 --with requests python cancerrisk-skill/scripts/run_formal_analysis.py ... \
-          --person-id <id> --auto-apply-archive
-        ```
-      - **用户选"否"** → end session; do **not** re-run; no archive written.
-
-   Do **not** add `--auto-apply-archive` on the first run and do **not**
-   silently skip the user confirmation step — the spec requires explicit
-   user confirmation before any archive write ("用户确认后才写入档案").
+   The orchestrator runs snapshot risk + VoI, **auto-updates the person's
+   archive** under `docudatabase/<person_id>/`, assembles `report.json`, and
+   renders the single integrated **`report.html`** (plus `manifest.json` as an
+   audit trail). Exit code 0 means the report is ready; `report.html` is the
+   user-facing deliverable. `archive_update_proposal.json` records what was
+   merged into the archive (no separate confirmation step — archiving is
+   automatic).
 
 ## Archive Contract
 
-The personal health record has two roles:
-
-- longitudinal input: existing timeline history plus the current run,
-  merged in memory;
-- confirmed入档: after longitudinal analysis, dedup and write the
-  processed current result into `docudatabase/<person_id>/`.
+After the snapshot risk stage, the current run is automatically deduped and
+merged into the personal health record at `docudatabase/<person_id>/`. The
+record preserves each person's timeline history across runs and feeds future
+reruns; `archive_update_proposal.json` is kept as the audit trail of the merge.
 
 Default structure:
 
@@ -345,15 +327,13 @@ Every archive path must go through
 
 ## Output Contract
 
-Final user-facing reports:
+Final user-facing report:
 
-- `health_summary.html`
-- `snapshot_risk.html`
-- `longitudinal_risk.html`
-- `index.html`
+- `report.html` — the single integrated report (assembled from `report.json`).
 
 Key audit artifacts:
 
+- `report.json`
 - `conversion_manifest.json`
 - `interactive_questionnaire.json`
 - `interactive_answers.md`
@@ -361,12 +341,12 @@ Key audit artifacts:
 - `structured_risk_factors_timeline.candidate.json`
 - `structured_risk_factors_timeline.json`
 - `tumor_markers.candidate.json`
+- `tumor_markers.json`
 - `merged_risk_factors.json`
 - `health_summary_api_response.md`
 - `health_summary_structured_summary.json`
 - `snapshot_risk.json`
 - `voi_ranking.json`
-- `longitudinal_risk.json`
 - `archive_update_proposal.json`
 - `manifest.json`
 
@@ -380,7 +360,7 @@ Open only the file needed for the current task:
 | MinerU API/client behavior | `references/mineru_api.md` |
 | Evidence ontology and derived assertions | `references/evidence_ontology.md` |
 | Health-summary API/template structuring | `references/health_summary_rebuild.md` |
-| Snapshot, VoI, longitudinal, archive rules | `references/risk_prediction.md` |
+| Snapshot, VoI, archive rules | `references/risk_prediction.md` |
 | Timeline event shape and slim/full keys | `references/event_format.md` |
 | Runtime config | `config/formal.yaml` |
 | Deterministic implementation | `scripts/*.py` |
@@ -412,7 +392,7 @@ Run focused tests for edited areas before full verification.
 - 🔴 **CP1 (Refine):** write `refined.md` for every `content.md`; re-run with next `--stop-after`.
 - 🔴 **CP2 (Interactive):** ask the user every question; collect answers; re-run with `--answers`.
 - 🔴 **CP3/3.1 (Master fill + audit):** fill candidates, validate, run independent audit, write `cp3_audit_result.json`, re-run.
-- 🔴 **CP4 (Archive):** show proposal; ask "确认入档？（是/否）"; add `--auto-apply-archive` only on "是".
+- 🔴 **CP4 (Health-summary structuring):** convert the API markdown via `finalize_structured_summary.py`; re-run for the final report. (Archiving is automatic — no confirmation step.)
 
 ### Prohibited behaviors — the agent MUST NOT:
 
@@ -423,7 +403,6 @@ Run focused tests for edited areas before full verification.
 - Pre-populate `answers.json` before asking the user, or write any `question_id` key whose question was not presented to the actual user in this session.
 - Skip a `text_fill` follow-up question (e.g. `q_family_history_detail`) when its `conditional_on` trigger was met — a trigger match makes the follow-up **mandatory**, ask it immediately after the trigger question.
 - Ask all questionnaire questions in a single batch without checking `conditional_on` follow-ups — each trigger question must be immediately followed by its gated `text_fill` question if the user's answer matches the trigger value.
-- Write `archive_update_proposal.json` to the archive without first presenting a summary and receiving an explicit "是" confirmation from the user.
 - Summarize pipeline results using language that implies the full analysis is done when only a partial stage has run.
 
 ### Verification gate before each checkpoint:
@@ -443,7 +422,6 @@ If any of these three items is missing or failed, the agent must stop and report
 | 1 | MinerU / health-summary API | Request failed | Report exact error; retry once after user confirms; do **not** proceed |
 | 2 | MinerU | All files failed OCR | Report error; halt; ask user to verify input files |
 | 3 | CP1 | `refined.md` missing or fails structure check | Write/fix `refined.md` per recipe; re-run |
-| 4 | CP4 | Archive proposal ready, awaiting confirmation | Show proposal; ask "确认入档？"; re-run with `--auto-apply-archive` only on "是" |
 | 5 | Demographics | Sex or age missing | Re-run with `--person-sex`/`--person-age` or add answers to `--answers` |
 | 6 | Archive | `--person-id` not provided with populated archive | Re-run with `--person-id <stable-slug>` |
 | 7 | Archive | Person ID needs user confirmation | Present `archive_person_id_prompt.json`; add `person_id_choice` to `--answers` |
