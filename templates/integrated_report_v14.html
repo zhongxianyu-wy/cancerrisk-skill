@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个性化癌症风险与体检方案（整合版）</title>
+<style>
+  :root {
+    --primary: #1a5f7a;
+    --primary-light: #f0f7f9;
+    --text-main: #2d3748;
+    --border-color: #e2e8f0;
+    --alert-high: #e53e3e;
+    --alert-low: #38a169;
+  }
+  /* Genetic alert palette: hereditary BRCA positive switches accent to purple. */
+  .genetic-alert { --primary: #6b2c91; --primary-light: #faf5ff; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", Arial, sans-serif;
+    color: var(--text-main);
+    background: #f7fafc;
+    padding: 24px 16px;
+    line-height: 1.55;
+  }
+  .report-container {
+    max-width: 1050px; margin: 0 auto; background: #fff;
+    border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 36px;
+  }
+  section { margin-bottom: 32px; }
+  h2.sec-title {
+    color: var(--primary); font-size: 18px;
+    border-left: 4px solid var(--primary); padding-left: 10px; margin-bottom: 14px;
+  }
+  .header { border-bottom: 2px solid var(--primary); padding-bottom: 18px; }
+  .header h1 { color: var(--primary); font-size: 24px; margin-bottom: 6px; }
+  .badge-grid {
+    display: flex; gap: 16px; flex-wrap: wrap; background: var(--primary-light);
+    padding: 12px 18px; border-radius: 8px; margin-top: 14px; font-size: 14px;
+  }
+  .card {
+    border: 1px solid var(--border-color); border-left: 4px solid var(--primary);
+    border-radius: 6px; padding: 12px 14px; margin-bottom: 10px; font-size: 14px;
+  }
+  .alert {
+    border-radius: 8px; padding: 12px 16px; margin: 10px 0; font-size: 14px;
+  }
+  .alert.positive { background: #fff5f5; border: 1px solid var(--alert-high); color: #842029; }
+  .alert.negative { background: #f0fbf3; border: 1px solid var(--alert-low); color: #155724; }
+  .alert.genetic  { background: #faf5ff; border: 1px solid #6b2c91; color: #4a1d63; }
+  .muted { color: #718096; font-size: 13px; }
+  ul { padding-left: 20px; }
+  .footer {
+    margin-top: 8px; background: #fff3cd; color: #856404;
+    padding: 14px 16px; border-radius: 10px; font-size: 12.5px; line-height: 1.7;
+  }
+</style>
+</head>
+<body class="{% if brca_status == 'positive' %}genetic-alert{% endif %}">
+<div class="report-container">
+
+  <!-- 01. 报头 -->
+  <section id="section-header" class="header">
+    <h1>个性化癌症风险与体检方案</h1>
+    <p class="muted">生成时间：{{ generated_at }} ｜ 证据库版本：{{ evidence_version | default('N/A', true) }}</p>
+    <div class="badge-grid">
+      <span>编号：<strong>{{ person.person_id }}</strong></span>
+      <span>性别：<strong>{{ person.sex }}</strong></span>
+      <span>年龄：<strong>{{ person.age }}</strong></span>
+    </div>
+    {% if brca_status == "positive" %}
+    <div class="alert genetic">遗传性风险提示：检测到 BRCA 阳性，建议遗传咨询与强化筛查（占位，P2 完善）。</div>
+    {% endif %}
+  </section>
+
+  <!-- 02. 行动执行时间轴 -->
+  <section id="section-timeline">
+    <h2 class="sec-title">行动执行时间轴</h2>
+    <p class="muted">本次评估癌种数：{{ snapshot.cancers | length }}</p>
+    {% for c in snapshot.cancers %}
+    <div class="card">{{ c.cancer_id | default('?', true) }}</div>
+    {% else %}
+    <p class="muted">暂无癌种快照数据。</p>
+    {% endfor %}
+  </section>
+
+  <!-- 03. 临床加项设计 / 健康摘要 -->
+  <section id="section-clinical-design">
+    <h2 class="sec-title">临床加项设计</h2>
+    <p class="muted">健康摘要状态：{{ health_summary.status | default('N/A', true) }}
+       ｜ 非癌异常项：{{ health_summary['abnormal_non_cancer_count'] }}</p>
+    {% for item in health_summary['items'] %}
+    <div class="card">{{ item.name | default('?', true) }}</div>
+    {% else %}
+    <p class="muted">暂无异常项。</p>
+    {% endfor %}
+  </section>
+
+  <!-- 04. 液体活检 / 极早安 + 肿瘤标志物 -->
+  <section id="section-liquid-biopsy">
+    <h2 class="sec-title">液体活检与肿瘤标志物</h2>
+    {% if jizaoan_result == "positive" %}
+    <div class="alert positive">
+      极早安结果：<strong>阳性</strong>
+      <ul>
+        {% for t in jizaoan_top_cancers %}
+        <li>{{ t }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <div class="alert negative">极早安结果：<strong>阴性</strong></div>
+    {% endif %}
+
+    {% if brca_status == "positive" %}
+    <div class="alert genetic">遗传性风险（BRCA 阳性）：液体活检解读需结合遗传背景（占位，P2 完善）。</div>
+    {% endif %}
+
+    <h3 class="muted" style="margin-top:12px;">肿瘤标志物</h3>
+    {% for m in tumor_markers %}
+    <div class="card">{{ m.test_id | default('?', true) }}：{{ m.value | default('—', true) }}</div>
+    {% else %}
+    <p class="muted">暂无肿瘤标志物数据。</p>
+    {% endfor %}
+  </section>
+
+  <!-- 05. 套餐 / 信息价值 (VoI) -->
+  <section id="section-package">
+    <h2 class="sec-title">体检套餐建议（信息价值排序）</h2>
+    <p class="muted">首选建议：{{ voi.top_recommendation | default('—', true) }}
+       ｜ 已评估方法数：{{ voi.total_methods_evaluated }}</p>
+    {% for r in voi.rankings %}
+    <div class="card">{{ r.method | default('?', true) }}</div>
+    {% else %}
+    <p class="muted">暂无信息价值排序数据。</p>
+    {% endfor %}
+  </section>
+
+  <!-- 06. 生活方式建议 (P2 填充) -->
+  <section id="section-lifestyle">
+    <h2 class="sec-title">生活方式建议</h2>
+    <p class="muted">个性化生活方式建议将在后续版本填充（占位）。</p>
+  </section>
+
+  <div class="footer">{{ disclaimer }}</div>
+
+</div>
+</body>
+</html>
