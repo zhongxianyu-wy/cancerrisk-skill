@@ -1201,6 +1201,8 @@ def main():
     # tumor_markers.json is already materialized above (master_scan.gate_tumor_markers
     # writes it before any early exit on the path to report), so no extra copy here.
     import build_report_json
+    import render_report
+    import write_manifest
 
     run_id = datetime.now().strftime("run-%Y%m%d-%H%M%S")
     report = build_report_json.assemble_report_json(
@@ -1217,7 +1219,35 @@ def main():
         f"tumor_markers={len(report['tumor_markers'])}"
     )
 
-    # TODO(P1-task4): render report.html from report.json here.
+    report_html_path = render_report.write_report_html(
+        report, SKILL_ROOT / "templates" / "integrated_report_v14.html", disclaimer, out
+    )
+    print(f"[report] report.html rendered -> {report_html_path}")
+
+    (out / "module_audits" / "task_p1_report.md").write_text(
+        "# P1 Report\n\n"
+        f"- report.json: {out / 'artifacts' / 'report.json'}\n"
+        f"- report.html: {report_html_path}\n"
+        f"- run_id: {run_id}\n"
+        f"- cancers: {len(report['snapshot']['cancers'])}\n"
+        f"- tumor_markers: {len(report['tumor_markers'])}\n",
+        encoding="utf-8",
+    )
+
+    manifest = write_manifest.build_manifest(
+        output_dir=out,
+        artifacts=artifacts,
+        evidence_store=EVIDENCE_STORE,
+        archives_root=archives_root,
+        person_id=resolved_person_id,
+        run_id=run_id,
+        input_path=args.input,
+    )
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(f"[manifest] status={manifest['status']} -> {out / 'manifest.json'}")
+
     if args.stop_after == "report":
         print("[stop-after=report] report.json assembled")
         return

@@ -56,24 +56,15 @@ def build_manifest(
     archive_proposal = _read_json(artifacts / "archive_update_proposal.json", {}) or {}
     health_summary = _read_json(artifacts / "health_summary_structured_summary.json", {}) or {}
 
-    reports = {
-        name: str(output_dir / name)
-        for name in (
-            "index.html",
-            "health_summary.html",
-            "snapshot_risk.html",
-            "longitudinal_risk.html",
-        )
-        if (output_dir / name).is_file() or name == "index.html"
-    }
+    reports = (
+        {"report.html": str(output_dir / "report.html")}
+        if (output_dir / "report.html").is_file()
+        else {}
+    )
 
     failures: list[str] = []
-    if not (output_dir / "snapshot_risk.html").is_file():
-        failures.append("snapshot_risk.html missing")
-    if not (output_dir / "longitudinal_risk.html").is_file():
-        failures.append("longitudinal_risk.html missing")
-    if not (output_dir / "health_summary.html").is_file():
-        failures.append("health_summary.html missing")
+    if not (output_dir / "report.html").is_file():
+        failures.append("report.html missing")
     status = "success" if not failures else "partial"
 
     return {
