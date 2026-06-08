@@ -1198,9 +1198,28 @@ def main():
         return
 
     # --- P1 Task 9: single integrated report ----------------------------
-    # TODO(P1-task2..4): build report.json + render report.html here.
+    # tumor_markers.json is already materialized above (master_scan.gate_tumor_markers
+    # writes it before any early exit on the path to report), so no extra copy here.
+    import build_report_json
+
+    run_id = datetime.now().strftime("run-%Y%m%d-%H%M%S")
+    report = build_report_json.assemble_report_json(
+        artifacts=artifacts,
+        out=out,
+        answers_path=Path(args.answers) if args.answers else None,
+        person_id=resolved_person_id,
+        run_id=run_id,
+        evidence_version=evidence_version,
+    )
+    print(
+        f"[report] report.json assembled run_id={run_id} "
+        f"cancers={len(report['snapshot']['cancers'])} "
+        f"tumor_markers={len(report['tumor_markers'])}"
+    )
+
+    # TODO(P1-task4): render report.html from report.json here.
     if args.stop_after == "report":
-        print("[stop-after=report] (placeholder) report assembly not wired yet")
+        print("[stop-after=report] report.json assembled")
         return
 
 
