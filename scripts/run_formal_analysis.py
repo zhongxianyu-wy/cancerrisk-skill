@@ -33,11 +33,9 @@ STOP_AFTER_CHOICES = [
     "cp3-verify",
     "risk-factor-gate",
     "health-summary-api",
-    "health-summary",
-    "snapshot",
     "archive-proposal",
     "archive",
-    "longitudinal",
+    "report",
 ]
 
 
@@ -201,34 +199,6 @@ def run_health_summary_api_stage(
         contact_config_path=contact_config_path,
         api_caller=api_caller,
     )
-
-
-def run_health_summary_render_stage(*, out: Path, config_path: Path) -> dict:
-    """Task6 phase C: render HTML from the agent-completed structured summary."""
-    import render_health_summary
-
-    health_summary = render_health_summary.run_render_phase(
-        output_dir=out,
-        config_path=config_path,
-    )
-    health_outputs = health_summary["health_summary_outputs"]
-    task6_audit = (
-        "# Task06 Health Summary Audit\n\n"
-        f"- provider: {health_summary['health_summary_provider']}\n"
-        f"- mode: {health_summary['health_summary_mode']}\n"
-        "- strategy: health-management-v1.0.0 markdown reply, agent-structured fields\n"
-        f"- html: {health_outputs['html']}\n"
-        f"- input bundle: {health_outputs['input_bundle_md']}\n"
-        f"- api response: {health_outputs['api_response_md']}\n"
-        f"- structured summary: {health_outputs['structured_summary_json']}\n"
-        "- probability source: none; health summary is display-only\n"
-    )
-    (out / "module_audits").mkdir(parents=True, exist_ok=True)
-    (out / "module_audits" / "task06_health_summary.md").write_text(
-        task6_audit,
-        encoding="utf-8",
-    )
-    return health_summary
 
 
 def run_health_summary_stage(
@@ -1076,23 +1046,12 @@ def main():
             "[stop-after=health-summary-api] API phase done. The skill agent must "
             "now follow SKILL.md 'Task6 structuring recipe' to fill "
             "artifacts/health_summary_structured_summary.json, then re-run the "
-            "orchestrator (without --stop-after or with --stop-after health-summary)."
+            "orchestrator (without --stop-after, or with --stop-after report)."
         )
-        return
-
-    # --- v3 Task 6 phase C: render HTML from the agent-edited summary -----
-    health_summary = run_health_summary_render_stage(out=out, config_path=config_path)
-    health_outputs = health_summary["health_summary_outputs"]
-    print(f"[task6] health_summary={health_outputs['html']} status={health_summary['status']}")
-
-    if args.stop_after == "health-summary":
-        print("[stop-after=health-summary] early exit after embedded health summary")
         return
 
     # --- v3 Task 7: snapshot cancer risk ---------------------------------
     import snapshot_risk
-    import render_snapshot_html
-    import render_health_summary
 
     snapshot = snapshot_risk.run_snapshot_stage(
         artifacts=artifacts,
@@ -1126,17 +1085,6 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         pass
 
-    snapshot_html_path = out / str(risk_cfg.get("snapshot_output_html", "snapshot_risk.html"))
-    snapshot_html_text = render_snapshot_html.render_snapshot_html(
-        snapshot,
-        Path(risk_cfg.get("snapshot_template") or str(SKILL_ROOT / "templates" / "snapshot_risk_v42.html")),
-        disclaimer,
-        evidence_version,
-        voi_output=voi_output,
-        contact=render_health_summary._load_contact(contact_path_arg),
-    )
-    snapshot_html_path.write_text(snapshot_html_text, encoding="utf-8")
-
     task7_audit = (
         "# Task07 Snapshot Risk Audit\n\n"
         f"- evidence_version: {evidence_version}\n"
@@ -1146,25 +1094,17 @@ def main():
         f"- missing_prior: {snapshot['uncertainties_summary']['cancers_missing_prior']}\n"
         f"- not_applicable: {snapshot['uncertainties_summary']['cancers_not_applicable']}\n"
         f"- section4_count: {len(snapshot['section4_screening'])}\n"
-        f"- output_html: {snapshot_html_path}\n"
     )
     (out / "module_audits" / "task07_snapshot_risk.md").write_text(task7_audit, encoding="utf-8")
     print(
         f"[task7] snapshot scored={sum(1 for r in snapshot['cancers'] if r['posterior_probability'] is not None)}"
-        f" section4={len(snapshot['section4_screening'])} html={snapshot_html_path}"
+        f" section4={len(snapshot['section4_screening'])}"
     )
-
-    if args.stop_after == "snapshot":
-        print("[stop-after=snapshot] early exit after snapshot risk")
-        return
 
     # --- v4 Task 8a: archive proposal + baseline snapshot ---------------
     import archive_manager
-    import longitudinal_risk
-    import render_longitudinal_html
 
     archives_root = Path(args.archives_root)
-    auto_apply_archive = bool(args.auto_apply_archive)
 
     # Enforce --person-id when archives_root is already populated with
     # non-default person directories. Prevents cross-person contamination.
@@ -1220,44 +1160,12 @@ def main():
     resolved_person_id = person_resolution.get("person_id") or args.person_id
     resolved_display_name = person_resolution.get("display_name") or resolved_person_id
 
-    # --- v3 Task 8b: longitudinal risk ----------------------------------
-    longitudinal = longitudinal_risk.run_longitudinal_stage(
-        artifacts=artifacts,
-        archives_root=archives_root,
-        person_id=resolved_person_id,
-        evidence_store=EVIDENCE_STORE,
-        config_path=config_path,
-    )
-    longitudinal_html_path = out / str(risk_cfg.get("longitudinal_output_html", "longitudinal_risk.html"))
-    longitudinal_html_text = render_longitudinal_html.render_longitudinal_html(
-        longitudinal,
-        Path(risk_cfg.get("longitudinal_template") or str(SKILL_ROOT / "templates" / "longitudinal_risk_v3.html")),
-        disclaimer,
-    )
-    longitudinal_html_path.write_text(longitudinal_html_text, encoding="utf-8")
-    (out / "module_audits" / "task08_longitudinal.md").write_text(
-        "# Task08 Longitudinal Risk Audit\n\n"
-        f"- cancers_total: {longitudinal['summary']['total']}\n"
-        f"- with_history: {longitudinal['summary'].get('with_history', longitudinal['summary'].get('with_trend', 'N/A'))}\n"
-        f"- snapshot_only: {longitudinal['summary']['snapshot_only']}\n"
-        f"- no_posterior: {longitudinal['summary']['no_posterior']}\n"
-        f"- output_html: {longitudinal_html_path}\n",
-        encoding="utf-8",
-    )
-    print(
-        f"[task8] longitudinal summary={longitudinal['summary']} html={longitudinal_html_path}"
-    )
-
-    if args.stop_after == "longitudinal":
-        print("[stop-after=longitudinal] early exit after longitudinal trend")
-        return
-
-    # --- v4 Task 8c: archive proposal/apply after longitudinal ----------
+    # --- v4 Task 8c: archive proposal/apply ----------------------------
     archive_result = archive_manager.run_archive_stage(
         artifacts=artifacts,
         archives_root=archives_root,
         person_id=resolved_person_id,
-        auto_apply=auto_apply_archive,
+        auto_apply=True,
         display_name=resolved_display_name,
         run_date=run_date,
         snapshots_subdir=archive_cfg.get("baseline_snapshot_dir", "snapshots"),
@@ -1274,71 +1182,26 @@ def main():
         f"- factor_events_added: {archive_result['factor_events_added']}\n"
         f"- screening_events_added: {archive_result['screening_events_added']}\n"
         f"- applied: {archive_result['applied']}\n"
-        f"- mode: {'auto (--auto-apply-archive)' if auto_apply_archive else 'awaiting_agent_confirmation'}\n",
+        f"- mode: auto\n",
         encoding="utf-8",
     )
 
     if args.stop_after == "archive-proposal":
         print(
-            "[stop-after=archive-proposal] longitudinal_risk.json and "
-            "archive_update_proposal.json written; review the proposal and "
-            "re-run with --auto-apply-archive to merge into docudatabase."
+            "[stop-after=archive-proposal] archive_update_proposal.json written and "
+            "auto-applied to docudatabase."
         )
         return
-
-    if not archive_result["applied"]:
-        proposal_path = artifacts / "archive_update_proposal.json"
-        print(
-            f"[task8] HALT_FOR_USER_CONFIRMATION\n"
-            f"proposal: {proposal_path}\n"
-            f"action_required:\n"
-            f"  1) Show the proposal file to the user\n"
-            f"  2) Ask the user: '确认入档？（是/否）'\n"
-            f"  3a) 用户选'是' → re-run with --auto-apply-archive\n"
-            f"  3b) 用户选'否' → end session, no archive written\n"
-            f"exit_code: 4",
-            file=sys.stderr,
-        )
-        sys.exit(4)
 
     if args.stop_after == "archive":
-        print("[stop-after=archive] archive applied after longitudinal trend")
+        print("[stop-after=archive] archive auto-applied")
         return
 
-    # --- v3 Task 9: manifest + index router page ------------------------
-    import write_manifest
-    import render_index
-
-    run_id = datetime.now().strftime("run-%Y%m%d-%H%M%S")
-    manifest = write_manifest.build_manifest(
-        output_dir=out,
-        artifacts=artifacts,
-        evidence_store=EVIDENCE_STORE,
-        archives_root=archives_root,
-        person_id=resolved_person_id,
-        run_id=run_id,
-        input_path=args.input,
-    )
-    manifest_path = out / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-    index_template = SKILL_ROOT / "templates" / "index_v3.html"
-    index_html_text = render_index.render_index_html(manifest, index_template, disclaimer)
-    index_path = out / "index.html"
-    index_path.write_text(index_html_text, encoding="utf-8")
-
-    (out / "module_audits" / "task09_router_manifest.md").write_text(
-        "# Task09 Router + Manifest Audit\n\n"
-        f"- manifest: {manifest_path} (status={manifest['status']})\n"
-        f"- index_html: {index_path}\n"
-        f"- failures: {manifest['failures']}\n"
-        f"- reports linked: {sorted(manifest['reports'].keys())}\n",
-        encoding="utf-8",
-    )
-    print(
-        f"[task9] manifest={manifest_path} index={index_path} status={manifest['status']} "
-        f"failures={manifest['failures']}"
-    )
+    # --- P1 Task 9: single integrated report ----------------------------
+    # TODO(P1-task2..4): build report.json + render report.html here.
+    if args.stop_after == "report":
+        print("[stop-after=report] (placeholder) report assembly not wired yet")
+        return
 
 
 if __name__ == "__main__":
