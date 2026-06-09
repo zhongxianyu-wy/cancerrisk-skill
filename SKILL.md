@@ -364,7 +364,7 @@ Open only the file needed for the current task:
 | Timeline event shape and slim/full keys | `references/event_format.md` |
 | Runtime config | `config/formal.yaml` |
 | Deterministic implementation | `scripts/*.py` |
-| Regression contracts | `tests/test_v3_*.py`, `tests/test_v4_*.py` |
+| Regression contracts | `tests/test_p1_*.py`, `tests/test_v14_*.py` |
 
 ## Safety Boundaries
 
