@@ -148,9 +148,11 @@ def test_missing_optional_files_degrade(tmp_path: Path) -> None:
     assert result["voi"] == {
         "top_recommendation": None, "rankings": [], "total_methods_evaluated": 0,
     }
-    assert result["health_summary"] == {
-        "status": None, "abnormal_non_cancer_count": 0, "items": [],
-    }
+    # P1 keys preserved; P2 adds `blocks` (CP4 HTML, None when absent).
+    assert result["health_summary"]["status"] is None
+    assert result["health_summary"]["abnormal_non_cancer_count"] == 0
+    assert result["health_summary"]["items"] == []
+    assert all(v is None for v in result["health_summary"]["blocks"].values())
     assert result["jizaoan_result"] == "unknown"
     assert result["jizaoan_top_cancers"] == []
     assert result["brca_status"] == "unknown"

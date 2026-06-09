@@ -32,6 +32,13 @@ from typing import Any
 
 SCHEMA_VERSION = "report-v1"
 
+# CP4 health-summary HTML blocks (assessment_result.*) carried verbatim into
+# report.json for the full-fidelity template (P2). API-sourced, rendered | safe.
+_CP4_BLOCK_KEYS = (
+    "risk_level", "core_risk_factors", "overall_assessment",
+    "abnormal_table", "disease_cards", "advice_list", "conclusion_table",
+)
+
 
 def _read_json(path: Path | None, default: Any) -> Any:
     """Read a JSON file, returning ``default`` on any read/parse failure."""
@@ -104,12 +111,19 @@ def assemble_report_json(
     person_ctx = snapshot.get("person_context", {}) if isinstance(snapshot, dict) else {}
     jizaoan_result, jizaoan_top_cancers = _jizaoan(answers)
 
+    patient = health.get("patient_data", {}) if isinstance(health, dict) else {}
+    assessment = health.get("assessment_result", {}) if isinstance(health, dict) else {}
+    person_name = patient.get("name") or person_id
+    if person_name == "未提供":
+        person_name = person_id
+
     report = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "generated_at": datetime.now().isoformat(),
         "person": {
             "person_id": person_id,
+            "name": person_name,
             "sex": person_ctx.get("sex"),
             "age": person_ctx.get("age"),
         },
@@ -120,6 +134,7 @@ def assemble_report_json(
             "status": health.get("status"),
             "abnormal_non_cancer_count": health.get("abnormal_non_cancer_count", 0),
             "items": health.get("items", []),
+            "blocks": {k: assessment.get(k) for k in _CP4_BLOCK_KEYS},
         },
         "snapshot": {
             "cancers": snapshot.get("cancers", []),
