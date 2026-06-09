@@ -1074,7 +1074,6 @@ def main():
         f"top={voi_output['top_recommendation']!r}"
     )
 
-    risk_cfg = config.get("risk_prediction", {}) if isinstance(config, dict) else {}
     safety_cfg = config.get("safety", {}) if isinstance(config, dict) else {}
     disclaimer = str(safety_cfg.get("disclaimer") or "本报告仅用于健康管理参考。")
     evidence_version = None

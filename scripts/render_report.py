@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DEFAULT = SKILL_ROOT / "templates" / "integrated_report_v14.html"
@@ -24,6 +24,7 @@ def render_report(report: dict[str, Any], template_path: Path, disclaimer: str) 
     env = Environment(
         loader=FileSystemLoader(str(template_path.parent)),
         undefined=StrictUndefined,
+        autoescape=select_autoescape(["html"]),
     )
     template = env.get_template(template_path.name)
     return template.render(**report, disclaimer=disclaimer)
